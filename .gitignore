@@ -1,0 +1,9 @@
+node_modules/
+build/
+*.log
+.env
+.env.local
+.DS_Store
+.claude/
+IMPLEMENTATION-PLAN.md
+mcp-everything-server-explained.md
