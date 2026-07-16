@@ -4,6 +4,11 @@ import { RagClient } from "../lyzr/rag.js";
 import { MemoryClient } from "../lyzr/memory.js";
 import { SchedulerClient } from "../lyzr/scheduler.js";
 import { RaiClient } from "../lyzr/rai.js";
+import { AgentExtrasClient } from "../lyzr/agent-extras.js";
+import { RagAdminClient } from "../lyzr/rag-admin.js";
+import { RagContentClient } from "../lyzr/rag-content.js";
+import { RagCredentialsClient } from "../lyzr/rag-credentials.js";
+import { KnowledgeGraphClient } from "../lyzr/knowledge-graph.js";
 
 import { registerCreateAgentTool } from "./create-agent.js";
 import { registerChatTool } from "./chat.js";
@@ -18,6 +23,11 @@ import { registerKnowledgeBaseTools } from "./knowledge-base.js";
 import { registerMemoryTools } from "./memory.js";
 import { registerSchedulerTools } from "./scheduler.js";
 import { registerRaiTools } from "./rai.js";
+import { registerAgentExtrasTools } from "./agent-extras.js";
+import { registerRagAdminTools } from "./rag-admin.js";
+import { registerRagContentTools } from "./rag-content.js";
+import { registerRagCredentialsTools } from "./rag-credentials.js";
+import { registerKnowledgeGraphTools } from "./knowledge-graph.js";
 
 /** The set of per-service clients handed to the tool registrars. */
 export interface LyzrClients {
@@ -26,6 +36,11 @@ export interface LyzrClients {
   memory: MemoryClient;
   scheduler: SchedulerClient;
   rai: RaiClient;
+  agentExtras: AgentExtrasClient;
+  ragAdmin: RagAdminClient;
+  ragContent: RagContentClient;
+  ragCredentials: RagCredentialsClient;
+  knowledgeGraph: KnowledgeGraphClient;
 }
 
 /**
@@ -33,7 +48,7 @@ export interface LyzrClients {
  * registry pattern. Each group targets the client for its Lyzr service host.
  */
 export const registerTools = (server: McpServer, clients: LyzrClients) => {
-  // Agent lifecycle + inference (host: agent-prod)
+  // Agent lifecycle + inference (host: agent)
   registerCreateAgentTool(server, clients.client);
   registerUpdateAgentTool(server, clients.client);
   registerDeleteAgentTool(server, clients.client);
@@ -44,9 +59,19 @@ export const registerTools = (server: McpServer, clients: LyzrClients) => {
   registerStartTaskTool(server, clients.client);
   registerGetTaskStatusTool(server, clients.client);
 
-  // Knowledge Base / RAG (host: rag-prod)
+  // Sessions + agent templates/utility (host: agent)
+  registerAgentExtrasTools(server, clients.agentExtras);
+
+  // Knowledge Base / RAG (host: rag)
   registerKnowledgeBaseTools(server, clients.rag);
-  // Knowledge Graph / Cognis memory (host: memory.studio)
+  registerRagAdminTools(server, clients.ragAdmin);
+  registerRagContentTools(server, clients.ragContent);
+  registerRagCredentialsTools(server, clients.ragCredentials);
+
+  // Knowledge Graph v4 (host: rag)
+  registerKnowledgeGraphTools(server, clients.knowledgeGraph);
+
+  // Cognis memory (host: memory.studio)
   registerMemoryTools(server, clients.memory);
   // Scheduler (host: scheduler.studio)
   registerSchedulerTools(server, clients.scheduler);

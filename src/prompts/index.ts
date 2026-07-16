@@ -1,6 +1,8 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { registerDraftSupportAgentPrompt } from "./draft-support-agent.js";
 import { registerSummarizeConversationPrompt } from "./summarize-conversation.js";
+import { registerSetupRagAgentPrompt } from "./setup-rag-agent.js";
+import { registerDraftGuardrailPolicyPrompt } from "./draft-guardrail-policy.js";
 
 /**
  * Register the prompts with the MCP server (registry pattern, one line per prompt).
@@ -8,4 +10,6 @@ import { registerSummarizeConversationPrompt } from "./summarize-conversation.js
 export const registerPrompts = (server: McpServer) => {
   registerDraftSupportAgentPrompt(server);
   registerSummarizeConversationPrompt(server);
+  registerSetupRagAgentPrompt(server);
+  registerDraftGuardrailPolicyPrompt(server);
 };

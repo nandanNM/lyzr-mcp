@@ -3,16 +3,35 @@ import {
   ResourceTemplate,
 } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { LyzrClient } from "../lyzr/client.js";
+import { RagClient } from "../lyzr/rag.js";
+import { AgentExtrasClient } from "../lyzr/agent-extras.js";
+
+/** Clients the resources read from. */
+export interface ResourceDeps {
+  agents: LyzrClient;
+  rag: RagClient;
+  sessions: AgentExtrasClient;
+}
+
+const json = (uri: URL, data: unknown) => ({
+  contents: [
+    {
+      uri: uri.href,
+      mimeType: "application/json",
+      text: JSON.stringify(data, null, 2),
+    },
+  ],
+});
 
 /**
- * Expose Lyzr agents as MCP resources:
- *   - lyzr://agents            -> the list of your agents
- *   - lyzr://agent/{agentId}   -> a single agent's details
- *
- * NOTE: these use the same inferred list/get endpoints as the read tools; if the
- * API paths differ, fix them once in src/lyzr/client.ts.
+ * Expose Lyzr data as MCP resources (readable by URI):
+ *   - lyzr://agents                  -> list of your agents
+ *   - lyzr://agent/{agentId}         -> one agent's details
+ *   - lyzr://kb/{ragId}              -> one knowledge base's config
+ *   - lyzr://kb/{ragId}/documents    -> documents indexed in a KB
+ *   - lyzr://session/{sessionId}     -> a session's conversation
  */
-export const registerResources = (server: McpServer, client: LyzrClient) => {
+export const registerResources = (server: McpServer, deps: ResourceDeps) => {
   server.registerResource(
     "lyzr-agents",
     "lyzr://agents",
@@ -21,18 +40,7 @@ export const registerResources = (server: McpServer, client: LyzrClient) => {
       description: "All agents available to your Lyzr API key.",
       mimeType: "application/json",
     },
-    async (uri) => {
-      const agents = await client.listAgents();
-      return {
-        contents: [
-          {
-            uri: uri.href,
-            mimeType: "application/json",
-            text: JSON.stringify(agents, null, 2),
-          },
-        ],
-      };
-    },
+    async (uri) => json(uri, await deps.agents.listAgents()),
   );
 
   server.registerResource(
@@ -43,18 +51,46 @@ export const registerResources = (server: McpServer, client: LyzrClient) => {
       description: "Details of a single Lyzr agent by its agent_id.",
       mimeType: "application/json",
     },
-    async (uri, variables) => {
-      const agentId = String(variables.agentId);
-      const agent = await client.getAgent(agentId);
-      return {
-        contents: [
-          {
-            uri: uri.href,
-            mimeType: "application/json",
-            text: JSON.stringify(agent, null, 2),
-          },
-        ],
-      };
+    async (uri, variables) =>
+      json(uri, await deps.agents.getAgent(String(variables.agentId))),
+  );
+
+  server.registerResource(
+    "lyzr-kb",
+    new ResourceTemplate("lyzr://kb/{ragId}", { list: undefined }),
+    {
+      title: "Lyzr Knowledge Base",
+      description: "A knowledge base (RAG) configuration by its id.",
+      mimeType: "application/json",
     },
+    async (uri, variables) =>
+      json(uri, await deps.rag.getKb(String(variables.ragId))),
+  );
+
+  server.registerResource(
+    "lyzr-kb-documents",
+    new ResourceTemplate("lyzr://kb/{ragId}/documents", { list: undefined }),
+    {
+      title: "Lyzr KB Documents",
+      description: "The documents indexed in a knowledge base.",
+      mimeType: "application/json",
+    },
+    async (uri, variables) =>
+      json(uri, await deps.rag.listDocuments(String(variables.ragId))),
+  );
+
+  server.registerResource(
+    "lyzr-session",
+    new ResourceTemplate("lyzr://session/{sessionId}", { list: undefined }),
+    {
+      title: "Lyzr Session Conversation",
+      description: "The full conversation for a session by its session_id.",
+      mimeType: "application/json",
+    },
+    async (uri, variables) =>
+      json(
+        uri,
+        await deps.sessions.getSessionConversation(String(variables.sessionId)),
+      ),
   );
 };

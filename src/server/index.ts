@@ -4,6 +4,11 @@ import { RagClient } from "../lyzr/rag.js";
 import { MemoryClient } from "../lyzr/memory.js";
 import { SchedulerClient } from "../lyzr/scheduler.js";
 import { RaiClient } from "../lyzr/rai.js";
+import { AgentExtrasClient } from "../lyzr/agent-extras.js";
+import { RagAdminClient } from "../lyzr/rag-admin.js";
+import { RagContentClient } from "../lyzr/rag-content.js";
+import { RagCredentialsClient } from "../lyzr/rag-credentials.js";
+import { KnowledgeGraphClient } from "../lyzr/knowledge-graph.js";
 import {
   registerTools,
   registerConditionalTools,
@@ -49,6 +54,11 @@ export const createServer = (
     memory: new MemoryClient({ apiKey, baseUrl: urls.memory }),
     scheduler: new SchedulerClient({ apiKey, baseUrl: urls.scheduler }),
     rai: new RaiClient({ apiKey, baseUrl: urls.rai }),
+    agentExtras: new AgentExtrasClient({ apiKey, baseUrl }), // agent host
+    ragAdmin: new RagAdminClient({ apiKey, baseUrl: urls.rag }),
+    ragContent: new RagContentClient({ apiKey, baseUrl: urls.rag }),
+    ragCredentials: new RagCredentialsClient({ apiKey, baseUrl: urls.rag }),
+    knowledgeGraph: new KnowledgeGraphClient({ apiKey, baseUrl: urls.rag }),
   };
 
   let initializeTimeout: ReturnType<typeof setTimeout> | null = null;
@@ -71,7 +81,11 @@ export const createServer = (
   );
 
   registerTools(server, clients);
-  registerResources(server, clients.client);
+  registerResources(server, {
+    agents: clients.client,
+    rag: clients.rag,
+    sessions: clients.agentExtras,
+  });
   registerPrompts(server);
   setSubscriptionHandlers(server);
 
