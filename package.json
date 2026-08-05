@@ -5,10 +5,12 @@
   "license": "MIT",
   "type": "module",
   "bin": {
-    "lyzr-mcp": "build/index.js"
+    "lyzr-mcp": "build/index.js",
+    "lyzr-mcp-skills": "build/cli/install-skills.js"
   },
   "files": [
-    "build"
+    "build",
+    "skills"
   ],
   "engines": {
     "node": ">=18"

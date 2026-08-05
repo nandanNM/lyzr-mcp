@@ -5,12 +5,20 @@ import {
 import { LyzrClient } from "../lyzr/client.js";
 import { RagClient } from "../lyzr/rag.js";
 import { AgentExtrasClient } from "../lyzr/agent-extras.js";
+import { WorkflowsClient } from "../lyzr/workflows.js";
+import { A2AClient } from "../lyzr/a2a.js";
+import { TracesClient } from "../lyzr/traces.js";
+import { WorldModelCoreClient } from "../lyzr/world-model-core.js";
 
 /** Clients the resources read from. */
 export interface ResourceDeps {
   agents: LyzrClient;
   rag: RagClient;
   sessions: AgentExtrasClient;
+  workflows: WorkflowsClient;
+  a2a: A2AClient;
+  traces: TracesClient;
+  worldModel: WorldModelCoreClient;
 }
 
 const json = (uri: URL, data: unknown) => ({
@@ -30,6 +38,12 @@ const json = (uri: URL, data: unknown) => ({
  *   - lyzr://kb/{ragId}              -> one knowledge base's config
  *   - lyzr://kb/{ragId}/documents    -> documents indexed in a KB
  *   - lyzr://session/{sessionId}     -> a session's conversation
+ *   - lyzr://workflows                -> list of your workflows
+ *   - lyzr://workflow/{flowId}        -> one workflow's config
+ *   - lyzr://a2a-agents                -> list of your A2A agents
+ *   - lyzr://a2a-agent/{agentId}      -> one A2A agent's card/config
+ *   - lyzr://traces                    -> recent execution traces
+ *   - lyzr://world-model/{agentId}    -> world models for one agent
  */
 export const registerResources = (server: McpServer, deps: ResourceDeps) => {
   server.registerResource(
@@ -92,5 +106,74 @@ export const registerResources = (server: McpServer, deps: ResourceDeps) => {
         uri,
         await deps.sessions.getSessionConversation(String(variables.sessionId)),
       ),
+  );
+
+  server.registerResource(
+    "lyzr-workflows",
+    "lyzr://workflows",
+    {
+      title: "Lyzr Workflows",
+      description: "All workflows available to your Lyzr API key.",
+      mimeType: "application/json",
+    },
+    async (uri) => json(uri, await deps.workflows.listWorkflows()),
+  );
+
+  server.registerResource(
+    "lyzr-workflow",
+    new ResourceTemplate("lyzr://workflow/{flowId}", { list: undefined }),
+    {
+      title: "Lyzr Workflow",
+      description: "A single workflow's config by its flow_id.",
+      mimeType: "application/json",
+    },
+    async (uri, variables) =>
+      json(uri, await deps.workflows.getWorkflow(String(variables.flowId))),
+  );
+
+  server.registerResource(
+    "lyzr-a2a-agents",
+    "lyzr://a2a-agents",
+    {
+      title: "Lyzr A2A Agents",
+      description: "All A2A (agent-to-agent) agents on your Lyzr API key.",
+      mimeType: "application/json",
+    },
+    async (uri) => json(uri, await deps.a2a.listAgents()),
+  );
+
+  server.registerResource(
+    "lyzr-a2a-agent",
+    new ResourceTemplate("lyzr://a2a-agent/{agentId}", { list: undefined }),
+    {
+      title: "Lyzr A2A Agent",
+      description: "A single A2A agent's card/config by its agent_id.",
+      mimeType: "application/json",
+    },
+    async (uri, variables) =>
+      json(uri, await deps.a2a.getAgent(String(variables.agentId))),
+  );
+
+  server.registerResource(
+    "lyzr-traces",
+    "lyzr://traces",
+    {
+      title: "Lyzr Traces",
+      description: "Recent execution traces across your agents.",
+      mimeType: "application/json",
+    },
+    async (uri) => json(uri, await deps.traces.listTraces()),
+  );
+
+  server.registerResource(
+    "lyzr-world-model",
+    new ResourceTemplate("lyzr://world-model/{agentId}", { list: undefined }),
+    {
+      title: "Lyzr World Model",
+      description: "World models registered for a given agent_id.",
+      mimeType: "application/json",
+    },
+    async (uri, variables) =>
+      json(uri, await deps.worldModel.listByAgent(String(variables.agentId))),
   );
 };

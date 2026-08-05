@@ -2,7 +2,7 @@
 
 An [MCP](https://modelcontextprotocol.io) server that exposes the **Lyzr Enterprise API** as tools, resources, and prompts. **Bring-your-own-key**, like the Supabase MCP server: every user authenticates with their **own** Lyzr API key — the server never holds a shared one.
 
-- 📖 **[Full tool reference →](./tools.md)** (all 34 tools, resources, and prompts)
+- 📖 **[Full tool reference →](./tools.md)** (all 423 tools, resources, and prompts)
 - 🧭 Architecture patterns: [`../mcp-everything-server-explained.md`](../mcp-everything-server-explained.md)
 - 🗺️ Implementation plan: [`../IMPLEMENTATION-PLAN.md`](../IMPLEMENTATION-PLAN.md)
 
@@ -30,11 +30,13 @@ The server wraps the Lyzr Enterprise API across **five service hosts** and surfa
 
 | Primitive | Count | What |
 |---|---|---|
-| **Tools** | 34 | Agents, inference (chat/stream/tasks), Knowledge Base (RAG), Cognis memory, Scheduler, RAI guardrails |
-| **Resources** | 2 | `lyzr://agents`, `lyzr://agent/{agentId}` |
-| **Prompts** | 2 | `draft_support_agent`, `summarize_conversation` |
+| **Tools** | 423 | Core: agents, inference, Knowledge Base (RAG), Cognis memory, Scheduler, RAI. Extended `agent` host: A2A, agent eval, artifacts, assets, audit logs, channels, contexts, platform admin, GitAgent, human feedback, reports, semantic model, sessions v3, sharing, tools v3, traces, world model, agent memory providers, ops, providers, workflows. Extended `rag` host: live sources browse/webhooks, Neo4j knowledge graph, extract, file-based parse/train, KB Sync connectors. See [tools.md](./tools.md) for the full group breakdown. |
+| **Resources** | 11 | `lyzr://agents`, `lyzr://agent/{agentId}`, `lyzr://kb/{ragId}`, `lyzr://kb/{ragId}/documents`, `lyzr://session/{sessionId}`, `lyzr://workflows`, `lyzr://workflow/{flowId}`, `lyzr://a2a-agents`, `lyzr://a2a-agent/{agentId}`, `lyzr://traces`, `lyzr://world-model/{agentId}` |
+| **Prompts** | 6 | `draft_support_agent`, `summarize_conversation`, `setup_rag_agent`, `draft_guardrail_policy`, `draft_a2a_agent`, `audit_agent_activity` |
 
-Endpoints and payload shapes were confirmed against the official `lyzr-adk` Python SDK.
+Endpoints and payload shapes were confirmed against the official `lyzr-adk` Python SDK and the Lyzr
+`agent-dev`/`rag-dev` OpenAPI specs. See [.claude/skills/lyzr-api-endpoint/SKILL.md](../.claude/skills/lyzr-api-endpoint/SKILL.md)
+for the conventions used to add new endpoints, and `npx lyzr-mcp-skills` for end-user-facing skills.
 
 ## Architecture
 
@@ -50,14 +52,23 @@ src/
 │  ├─ rag.ts                #   knowledge base / RAG       (rag-prod)
 │  ├─ memory.ts             #   Cognis memory             (memory.studio)
 │  ├─ scheduler.ts          #   scheduler                 (scheduler.studio)
-│  └─ rai.ts                #   RAI guardrails            (rai-prod)
+│  ├─ rai.ts                #   RAI guardrails            (rai-prod)
+│  ├─ (28 more clients)     #   extended agent-dev surface (agent-prod): a2a, agent-eval, artifacts,
+│  │                        #   assets, audit-logs, channels, contexts, platform-admin, git-agent,
+│  │                        #   human-feedback, org-llm-fallbacks, reports, semantic-model,
+│  │                        #   sessions-v3, sharing, tools-v3-*, traces, world-model-*,
+│  │                        #   agent-memory-providers, ops, providers-*, workflows, etc.
+│  └─ (8 more clients)      #   extended rag-dev surface (rag-prod): kb-sync-*, rag-parse-files,
+│                           #   rag-train-files, rag-knowledge-graph-extra, rag-live-sources-extra,
+│                           #   rag-misc-extra
 ├─ server/
 │  ├─ index.ts              # createServer(apiKey) FACTORY → { server, cleanup }
 │  ├─ logging.ts            # sendLog (respects client level) + per-session cleanup
 │  └─ roots.ts              # syncRoots (client roots cache)
-├─ tools/                   # one file per tool / tool-set + index.ts registry
-├─ resources/               # agents-as-resources + subscription handlers
+├─ tools/                   # one file per tool / tool-set + index.ts registry (423 tools)
+├─ resources/               # agents/KBs/sessions/workflows/A2A/traces/world-models + subscriptions
 ├─ prompts/                 # reusable prompt templates
+├─ cli/                     # install-skills.ts — the `lyzr-mcp-skills` installer
 └─ transports/
    ├─ stdio.ts              # local (Claude Desktop/Code)
    ├─ sse.ts                # deprecated
@@ -194,8 +205,42 @@ Put it behind **HTTPS** (Caddy/nginx/Cloudflare or a tunnel like `ngrok http 300
 | Cognis memory | `memory.studio` | `POST/GET /v1/memories`, `GET/PATCH/DELETE /v1/memories/{id}`, `POST /v1/memories/search` |
 | Scheduler | `scheduler.studio` | `POST/GET /schedules/`, `/schedules/{id}`, `/{id}/{pause,resume,trigger}` |
 | RAI | `rai-prod` | `POST/GET/DELETE /v1/rai/policies`, `/v1/rai/policies/{id}` |
+| A2A agents | `agent-prod` | `POST/GET /v3/a2a/agents/`, `GET/PUT/DELETE /v3/a2a/agents/{id}`, `POST .../infer`, agent-card + JSON-RPC serve |
+| Agent lifecycle (extra) | `agent-prod` | status/lock/bulk-delete/org/versions/clone/reassign/publish on `/v3/agents/*` |
+| Inference (extra) | `agent-prod` | tool execute, chat-as-task, webrtc session, chat-with-file, voice session start/stop, `/v4` chat-completions |
+| Agent eval | `agent-prod` | `POST/GET /v3/agent_eval/`, `/v3/agent_eval/result*` |
+| Artifacts | `agent-prod` | `POST/GET/PUT/DELETE /v3/artifacts/*` |
+| Assets | `agent-prod` | `POST /v3/assets/upload`, `GET/DELETE /v3/assets/*`, parse-status |
+| Audit logs | `agent-prod` | `GET /v3/audit-logs/*` (org/me/user/resource/session/stats/activity), `POST /v3/audit-logs/event` |
+| Channels | `agent-prod` | `POST/GET/DELETE /v3/channels/*`, agent routing |
+| Contexts | `agent-prod` | `POST/GET/PUT/DELETE /v3/contexts/*` incl. internal name/value lookups |
+| Platform admin | `agent-prod` | credits cache, feature flags, modules, features (`/v3/credits`, `/v3/feature-flags`, `/v3/admin/*`, `/v3/modules`) |
+| GitAgent | `agent-prod` | `/v3/git-agent/{agent_id}/*` — config, pull/init, commits, PRs, merge/deploy, branches, files, governance |
+| Human feedback / tool requests / skills | `agent-prod` | `POST /v3/human_feedback/`, `POST /v3/tool-requests`, `GET /v3/skills/*` |
+| Org LLM fallbacks | `agent-prod` | `GET/PUT /v3/org/llm-fallbacks` |
+| Reports | `agent-prod` | `POST /v3/reports/usage-by-*`, `GET /v3/reports*` |
+| Semantic model | `agent-prod` | `/v3/semantic_model/*` — documentation agents, database connect/tables/preview |
+| Sessions v3 | `agent-prod` | `POST/GET/PATCH/DELETE /v3/sessions*` — messages, branches, tree, ancestry |
+| Sharing | `agent-prod` | `/v3/sharing/*` — groups, share/refresh, access checks, indexes |
+| Tools v3 | `agent-prod` | `/v3/tools/*` — CRUD, ACI configs, Composio, MCP servers, credentials |
+| Traces | `agent-prod` | `GET /v3/traces*`, gantt/summary, `POST .../kill-switch` |
+| Usage alerts / widget stream / user assets | `agent-prod` | `POST /v3/usage-alerts/run`, `POST /v3/widget/stream/`, `GET /v3/user-assets/*` |
+| World model | `agent-prod` | `/v3/world_model/*` — personas/test_cases/scenarios, evaluation runs, dashboards |
+| Agent memory providers | `agent-prod` | `/v3/memory/*` — providers, AWS AgentCore, mem0, supermemory (config, distinct from Cognis memory) |
+| Ops | `agent-prod` | `/v3/ops/*` — reports, dashboard, traces, grouped logs |
+| Providers | `agent-prod` | `/v3/providers/*` — CRUD, credentials (incl. BigQuery/file-upload), ACI custom apps |
+| Workflows | `agent-prod` | `/v3/workflows/*` — CRUD, bulk-delete, execute, share, file-trigger |
+| Live sources (extra) | `rag-prod` | sync-permissions, browse sites/drives/children, webhook notifications |
+| Knowledge graph (Neo4j) | `rag-prod` | `/v4/knowledge_graph/neo4j/*` + base file-train endpoints |
+| Extract / doc content / source auth | `rag-prod` | `POST /v3/extract/`, `GET /v3/rag/{id}/docs/content/`, `/v3/rag/{id}/source-auth/*` |
+| Parse / Train (file uploads) | `rag-prod` | `POST /v3/parse/{pdf,docx,txt,csv,xlsx,pptx,image}/`, `POST /v3/train/{pdf,docx,txt,xlsx,pptx,image}/` |
+| KB Sync | `rag-prod` | `/v3/kb-sync/connectors/*`, `/v3/kb-sync/cc-pairs/*`, legacy OAuth/browse/webhooks `[deprecated]` |
 
-**Not wrapped:** agent bulk-delete, KB file uploads (PDF/DOCX — awkward over MCP), memory summaries/context, RAI update. **Skills** have no REST API (they're client-side definitions attached to an agent).
+**Not wrapped:** inbound webhook *receivers* meant to be called BY Lyzr (e.g. `handleComposioWebhook`) aren't
+exposed as callable tools (the client method exists and is tested, but nothing would call it from an MCP
+client). **Skills** (client-side agent skill definitions) have no REST API. Everything else from the
+`agent-dev` and `rag-dev` OpenAPI specs — including previously-skipped multipart file uploads and the KB Sync
+subsystem — is now wrapped.
 
 ## Troubleshooting
 
