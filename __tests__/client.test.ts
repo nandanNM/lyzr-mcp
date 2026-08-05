@@ -286,7 +286,7 @@ describe("LyzrClient", () => {
 
     const [actionsUrl] = fetchMock.mock.calls[2] as [string, RequestInit];
     expect(actionsUrl).toBe(
-      "https://api.example.test/v3/providers/tools/actions/HACKERNEWS?app_id=app-hn",
+      "https://api.example.test/v3/providers/tools/actions/HACKERNEWS?tool_source=aci&app_id=app-hn",
     );
 
     const [, putInit] = fetchMock.mock.calls[3] as [string, RequestInit];

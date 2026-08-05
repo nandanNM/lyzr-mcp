@@ -174,7 +174,17 @@ export class LyzrClient extends LyzrHttp {
           const actions = await this.request<unknown>(
             "GET",
             `/v3/providers/tools/actions/${encodeURIComponent(providerId)}`,
-            { params: appId ? { app_id: appId } : undefined, signal },
+            {
+              // tool_source is required by this endpoint whenever provider_id
+              // is passed — omitting it 400s with "tool_source query
+              // parameter is required when using provider_id", which our
+              // catch swallowed into a silent empty action list before.
+              params: {
+                tool_source: providerSource,
+                ...(appId ? { app_id: appId } : {}),
+              },
+              signal,
+            },
           );
           actionNames = normalizeList<Record<string, unknown>>(actions)
             .map((a) => String(a.name ?? ""))
