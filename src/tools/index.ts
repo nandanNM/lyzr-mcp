@@ -5,6 +5,7 @@ import type { RagClient } from "../lyzr/rag.js";
 import type { MemoryClient } from "../lyzr/memory.js";
 import type { SchedulerClient } from "../lyzr/scheduler.js";
 import type { RaiClient } from "../lyzr/rai.js";
+import type { SkillsClient } from "../lyzr/skills.js";
 import type { AgentExtrasClient } from "../lyzr/agent-extras.js";
 import type { RagAdminClient } from "../lyzr/rag-admin.js";
 import type { RagContentClient } from "../lyzr/rag-content.js";
@@ -60,6 +61,7 @@ import { registerKnowledgeBaseTools } from "./knowledge-base.js";
 import { registerMemoryTools } from "./memory.js";
 import { registerSchedulerTools } from "./scheduler.js";
 import { registerRaiTools } from "./rai.js";
+import { registerSkillsTools } from "./skills.js";
 import { registerAgentExtrasTools } from "./agent-extras.js";
 import { registerRagAdminTools } from "./rag-admin.js";
 import { registerRagContentTools } from "./rag-content.js";
@@ -109,6 +111,7 @@ export interface LyzrClients {
   memory: MemoryClient;
   scheduler: SchedulerClient;
   rai: RaiClient;
+  skills: SkillsClient;
   agentExtras: AgentExtrasClient;
   ragAdmin: RagAdminClient;
   ragContent: RagContentClient;
@@ -269,6 +272,9 @@ const buildRegistrations = (
     register: (s) => registerSchedulerTools(s, clients.scheduler),
   },
   { group: "rai", register: (s) => registerRaiTools(s, clients.rai) },
+
+  // skills (host: skills — standalone service, see src/lyzr/skills.ts)
+  { group: "content", register: (s) => registerSkillsTools(s, clients.skills) },
   { group: "a2a", register: (s) => registerA2ATools(s, clients.a2a) },
 
   // inference (extended)

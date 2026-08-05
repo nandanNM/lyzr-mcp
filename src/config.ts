@@ -45,6 +45,7 @@ export const getServiceUrls = (): ServiceUrls => ({
   scheduler:
     process.env.LYZR_SCHEDULER_API?.trim() || DEFAULT_SERVICE_URLS.scheduler,
   rai: process.env.LYZR_RAI_API?.trim() || DEFAULT_SERVICE_URLS.rai,
+  skills: process.env.LYZR_SKILLS_API?.trim() || DEFAULT_SERVICE_URLS.skills,
 });
 
 /**

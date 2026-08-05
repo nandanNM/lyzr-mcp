@@ -14,6 +14,8 @@ export interface ServiceUrls {
   memory: string;
   scheduler: string;
   rai: string;
+  /** Skills service (upload/import/version reusable agent skills). No public default — set LYZR_SKILLS_API. */
+  skills: string;
 }
 
 /** Production defaults for every Lyzr service. */
@@ -23,6 +25,7 @@ export const DEFAULT_SERVICE_URLS: ServiceUrls = {
   memory: "https://memory.studio.lyzr.ai",
   scheduler: "https://scheduler.studio.lyzr.ai",
   rai: "https://rai-prod.studio.lyzr.ai",
+  skills: "https://skills-api.studio.lyzr.ai",
 };
 
 /** Error raised when a Lyzr API returns a non-2xx response. Never carries the key. */

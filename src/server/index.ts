@@ -4,6 +4,7 @@ import { RagClient } from "../lyzr/rag.js";
 import { MemoryClient } from "../lyzr/memory.js";
 import { SchedulerClient } from "../lyzr/scheduler.js";
 import { RaiClient } from "../lyzr/rai.js";
+import { SkillsClient } from "../lyzr/skills.js";
 import { AgentExtrasClient } from "../lyzr/agent-extras.js";
 import { RagAdminClient } from "../lyzr/rag-admin.js";
 import { RagContentClient } from "../lyzr/rag-content.js";
@@ -99,6 +100,7 @@ export const createServer = (
     memory: new MemoryClient({ apiKey, baseUrl: urls.memory }),
     scheduler: new SchedulerClient({ apiKey, baseUrl: urls.scheduler }),
     rai: new RaiClient({ apiKey, baseUrl: urls.rai }),
+    skills: new SkillsClient({ apiKey, baseUrl: urls.skills }),
     agentExtras: new AgentExtrasClient({ apiKey, baseUrl }), // agent host
     ragAdmin: new RagAdminClient({ apiKey, baseUrl: urls.rag }),
     ragContent: new RagContentClient({ apiKey, baseUrl: urls.rag }),
