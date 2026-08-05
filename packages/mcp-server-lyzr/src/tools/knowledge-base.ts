@@ -29,7 +29,9 @@ export const registerKnowledgeBaseTools = (
         "failing later at training time with an opaque error. If that happens, or to use a store " +
         "outside the known list, first create your own credential with " +
         "lyzr_create_provider_credential (same mechanism as Studio's Data Connectors page) and " +
-        "pass its id as vector_db_credential_id to use it instead of the shared default.",
+        "pass its id as vector_db_credential_id to use it instead of the shared default. " +
+        "See lyzr_create_provider_credential's description for what credentials fields each " +
+        "vector store needs.",
       inputSchema: {
         name: z
           .string()
