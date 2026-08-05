@@ -80,7 +80,20 @@ export const registerUpdateAgentTool = (
               "oneshot_rag checked first, then agentic_rag, then lyzr_rag. " +
               "Agentic (multi-KB, ReAct tool loop): {lyzr_rag:{}, agentic_rag:[{base_url, rag_id, " +
               "rag_name?, params:{top_k, retrieval_type, score_threshold}}, ...]}. " +
-              "Note: planner_model/merge_top_k are one-shot-only and ignored by basic/agentic.",
+              "Note: planner_model/merge_top_k are one-shot-only and ignored by basic/agentic. " +
+              "RAI feature config: {endpoint, policy_id, policy_name}. The backend ignores " +
+              "config.endpoint entirely (it always uses its own server-side RAI URL), so send it for " +
+              "parity with Studio UI but it has no effect. A missing/invalid policy_id does NOT crash " +
+              "init and does NOT hard-fail per-message either — the module defaults fail_open:true, so " +
+              "requests are just allowed through unchecked (silent no-op guardrail), not blocked. " +
+              'Fairness & Bias and Reflection are NOT separate feature types — both are toggles inside ' +
+              'one SRS feature: {type:"SRS", config:{max_tries, modules:{reflection: bool, bias: bool}}}. ' +
+              "max_tries and modules are required positional args with no defaults in the backend module " +
+              "init — omitting either crashes agent init immediately (same failure class as a bad " +
+              "DATA_QUERY config), so always include both when sending SRS. " +
+              'GROUNDEDNESS feature config: {facts: string[]}. No prerequisite resource; facts are ' +
+              "optional (defaults to [] server-side) and missing/empty facts just make groundedness " +
+              "checks trivially pass (score 1.0) rather than error.",
           ),
         tools: z
           .array(z.string())
