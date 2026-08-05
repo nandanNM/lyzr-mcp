@@ -29,6 +29,18 @@ export const registerUpdateAgentTool = (
           .optional()
           .describe("New sampling temperature (0-2)"),
         description: z.string().optional().describe("New description"),
+        tools: z
+          .array(z.string())
+          .optional()
+          .describe(
+            "Tool ids to attach to the agent (replaces the existing tool list)",
+          ),
+        tool_configs: z
+          .array(z.record(z.unknown()))
+          .optional()
+          .describe(
+            "Per-tool config overrides (replaces the existing tool_configs)",
+          ),
       },
       annotations: {
         readOnlyHint: false,

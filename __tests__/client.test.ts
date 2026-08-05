@@ -221,6 +221,123 @@ describe("LyzrClient", () => {
     });
   });
 
+  it("updateAgent auto-resolves tool_configs (identity + tool_source + action_names) when tools is set without explicit tool_configs", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(
+        okJson({
+          name: "Agent",
+          provider_id: "OpenAI",
+          model: "gpt-4o",
+          agent_role: "role",
+          agent_goal: "goal",
+          agent_instructions: "instr",
+          temperature: 0.7,
+          top_p: 0.9,
+          llm_credential_id: "lyzr_openai",
+          tools: [],
+          tool_configs: [],
+        }),
+      )
+      .mockResolvedValueOnce(
+        okJson({
+          tools: [
+            {
+              _id: "catalog-id-1",
+              provider_id: "openapi-agify_age_predictor-predictAge",
+              provider_source: "openapi",
+            },
+            {
+              _id: "catalog-id-2",
+              provider_id: "HACKERNEWS",
+              provider_source: "aci",
+              meta_data: { app_id: "app-hn" },
+            },
+          ],
+        }),
+      )
+      .mockResolvedValueOnce(
+        okJson([{ name: "HACKERNEWS__TOP_STORIES_GET" }]),
+      )
+      .mockResolvedValueOnce(okJson({ message: "updated" }));
+    const client = makeClient(fetchMock as unknown as typeof fetch);
+
+    // Pass the catalog _id for one and the provider_id for the other — both
+    // must resolve correctly, since chat-time validation only recognizes
+    // provider_id, not the catalog _id.
+    await client.updateAgent("agent-1", {
+      tools: ["catalog-id-1", "HACKERNEWS"],
+    });
+
+    const [toolsUrl, toolsInit] = fetchMock.mock.calls[1] as [
+      string,
+      RequestInit,
+    ];
+    expect(toolsUrl).toBe("https://api.example.test/v3/providers/tools/all");
+    expect(toolsInit.method).toBe("GET");
+
+    const [actionsUrl] = fetchMock.mock.calls[2] as [string, RequestInit];
+    expect(actionsUrl).toBe(
+      "https://api.example.test/v3/providers/tools/actions/HACKERNEWS?app_id=app-hn",
+    );
+
+    const [, putInit] = fetchMock.mock.calls[3] as [string, RequestInit];
+    const body = JSON.parse(putInit.body as string);
+    // tools is normalized to provider_id, never the catalog _id.
+    expect(body.tools).toEqual([
+      "openapi-agify_age_predictor-predictAge",
+      "HACKERNEWS",
+    ]);
+    // Correct tool_source per tool, and action_names is populated — not
+    // null (crashes the backend) and not empty (tool becomes invisible to
+    // the LLM). openapi derives from the provider_id's operationId suffix;
+    // aci fetches real action names from /v3/providers/tools/actions.
+    expect(body.tool_configs).toEqual([
+      {
+        tool_name: "openapi-agify_age_predictor-predictAge",
+        tool_source: "openapi",
+        action_names: ["predictAge"],
+        persist_auth: false,
+      },
+      {
+        tool_name: "HACKERNEWS",
+        tool_source: "aci",
+        action_names: ["HACKERNEWS__TOP_STORIES_GET"],
+        persist_auth: false,
+      },
+    ]);
+  });
+
+  it("updateAgent skips tool_configs auto-resolution when the caller passes tool_configs explicitly", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(
+        okJson({
+          name: "Agent",
+          provider_id: "OpenAI",
+          model: "gpt-4o",
+          agent_role: "role",
+          agent_goal: "goal",
+          agent_instructions: "instr",
+          temperature: 0.7,
+          top_p: 0.9,
+          llm_credential_id: "lyzr_openai",
+        }),
+      )
+      .mockResolvedValueOnce(okJson({ message: "updated" }));
+    const client = makeClient(fetchMock as unknown as typeof fetch);
+
+    await client.updateAgent("agent-1", {
+      tools: ["tool-1"],
+      tool_configs: [{ tool_name: "tool-1", tool_source: "custom" }],
+    });
+
+    // Only 2 calls (GET agent, PUT agent) — no /v3/providers/tools/all lookup.
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    const [putUrl] = fetchMock.mock.calls[1] as [string, RequestInit];
+    expect(putUrl).toBe("https://api.example.test/v3/agents/agent-1");
+  });
+
   it("deleteAgent DELETEs by id", async () => {
     const fetchMock = vi.fn(async () => okJson({}, 200));
     const client = makeClient(fetchMock as unknown as typeof fetch);

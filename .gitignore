@@ -12,3 +12,7 @@ mcp-everything-server-explained.md
 # OpenAPI drift-detection output (npm run generate:openapi-types) — regenerate on demand, not committed
 src/lyzr/generated/
 mcp/
+# Reference clones (external repos, not part of this project)
+lyzr-agent/
+lyzr-studio-ui/
+lyzr_agent_skills/
