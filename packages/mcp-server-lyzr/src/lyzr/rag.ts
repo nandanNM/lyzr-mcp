@@ -36,6 +36,7 @@ export interface CreateKbInput {
   embedding_model?: string;
   llm_model?: string;
   description?: string;
+  semantic_data_model?: boolean;
 }
 
 const randomSuffix = (): string =>
@@ -69,7 +70,7 @@ export class RagClient extends LyzrHttp {
       embedding_credential_id: "lyzr_openai",
       llm_model: input.llm_model ?? "gpt-4o",
       llm_credential_id: "lyzr_openai",
-      semantic_data_model: false,
+      semantic_data_model: input.semantic_data_model ?? false,
     };
     if (input.description !== undefined)
       payload.description = input.description;

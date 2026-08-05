@@ -70,7 +70,17 @@ export const registerUpdateAgentTool = (
               "lyzr_memprovider_use_existing_aws_agentcore_memory / lyzr_memprovider_validate_mem0) first; " +
               "KNOWLEDGE_BASE feature's config.rag_id — call lyzr_kb_create first; CONTEXT feature's " +
               "config.context_id — call lyzr_create_context first. Also incompatible with " +
-              "store_messages:false for memory feature types.",
+              "store_messages:false for memory feature types. " +
+              "KNOWLEDGE_BASE feature config has 3 confirmed shapes: " +
+              "Basic (single KB): {lyzr_rag:{base_url, rag_id, rag_name?, params:{top_k, " +
+              'retrieval_type:"basic", score_threshold}}, agentic_rag:[]}. ' +
+              "One Shot (multi-KB, planner LLM picks which KB(s)): {lyzr_rag:{}, " +
+              "oneshot_rag:[{rag_id, name, description?, top_k, retrieval_type, score_threshold, " +
+              "filter_fields?, examples?}, ...], planner_model, merge_top_k} — dispatch order is " +
+              "oneshot_rag checked first, then agentic_rag, then lyzr_rag. " +
+              "Agentic (multi-KB, ReAct tool loop): {lyzr_rag:{}, agentic_rag:[{base_url, rag_id, " +
+              "rag_name?, params:{top_k, retrieval_type, score_threshold}}, ...]}. " +
+              "Note: planner_model/merge_top_k are one-shot-only and ignored by basic/agentic.",
           ),
         tools: z
           .array(z.string())

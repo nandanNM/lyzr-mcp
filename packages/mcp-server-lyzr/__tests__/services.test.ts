@@ -31,6 +31,20 @@ describe("RagClient", () => {
       embedding_credential_id: "lyzr_openai",
     });
     expect(body.collection_name).toMatch(/^my_kb[a-z0-9]{4}$/);
+    expect(body.semantic_data_model).toBe(false);
+  });
+
+  it("createKb passes semantic_data_model: true through to the request body", async () => {
+    const f = vi.fn(async () => okJson({ id: "kb1" }));
+    const rag = mk(RagClient, f as unknown as typeof fetch, "https://rag.test");
+    await rag.createKb({
+      name: "my_kb",
+      vector_store: "qdrant",
+      semantic_data_model: true,
+    });
+    const [, init] = f.mock.calls[0] as [string, RequestInit];
+    const body = JSON.parse(init.body as string);
+    expect(body.semantic_data_model).toBe(true);
   });
 
   it("createKb rejects a bad name and unknown store", () => {

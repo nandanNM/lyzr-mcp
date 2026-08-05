@@ -20,7 +20,11 @@ export const registerKnowledgeBaseTools = (
     "lyzr_kb_create",
     {
       title: "Create Knowledge Base",
-      description: "Create a RAG knowledge base. Returns its id.",
+      description:
+        "Create a RAG knowledge base. Returns its id. Set semantic_data_model: true to create a " +
+        "schema-aware Semantic Data Model KB (for text-to-SQL style querying) instead of a basic " +
+        "vector-retrieval KB — after creating it, connect it to a real database with " +
+        "lyzr_semantic_model_connect_database.",
       inputSchema: {
         name: z
           .string()
@@ -35,6 +39,14 @@ export const registerKnowledgeBaseTools = (
           .describe("Embedding model (default text-embedding-3-large)"),
         llm_model: z.string().optional().describe("LLM model (default gpt-4o)"),
         description: z.string().optional(),
+        semantic_data_model: z
+          .boolean()
+          .optional()
+          .describe(
+            "If true, creates a schema-aware Semantic Data Model KB meant to be connected to a " +
+              "real database afterward via lyzr_semantic_model_connect_database, instead of a " +
+              "basic vector-retrieval KB (default false).",
+          ),
       },
       annotations: {
         readOnlyHint: false,
