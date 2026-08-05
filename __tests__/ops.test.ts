@@ -44,6 +44,26 @@ describe("OpsClient", () => {
     });
   });
 
+  it("exportReportCsv returns the raw CSV body as a string instead of JSON.parse-ing it", async () => {
+    // The backend returns text/csv, not JSON — JSON.parse-ing it throws a raw
+    // SyntaxError ("Unexpected token 'l', \"log_id,age\"... is not valid JSON")
+    // instead of the real CSV content. Confirmed live against production.
+    const csv = "log_id,agent_id,session_id\n1,2,3\n";
+    const f = vi.fn(
+      async () =>
+        new Response(csv, {
+          status: 200,
+          headers: { "Content-Type": "text/csv" },
+        }),
+    );
+    const ops = mk(f as unknown as typeof fetch);
+    const result = await ops.exportReportCsv({
+      start_date: "2024-01-01",
+      end_date: "2024-01-31",
+    });
+    expect(result).toBe(csv);
+  });
+
   it("getDashboard GETs /v3/ops/dashboard with required + optional query params", async () => {
     const f = vi.fn(async () => okJson({}));
     const ops = mk(f as unknown as typeof fetch);

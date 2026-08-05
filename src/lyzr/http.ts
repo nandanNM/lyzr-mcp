@@ -133,4 +133,28 @@ export class LyzrHttp {
     const text = await res.text();
     return (text ? JSON.parse(text) : {}) as T;
   }
+
+  /**
+   * Like {@link request}, but returns the raw response body as a string
+   * instead of JSON-parsing it. Use for endpoints that return CSV/plain
+   * text (e.g. report-CSV exports) — JSON.parse-ing those throws a raw
+   * SyntaxError instead of a helpful LyzrApiError.
+   */
+  protected async requestText(
+    method: string,
+    path: string,
+    opts: RequestOptions = {},
+  ): Promise<string> {
+    const res = await this.fetchImpl(this.buildUrl(path, opts.params), {
+      method,
+      headers: this.headers(opts.headers),
+      body: opts.body === undefined ? undefined : JSON.stringify(opts.body),
+      signal: opts.signal,
+    });
+    if (!res.ok) {
+      const text = await res.text().catch(() => "");
+      throw new LyzrApiError(res.status, text);
+    }
+    return res.text();
+  }
 }

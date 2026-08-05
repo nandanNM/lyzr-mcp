@@ -60,12 +60,9 @@ export class OpsClient extends LyzrHttp {
     });
   }
 
-  /** Export an ops report as CSV. POST /v3/ops/report_csv */
-  exportReportCsv(
-    input: OpsReportRequest,
-    signal?: AbortSignal,
-  ): Promise<unknown> {
-    return this.request<unknown>("POST", "/v3/ops/report_csv", {
+  /** Export an ops report as CSV. POST /v3/ops/report_csv (returns raw CSV text, not JSON) */
+  exportReportCsv(input: OpsReportRequest, signal?: AbortSignal): Promise<string> {
+    return this.requestText("POST", "/v3/ops/report_csv", {
       body: input,
       signal,
     });
