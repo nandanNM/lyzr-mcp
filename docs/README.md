@@ -95,7 +95,7 @@ npm test             # vitest
 | Variable | Used by | Default | Purpose |
 |---|---|---|---|
 | `LYZR_API_KEY` | stdio | — (required) | Your Lyzr key. **stdio only** — HTTP reads it per-request. |
-| `LYZR_API_BASE_URL` / `LYZR_AGENT_API` | all | `https://agent-prod.studio.lyzr.ai` | Agent API host override |
+| `LYZR_API_BASE_URL` / `LYZR_AGENT_API` | all | *(internal default)* | Agent API host override |
 | `LYZR_RAG_API` | KB tools | `https://rag-prod.studio.lyzr.ai` | Knowledge Base host |
 | `LYZR_MEMORY_API` | memory tools | `https://memory.studio.lyzr.ai` | Cognis memory host |
 | `LYZR_SCHEDULER_API` | scheduler tools | `https://scheduler.studio.lyzr.ai` | Scheduler host |
