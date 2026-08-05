@@ -59,6 +59,35 @@ describe("RagClient", () => {
     );
   });
 
+  it("createKb accepts a custom vector_db_credential_id, bypassing the shared-default lookup", async () => {
+    const f = vi.fn(async () => okJson({ id: "kb1" }));
+    const rag = mk(RagClient, f as unknown as typeof fetch, "https://rag.test");
+    await rag.createKb({
+      name: "my_graph_kb",
+      vector_store: "neptune",
+      vector_db_credential_id: "my_own_neptune_cred",
+      vector_store_provider: "My Neptune",
+    });
+    const [, init] = f.mock.calls[0] as [string, RequestInit];
+    const body = JSON.parse(init.body as string);
+    expect(body.vector_db_credential_id).toBe("my_own_neptune_cred");
+    expect(body.vector_store_provider).toBe("My Neptune");
+  });
+
+  it("createKb allows a custom vector_db_credential_id even for an unknown vector_store", async () => {
+    const f = vi.fn(async () => okJson({ id: "kb1" }));
+    const rag = mk(RagClient, f as unknown as typeof fetch, "https://rag.test");
+    await rag.createKb({
+      name: "my_kb",
+      vector_store: "some-unlisted-store",
+      vector_db_credential_id: "my_cred",
+    });
+    const [, init] = f.mock.calls[0] as [string, RequestInit];
+    const body = JSON.parse(init.body as string);
+    expect(body.vector_db_credential_id).toBe("my_cred");
+    expect(body.vector_store_provider).toBe("my_cred");
+  });
+
   it("trainText sends each chunk as {text, source} — backend 422s without source", async () => {
     const f = vi.fn(async () => okJson({ message: "ok" }));
     const rag = mk(RagClient, f as unknown as typeof fetch, "https://rag.test");

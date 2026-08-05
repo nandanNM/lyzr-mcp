@@ -24,7 +24,12 @@ export const registerKnowledgeBaseTools = (
         "Create a RAG knowledge base. Returns its id. Set semantic_data_model: true to create a " +
         "schema-aware Semantic Data Model KB (for text-to-SQL style querying) instead of a basic " +
         "vector-retrieval KB — after creating it, connect it to a real database with " +
-        "lyzr_semantic_model_connect_database.",
+        "lyzr_semantic_model_connect_database. `vector_store` resolves to a Lyzr-shared default " +
+        "credential — some (e.g. neptune) may have no working shared credential provisioned, " +
+        "failing later at training time with an opaque error. If that happens, or to use a store " +
+        "outside the known list, first create your own credential with " +
+        "lyzr_create_provider_credential (same mechanism as Studio's Data Connectors page) and " +
+        "pass its id as vector_db_credential_id to use it instead of the shared default.",
       inputSchema: {
         name: z
           .string()
@@ -33,6 +38,21 @@ export const registerKnowledgeBaseTools = (
           .string()
           .default("qdrant")
           .describe(`Vector store: ${KNOWN_VECTOR_STORES.join(", ")}`),
+        vector_db_credential_id: z
+          .string()
+          .optional()
+          .describe(
+            "Override the vector-store credential id instead of the shared lyzr_* default for " +
+              "vector_store — use your own credential id from lyzr_create_provider_credential " +
+              "(e.g. to work around a missing/broken shared default like lyzr_neptune).",
+          ),
+        vector_store_provider: z
+          .string()
+          .optional()
+          .describe(
+            "Display name to store alongside a custom vector_db_credential_id (defaults to the " +
+              "credential id itself if not given).",
+          ),
         embedding_model: z
           .string()
           .optional()

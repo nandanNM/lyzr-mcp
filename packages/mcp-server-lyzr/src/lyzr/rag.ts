@@ -33,6 +33,16 @@ export const KNOWN_VECTOR_STORES = [
 export interface CreateKbInput {
   name: string; // lowercase/numbers/underscores only
   vector_store?: string;
+  /**
+   * Override the vector-store credential id instead of using the shared
+   * `lyzr_*` default for `vector_store`. Use this to point at your own
+   * self-provisioned credential (created via lyzr_create_provider_credential,
+   * e.g. from Studio's Data Connectors page) — required for stores like
+   * Neptune where no working shared default credential exists.
+   */
+  vector_db_credential_id?: string;
+  /** Display name to store alongside a custom vector_db_credential_id (defaults to the vector_store's known display name, or the credential id itself if unknown). */
+  vector_store_provider?: string;
   embedding_model?: string;
   llm_model?: string;
   description?: string;
@@ -51,9 +61,10 @@ export class RagClient extends LyzrHttp {
   createKb(input: CreateKbInput, signal?: AbortSignal): Promise<unknown> {
     const store = (input.vector_store ?? "qdrant").trim().toLowerCase();
     const resolved = VECTOR_STORE_MAP[store];
-    if (!resolved) {
+    if (!resolved && !input.vector_db_credential_id) {
       throw new Error(
-        `Unknown vector store "${input.vector_store}". Valid: ${KNOWN_VECTOR_STORES.join(", ")}`,
+        `Unknown vector store "${input.vector_store}". Valid: ${KNOWN_VECTOR_STORES.join(", ")}. ` +
+          `To use a store outside this list, pass vector_db_credential_id explicitly (from a credential you created via lyzr_create_provider_credential).`,
       );
     }
     if (!/^[a-z0-9_]+$/.test(input.name)) {
@@ -61,11 +72,15 @@ export class RagClient extends LyzrHttp {
         `Knowledge base name must be lowercase letters, numbers, and underscores only (got "${input.name}").`,
       );
     }
+    const credentialId = input.vector_db_credential_id ?? resolved!.credentialId;
+    const storeProvider =
+      input.vector_store_provider ??
+      (input.vector_db_credential_id ? credentialId : resolved!.provider);
     const payload: Record<string, unknown> = {
       name: input.name,
       collection_name: `${input.name}${randomSuffix()}`,
-      vector_db_credential_id: resolved.credentialId,
-      vector_store_provider: resolved.provider,
+      vector_db_credential_id: credentialId,
+      vector_store_provider: storeProvider,
       embedding_model: input.embedding_model ?? "text-embedding-3-large",
       embedding_credential_id: "lyzr_openai",
       llm_model: input.llm_model ?? "gpt-4o",
