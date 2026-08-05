@@ -4,22 +4,13 @@
  * chat/completions surface. Basic chat/stream/task/generate-response live
  * elsewhere (see client.ts).
  *
- * NOTE: `POST /v4/inference` and `POST /v4/responses` do NOT exist in the
- * backend — the entire `/v4` surface is exactly one route,
- * `chat_completions_router` mounted as `v4_router` in
- * api/factory/v4/__init__.py, which only registers
- * `POST /v4/chat/completions` (api/factory/v4/chat_completions/endpoints.py).
- * Confirmed live: `/v4/inference` → 405, `/v4/responses` → 401 (it doesn't
- * exist either; that 401 comes from FastAPI matching no route and falling
- * through to a catch-all auth-gated handler, not from the responses
- * endpoint itself). `createInference`/`createResponseV4` were removed.
+ * NOTE: `POST /v4/inference` and `POST /v4/responses` do NOT exist — the `/v4`
+ * surface is exactly `POST /v4/chat/completions`; the others 405/401.
+ * `createInference`/`createResponseV4` were removed.
  *
- * `POST /v4/chat/completions` itself DOES exist but requires
- * `Authorization: Bearer <api_key>` via `get_bearer_auth`
- * (api/auth.py), not the `x-api-key` header every other Lyzr endpoint uses
- * — confirmed live 401 when sent via the shared `LyzrHttp.request()` path.
- * `chatCompletionsV4` below sends the Bearer header directly instead of
- * going through `this.request()`.
+ * `POST /v4/chat/completions` requires `Authorization: Bearer <api_key>`, not
+ * the `x-api-key` header the rest of this API uses — `chatCompletionsV4`
+ * bypasses `this.request()` to send the correct header.
  */
 import { LyzrHttp, LyzrApiError, normalizeList } from "./http.js";
 
@@ -293,12 +284,7 @@ export class InferenceExtraClient extends LyzrHttp {
     });
   }
 
-  /**
-   * OpenAI-compatible v4 chat completions. POST /v4/chat/completions
-   * Requires `Authorization: Bearer <api_key>` (via `get_bearer_auth`) —
-   * NOT the `x-api-key` header the rest of this API uses — so this bypasses
-   * `this.request()` to send the correct auth header.
-   */
+  /** OpenAI-compatible v4 chat completions. POST /v4/chat/completions — requires Bearer auth, not x-api-key, so bypasses `this.request()`. */
   async chatCompletionsV4(
     input: ChatCompletionV4Input,
     signal?: AbortSignal,

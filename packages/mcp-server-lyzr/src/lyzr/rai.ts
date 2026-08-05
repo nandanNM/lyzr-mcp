@@ -25,9 +25,7 @@ export class RaiClient extends LyzrHttp {
     const banned = input.banned_topics ?? [];
     const policy = {
       name: input.name,
-      // Backend requires `description` to be a string — omitting it (422
-      // "Field required") or sending null (422 "Input should be a valid
-      // string") both fail validation. Confirmed live against rai-prod.
+      // Backend requires `description` to be a string; omitting or nulling it 422s.
       description: input.description ?? "",
       toxicity_check: { enabled: toxicity < 1.0, threshold: toxicity },
       prompt_injection: {

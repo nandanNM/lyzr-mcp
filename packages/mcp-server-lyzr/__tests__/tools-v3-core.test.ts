@@ -30,10 +30,7 @@ describe("ToolsV3CoreClient", () => {
   });
 
   it("createTool POSTs /v3/tools/ with the body and returns the raw {tool_ids} shape", async () => {
-    // Live-confirmed backend response: response_model=dict, and the endpoint
-    // literally returns {"tool_ids": [...]} where each entry is a full tool
-    // dict (name/description/parameters/method/path), NOT a bare Tool object
-    // and NOT a list of id strings despite the key name.
+    // Despite the key name, each "tool_ids" entry is a full tool dict, not an id string.
     const f = vi.fn(async () =>
       okJson({
         tool_ids: [

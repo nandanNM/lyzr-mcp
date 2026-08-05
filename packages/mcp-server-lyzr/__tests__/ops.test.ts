@@ -45,9 +45,7 @@ describe("OpsClient", () => {
   });
 
   it("exportReportCsv returns the raw CSV body as a string instead of JSON.parse-ing it", async () => {
-    // The backend returns text/csv, not JSON — JSON.parse-ing it throws a raw
-    // SyntaxError ("Unexpected token 'l', \"log_id,age\"... is not valid JSON")
-    // instead of the real CSV content. Confirmed live against production.
+    // Backend returns text/csv, not JSON — JSON.parse-ing it throws instead of returning the CSV.
     const csv = "log_id,agent_id,session_id\n1,2,3\n";
     const f = vi.fn(
       async () =>

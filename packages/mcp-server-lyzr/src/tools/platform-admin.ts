@@ -107,10 +107,7 @@ export const registerPlatformAdminTools = (
   );
 
   // ---- Feature Flags Admin ----
-  // The /v3/admin/feature-flags* routes are gated by `verify_admin_token`
-  // (Authorization: Bearer <PAGOS_ADMIN_TOKEN>) — a separate platform secret,
-  // not the caller's Lyzr API key. Every admin tool below requires the caller
-  // to supply that token explicitly via `admin_token`.
+  // Gated by verify_admin_token (Bearer PAGOS_ADMIN_TOKEN) — a separate secret from the caller's Lyzr API key, supplied via `admin_token`.
 
   const adminTokenSchema = z
     .string()
@@ -233,10 +230,7 @@ export const registerPlatformAdminTools = (
       txt(await client.deleteFeatureFlag(admin_token, key, extra.signal)),
   );
 
-  // NOTE: A "Modules" admin/resolved tool set (`/v3/modules`, `/v3/admin/modules`)
-  // previously existed here but was removed — no such router is registered in
-  // the backend at all (checked app.py + every api/factory/v3/**/endpoints.py),
-  // and a live call confirms it: GET /v3/modules returns 405 Method Not Allowed.
+  // NOTE: "Modules" tool set was removed — no such router exists in the backend; GET /v3/modules returns 405.
 
   // ---- Features v3 (aggregate) ----
 

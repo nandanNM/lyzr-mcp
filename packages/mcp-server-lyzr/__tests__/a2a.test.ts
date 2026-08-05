@@ -92,10 +92,7 @@ describe("A2AClient", () => {
   });
 
   it("createAgent does not send fields the backend model doesn't have", async () => {
-    // api/factory/v3/agents/a2a_models.py's A2AAgentConfig has no
-    // agent_card_path / auth_type / credential_id / custom_tags /
-    // custom_metadata fields — the client type must not offer them so
-    // callers don't believe they do anything.
+    // Backend model has no such fields — offering them would silently do nothing.
     const f = vi.fn(async () => okJson({ agent_id: "a1" }));
     const client = mk(f as unknown as typeof fetch);
     await client.createAgent({
@@ -112,11 +109,7 @@ describe("A2AClient", () => {
   });
 
   it("does not expose a serve/agent-card/JSON-RPC client — no such backend route exists", () => {
-    // api/factory/v3/agents/a2a_endpoints.py only registers the
-    // "/v3/a2a/agents" management router; there is no "/v3/a2a/serve/*"
-    // router anywhere in the backend, so calls to it always 404. These
-    // methods were removed rather than pointed at a route that doesn't
-    // exist.
+    // No "/v3/a2a/serve/*" router exists in the backend (always 404), so these methods were removed.
     const client = mk((async () => okJson({})) as unknown as typeof fetch);
     expect((client as unknown as Record<string, unknown>).getAgentCard).toBeUndefined();
     expect(

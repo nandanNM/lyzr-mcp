@@ -262,16 +262,12 @@ describe("LyzrClient", () => {
       .mockResolvedValueOnce(okJson({ message: "updated" }));
     const client = makeClient(fetchMock as unknown as typeof fetch);
 
-    // Pass the catalog _id for one and the provider_id for the other — both
-    // must resolve correctly, since chat-time validation only recognizes
-    // provider_id, not the catalog _id.
+    // Catalog _id and provider_id must both resolve — chat-time validation only recognizes provider_id.
     const returned = await client.updateAgent("agent-1", {
       tools: ["catalog-id-1", "HACKERNEWS"],
     });
 
-    // The caller gets full context of what's actually attached back in the
-    // response — not just a bare "updated" message — without a second
-    // lyzr_get_agent round-trip.
+    // Caller gets full context of what's attached back in the response, without a second lyzr_get_agent round-trip.
     expect(returned).toMatchObject({
       message: "updated",
       tools: ["openapi-agify_age_predictor-predictAge", "HACKERNEWS"],
@@ -296,10 +292,7 @@ describe("LyzrClient", () => {
       "openapi-agify_age_predictor-predictAge",
       "HACKERNEWS",
     ]);
-    // Correct tool_source per tool, and action_names is populated — not
-    // null (crashes the backend) and not empty (tool becomes invisible to
-    // the LLM). openapi derives from the provider_id's operationId suffix;
-    // aci fetches real action names from /v3/providers/tools/actions.
+    // action_names must be populated, not null (crashes backend) or empty (tool invisible to the LLM).
     expect(body.tool_configs).toEqual([
       {
         tool_name: "openapi-agify_age_predictor-predictAge",

@@ -181,11 +181,7 @@ export class PlatformAdminClient extends LyzrHttp {
     );
   }
 
-  // NOTE: A "Modules" admin/resolved section (`/v3/modules`, `/v3/admin/modules`)
-  // previously existed here but was removed — no such router is registered in
-  // the backend (app.py has no modules_router / include_router for /v3/modules
-  // or /v3/admin/modules), and live calls confirm this: GET /v3/modules returns
-  // 405 Method Not Allowed (nothing in the app matches those paths for GET).
+  // NOTE: "Modules" admin/resolved section was removed — no such router exists in the backend; GET /v3/modules returns 405.
 
   // ---- Features v3 (aggregate) ----
 

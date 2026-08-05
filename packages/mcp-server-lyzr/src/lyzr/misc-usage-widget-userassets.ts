@@ -1,12 +1,8 @@
 /**
  * Misc: User Assets client (host: agent-prod).
  *
- * NOTE: this module previously also wrapped a "usage alerts" runner and a
- * "widget stream" chat endpoint. Neither /v3/usage-alerts/run nor
- * /v3/widget/stream/ exist anywhere in the backend (api/factory/v3 has no
- * such routers) and both 405 live against production. They were removed —
- * see git history if this needs to be resurrected once the backend actually
- * ships those routes.
+ * NOTE: a "usage alerts" runner and "widget stream" endpoint were removed —
+ * neither /v3/usage-alerts/run nor /v3/widget/stream/ exist in the backend (405 live).
  */
 import { LyzrHttp, LyzrApiError, normalizeList } from "./http.js";
 
@@ -23,14 +19,7 @@ export type UserAssetType =
   | "manager_agent"
   | "workflow";
 
-/**
- * The backend (api/factory/v3/user_assets/endpoints.py) only accepts
- * page/limit/type (and `q` for search) — no sort_by, order, providers,
- * models, owners, is_active, has_schedule, has_trigger, tags, capabilities,
- * response_format, updated_within_days, or metadata_contains. Those extra
- * fields used to be sent as dead query params (silently ignored by FastAPI,
- * giving the false impression the filter was applied).
- */
+/** Backend only accepts page/limit/type (and `q` for search) — other filter fields used to be sent as dead, silently-ignored query params. */
 export interface UserAssetListParams {
   page?: number;
   limit?: number;

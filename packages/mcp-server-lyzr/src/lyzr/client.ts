@@ -230,10 +230,7 @@ export class LyzrClient extends LyzrHttp {
             "GET",
             `/v3/providers/tools/actions/${encodeURIComponent(providerId)}`,
             {
-              // tool_source is required by this endpoint whenever provider_id
-              // is passed — omitting it 400s with "tool_source query
-              // parameter is required when using provider_id", which our
-              // catch swallowed into a silent empty action list before.
+              // tool_source is required whenever provider_id is passed — omitting it 400s.
               params: {
                 tool_source: providerSource,
                 ...(appId ? { app_id: appId } : {}),
@@ -245,8 +242,7 @@ export class LyzrClient extends LyzrHttp {
             .map((a) => String(a.name ?? ""))
             .filter(Boolean);
         } catch {
-          // Best-effort — an empty list means the tool attaches without
-          // erroring but contributes no callable actions to the LLM.
+          // Best-effort: empty list attaches the tool but with no callable actions.
           actionNames = [];
         }
       }
@@ -378,7 +374,6 @@ export class LyzrClient extends LyzrHttp {
         const parsed = JSON.parse(dataStr) as Record<string, unknown>;
         content = String(parsed.content ?? parsed.delta ?? "");
       } catch {
-        // plain-text chunk
       }
       if (content) {
         full += content;
@@ -457,18 +452,13 @@ export class LyzrClient extends LyzrHttp {
     const pick = <T>(next: T | undefined, fallback: unknown): unknown =>
       next !== undefined ? next : fallback;
 
-    // If tools are being set/changed but the caller didn't hand us explicit
-    // tool_configs, resolve them ourselves — see resolveToolConfigs for why.
+    // If tools changed without explicit tool_configs, resolve them ourselves — see resolveToolConfigs.
     const resolvedToolConfigs =
       updates.tools !== undefined && updates.tool_configs === undefined
         ? await this.resolveToolConfigs(updates.tools, signal)
         : undefined;
 
-    // Bug fix: provider/model used to be unconditionally frozen to the
-    // agent's CURRENT values on every update, making it impossible to ever
-    // change an agent's model/provider through this tool. If the caller
-    // supplies either, resolve provider via PROVIDER_MAP (same as
-    // createAgent) and use the new values; otherwise preserve current.
+    // Provider/model used to be unconditionally frozen to current values, blocking model changes; resolve via PROVIDER_MAP when supplied.
     let providerId = current.provider_id;
     let llmCredentialId = current.llm_credential_id;
     let model = current.model;
@@ -595,10 +585,7 @@ export class LyzrClient extends LyzrHttp {
       `/v3/agents/${encodeURIComponent(agentId)}`,
       { body: payload, signal },
     );
-    // Surface exactly what's now attached — not just a bare "updated" message
-    // — so the caller has full context on the tool(s) without a second
-    // lyzr_get_agent round-trip, and can see resolved tool_source/action_names
-    // even when they only passed bare ids.
+    // Surface resolved tools/tool_configs so the caller sees them without a second lyzr_get_agent call.
     if (updates.tools !== undefined) {
       return {
         ...result,

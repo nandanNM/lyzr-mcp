@@ -24,17 +24,7 @@ export interface SharedUser {
 export interface GroupCreateInput {
   root_resource_id: string;
   root_resource_type: string;
-  /**
-   * Default per-user access level (default "private" server-side). To grant
-   * org-wide access, set this to "organisation" directly — there is no
-   * separate org-level field. (api/factory/v3/sharing/models.py's GroupCreate
-   * has no `org_access_level`; manager.py checks org-wide access purely via
-   * `access_level == "organisation"` on the group itself — see
-   * check_shared_access/get_shared_resource_ids_for_user. A prior version of
-   * this client sent a fictitious `org_access_level` field that the backend
-   * Pydantic model silently dropped as an unrecognized field — it had no
-   * effect at all.)
-   */
+  /** Default per-user access level (default "private" server-side). To grant org-wide access, set this to "organisation" — there is no separate org-level field. */
   access_level?: AccessLevel;
   shared_with?: SharedUser[];
   agent_ids?: string[] | null;

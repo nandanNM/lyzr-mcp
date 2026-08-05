@@ -56,8 +56,54 @@ persisted — read that response rather than assuming success from a generic
 `{"message": "updated"}` ack, since it's the only way to confirm what was
 really attached without a separate `lyzr_get_agent` call.
 
+## Attaching features (create-prerequisite-then-reference)
+
+Many `features[]` entries on `lyzr_create_agent`/`lyzr_update_agent` reference an external resource that must
+be created **first**, via its own tool, then wired in by id. Don't try to inline the resource's full config
+into the feature — create it, get the id, reference it.
+
+- **Skills**: `lyzr_skill_create` (or `lyzr_skill_import_github` / `lyzr_skill_register_global`) first → skill
+  id → set it in `skills_catalog: [skill_id, ...]`.
+- **RAI**: `lyzr_rai_create_policy` first → `policy_id` → `{type: "RAI", config: {policy_id, policy_name, endpoint}}`.
+  `config.endpoint` is ignored server-side (hardcoded) — harmless to include, just pointless.
+- **Knowledge Base**: `lyzr_kb_create` (+ train it) first → `rag_id` → then attach one of:
+  - single-KB "basic": `{type: "KNOWLEDGE_BASE", config: {lyzr_rag: {base_url, rag_id, rag_name, params: {top_k, retrieval_type, score_threshold}}, agentic_rag: []}}`
+  - "one_shot" (planner picks among multiple KBs): `{lyzr_rag: {}, oneshot_rag: [{rag_id, name, description, top_k, retrieval_type, score_threshold}, ...], planner_model, merge_top_k}`
+  - "agentic" (ReAct loop over multiple KBs): `{lyzr_rag: {}, agentic_rag: [{base_url, rag_id, rag_name, params: {top_k, retrieval_type, score_threshold}}, ...]}`
+  - server-side dispatch order: `oneshot_rag` checked first, then `agentic_rag`, then `lyzr_rag`.
+  - see `lyzr-knowledge-base`'s SKILL.md for a `retrieval_type` gotcha (`"mmr"` is unreliable).
+- **Memory / Knowledge Graph (Cognis)**: no prerequisite resource for the shared Cognis provider — attach
+  directly: `{type: "MEMORY", config: {provider: "cognis", lyzr_memory: {provider_type: "cognis", params: {cross_session: true, instructions: "..."}}}}`.
+- **Context**: `lyzr_create_context` first → `context_id` → `{type: "CONTEXT", config: {context_id, context_name}}`.
+- **Data Query** (text-to-SQL over a database): needs a KB created with `semantic_data_model: true` (via
+  `lyzr_kb_create`) **then** connected to a real database via `lyzr_semantic_model_connect_database` **before**
+  attaching `{type: "DATA_QUERY", config: {docs_rag_id, rag_url, max_tries}}`. **Warning:** pointing this at a
+  plain vector-retrieval KB (not `semantic_data_model`) crashes EVERY message with a 500, even "hello" —
+  it's a "Pre" module that runs unconditionally and can't resolve a database. Confirmed live; not a rare edge case.
+- **Fairness & Bias / Reflection**: shown as two separate toggles in Studio but both map to ONE feature type,
+  `SRS`: `{type: "SRS", config: {max_tries: 1, modules: {reflection: bool, bias: bool}}}`. Both `max_tries`
+  and `modules` are **required with no server-side defaults** — omitting either crashes agent init on every
+  message. Confirmed working with both fields supplied; shows up in traces as `reflection_report_completed`
+  and "Bias process started" events.
+- **Groundedness**: `{type: "GROUNDEDNESS", config: {facts: string[]}}` — this is **not** a knowledge-injection
+  mechanism; it's a post-response quality check that scores whether the answer aligns with the given facts
+  (visible in traces as a `groundedness` span with a `groundedness_evaluation` event, 0.0-1.0 score, and a
+  misalignments list). Empty/missing `facts` just makes every check trivially pass (score 1.0) — not an error.
+- **RAI + UQLM_LLM_JUDGE together**: attaching both features on the same agent breaks every chat message with
+  `HTTP 400 {"detail": "Expecting value: line 1 column 2 (char 1)"}`, even though each works fine alone.
+  Confirmed real interaction bug — don't combine them until it's fixed backend-side.
+- **Vector-store/database credentials**: most `lyzr_kb_create` vector_store aliases (qdrant/weaviate/
+  pg_vector/milvus) resolve to working shared `lyzr_*` credentials, but `neptune`'s shared credential
+  (`lyzr_neptune`) does not exist server-side — confirmed via a real 500 (`Processing Error: 'credentials'`)
+  when training a Neptune-backed KB. Workaround: create your own credential first via
+  `lyzr_create_provider_credential` (same fields Studio's Data Connectors page uses — e.g. Neptune needs
+  `{graph_id, region, aws_role_arn, aws_session_name}`), then pass its id as `vector_db_credential_id` to
+  `lyzr_kb_create`. If a credential already exists from Studio's Data Connectors UI, look it up by name with
+  `lyzr_list_provider_credentials_by_type`/`lyzr_list_provider_credentials_by_user` instead of recreating it.
+
 ## Gotchas
 
 - Look up an agent by name with `lyzr_agent_id_by_name` before assuming you need to create a new one.
-- Other agent features (KB attachment, RAI policy, etc.) besides tools are **not** settable through this
-  MCP server — they're configured in Lyzr Studio's UI. Say so if asked.
+- Most agent features **are** settable through this MCP server via `features[]` on `create_agent`/
+  `update_agent` — see "Attaching features" above for the create-prerequisite-then-reference pattern each one
+  needs.

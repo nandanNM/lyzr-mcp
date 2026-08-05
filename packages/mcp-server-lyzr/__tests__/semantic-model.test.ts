@@ -59,10 +59,7 @@ describe("SemanticModelClient", () => {
     expect(init.method).toBe("POST");
   });
 
-  // Backend (table_names_endpoint in semantic_model/endpoints.py) wraps the
-  // result as {"schemas_and_tables": {schemas, tables}} — a nested object,
-  // never a bare list of table name strings. Confirmed by reading
-  // get_table_names in semantic_model/manager.py (returns SchemaTablesJSON).
+  // Backend wraps the result as {"schemas_and_tables": {schemas, tables}}, never a bare list.
   it("listTables GETs /v3/semantic_model/list_tables/{rag_config_id}/{database_id} and unwraps schemas_and_tables", async () => {
     const f = vi.fn(async () =>
       okJson({

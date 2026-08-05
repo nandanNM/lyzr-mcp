@@ -16,9 +16,7 @@ const mk = (fetchImpl: typeof fetch, baseUrl = "https://rai.test") =>
 
 describe("RaiClient", () => {
   it("createPolicy sends description as an empty string, never null, when omitted", async () => {
-    // Confirmed live against rai-prod: description: null -> 422 "Input should
-    // be a valid string"; omitting the field -> 422 "Field required". Only a
-    // string (including "") is accepted.
+    // Backend requires a string; null or omitted both 422.
     const f = vi.fn(async () => okJson({ _id: "policy-1", name: "p" }));
     const client = mk(f as unknown as typeof fetch);
     await client.createPolicy({ name: "p" });

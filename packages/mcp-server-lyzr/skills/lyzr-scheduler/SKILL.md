@@ -20,7 +20,10 @@ Tools: `lyzr_schedule_create`, `lyzr_schedule_list`, `lyzr_schedule_get`, `lyzr_
    `lyzr_schedule_create` defaults `timezone` to UTC and `max_retries`/`retry_delay` to sane values — only
    override if the user specifies a timezone or retry policy.
 2. Use `lyzr_schedule_trigger` to run a schedule immediately (for testing) without waiting for the next cron
-   tick — good for "does this actually work" verification before leaving it running unattended.
+   tick — good for "does this actually work" verification before leaving it running unattended. Confirmed
+   flow end-to-end: `lyzr_schedule_create` → `lyzr_schedule_trigger` for an out-of-band test run →
+   `lyzr_schedule_get` to confirm `last_run_at`/`last_run_success` — those fields may take a few seconds to
+   update asynchronously after triggering, so don't check immediately and conclude failure.
 3. `lyzr_schedule_pause` / `lyzr_schedule_resume` for temporary stops — prefer these over delete-and-recreate
    when the user just wants to pause something.
 

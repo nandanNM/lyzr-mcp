@@ -45,3 +45,19 @@ also independent of any KB.
 Multipart file uploads (PDF/DOCX/CSV/XLSX/PPTX binary upload) aren't exposed as MCP tools — only
 `lyzr_kb_train_documents` (already-hosted document references). Point the user to Lyzr Studio's UI for raw
 file upload.
+
+## Data sources for training
+
+Full confirmed list: `lyzr_kb_train_text` (raw text), `lyzr_kb_train_pdf`/`docx`/`pptx`/`xlsx`/`image`/
+`txt_file`/`documents` (file uploads — see `lyzr-file-processing`'s base64 pattern), `lyzr_kb_train_website`
+(crawl URLs), and Live Source tooling for continuously-synced sources like SharePoint/Google Drive
+(`lyzr_livesource_add`/`sync`/`pause`/`resume`/`remove`/`repoint` in `lyzr-credentials`, plus the heavier
+connector-pairing layer `lyzr_kbsync_connector_*`/`lyzr_kb_sync_cc_pairs_*` in `lyzr-kb-sync`).
+
+## Retrieval type gotcha
+
+`params.retrieval_type` (used both when attaching a KNOWLEDGE_BASE feature to an agent, and matching Studio's
+KB-detail "Configure" panel Retrieval Type picker) accepts `"basic"`, `"mmr"`, or `"hyde"` — same setting,
+not a separate agent-only concept. **Confirmed bug:** `"mmr"` silently returned zero results on a real
+2-document Weaviate-backed KB, while `"basic"` and `"hyde"` both correctly returned the right chunk. Default
+to `"basic"` or `"hyde"`; treat `"mmr"` as unreliable until investigated further.

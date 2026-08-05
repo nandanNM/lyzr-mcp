@@ -48,13 +48,7 @@ describe("AssetsClient", () => {
     await expect(client.uploadAssets([])).rejects.toThrow(/at least one file/);
   });
 
-  // NOTE: resolveAssetBySource (GET /v3/assets/resolve-by-source) and
-  // getAssetRaw (GET /v3/assets/{asset_id}/raw) were removed: neither route
-  // exists in api/factory/v3/assets/endpoints.py, and live calls against
-  // production confirmed 404 / 405 respectively. Raw/extracted text content
-  // is already returned under the `content` field of GET /v3/assets/{asset_id}
-  // (see AssetResponse in api/factory/v3/assets/models.py + the "content" key
-  // accepted by PATCH .../parsing-status), covered by the getAsset test above.
+  // NOTE: resolveAssetBySource and getAssetRaw were removed — neither route exists (404/405 live); content is already under GET /v3/assets/{asset_id}'s `content` field, covered by the getAsset test above.
 
   it("getAsset GETs /v3/assets/{asset_id}", async () => {
     const f = vi.fn(async () => okJson({ asset_id: "a1", file_name: "x.pdf" }));

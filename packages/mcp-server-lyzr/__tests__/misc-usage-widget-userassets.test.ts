@@ -30,9 +30,7 @@ describe("MiscUsageWidgetUserAssetsClient", () => {
       type: "agent",
     });
     const [url, init] = f.mock.calls[0] as [string, RequestInit];
-    // The backend (api/factory/v3/user_assets/endpoints.py) only accepts
-    // page/limit/type. sort_by/order/providers/etc. were removed because
-    // they were never read by the server.
+    // Backend only accepts page/limit/type; other filter fields were never read by the server.
     expect(url).toBe(
       "https://agent.test/v3/user-assets/?page=2&limit=20&type=agent",
     );

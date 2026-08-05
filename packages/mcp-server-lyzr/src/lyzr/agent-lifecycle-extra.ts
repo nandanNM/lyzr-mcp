@@ -2,15 +2,10 @@
  * Lyzr Agent lifecycle "extra" endpoints (host: agent-prod).
  * Bulk delete, org listing, versioning, clone/reassign.
  *
- * NOTE: `PATCH /v3/agents/{id}/status` and `PATCH /v3/agents/{id}/lock` do
- * NOT exist in the backend (api/factory/v3/agents/endpoints.py has no
- * "/status" or "/lock" route, and "is_active"/"is_locked" aren't fields on
- * any agent model) — confirmed 404/405 live. `POST /v3/agents/publish`
- * exists but requires an `x-server-token` header holding a server-to-server
- * secret (`settings.server_auth_token`) that no MCP caller's API key can
- * ever supply — confirmed live 403 "Invalid or missing server
- * authentication token". All three were removed rather than "fixed" since
- * there is no reachable backend behavior for an MCP client to wrap.
+ * NOTE: `PATCH .../status` and `PATCH .../lock` don't exist in the backend
+ * (404/405 live). `POST /v3/agents/publish` exists but requires a
+ * server-to-server `x-server-token` no MCP caller can supply (403 live).
+ * All three were removed as unreachable rather than "fixed".
  */
 import { LyzrHttp, normalizeList } from "./http.js";
 

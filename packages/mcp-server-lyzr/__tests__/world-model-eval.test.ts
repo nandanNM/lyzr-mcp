@@ -44,14 +44,7 @@ describe("WorldModelEvalClient", () => {
   });
 
   it("createEvaluationRun's TS input type requires every field EvaluationRun requires (compile-time)", () => {
-    // api/factory/v3/evals/models.py's EvaluationRun has no defaults for
-    // status/selected_metrics/overall_progress/is_running/the five
-    // *_test_cases counters/duration_ms/test_cases — omitting any of them
-    // 422s server-side (confirmed live). CreateEvaluationRunInput marks
-    // them all required, so a call site missing one is a TS error — the
-    // @ts-expect-error below is the trip-wire: if the fields regress back
-    // to optional, this stops being an error and `tsc --noEmit` fails
-    // because of the now-unused directive.
+    // Backend 422s if any of these fields is omitted; the @ts-expect-error below is a trip-wire that fails tsc if they regress to optional.
     const { test_cases, ...missingTestCases } = fullEvaluationRunInput;
     // @ts-expect-error test_cases is required — omitting it must not typecheck
     const input: CreateEvaluationRunInput = missingTestCases;
