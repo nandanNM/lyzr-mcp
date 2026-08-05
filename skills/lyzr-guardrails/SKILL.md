@@ -1,6 +1,12 @@
 ---
 name: lyzr-guardrails
-description: Use whenever the user wants to create, list, or manage Responsible AI (RAI) guardrail policies via the lyzr MCP server.
+description: >-
+  Load this skill before creating, listing, fetching, or deleting a Responsible AI (RAI) guardrail policy via the lyzr MCP server. Covers passing flat inputs (toxicity_threshold, banned_topics, etc.) rather than constructing the nested API shape by hand, checking existing policies before creating a duplicate, and confirming before any deletion since it may affect agents currently using the policy.
+license: MIT
+metadata:
+  author: lyzr-mcp
+  version: "0.1.0"
+  organization: Lyzr
 ---
 
 # Lyzr RAI Guardrails

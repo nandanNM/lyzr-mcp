@@ -1,6 +1,12 @@
 ---
 name: lyzr-knowledge-base
-description: Use whenever the user wants to create a RAG knowledge base, train it on text/websites/documents, query it, or manage its documents via the lyzr MCP server.
+description: >-
+  Load this skill before creating a RAG knowledge base, training it on text/website/document content, querying it, or managing (listing, filtering, bulk-deleting) its indexed documents via the lyzr MCP server. Also load it when the user wants standalone text/website parsing or classification without a knowledge base. Covers the KB name-lowercasing requirement, training-is-async caveats, and what to say when asked for raw binary file upload (point to lyzr-file-processing instead).
+license: MIT
+metadata:
+  author: lyzr-mcp
+  version: "0.1.0"
+  organization: Lyzr
 ---
 
 # Lyzr Knowledge Base (RAG)

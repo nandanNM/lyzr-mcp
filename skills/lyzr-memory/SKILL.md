@@ -1,6 +1,12 @@
 ---
 name: lyzr-memory
-description: Use whenever the user wants to store, search, or manage long-term Cognis memories via the lyzr MCP server.
+description: >-
+  Load this skill before storing, searching, listing, updating, or deleting long-term Cognis memories via the lyzr MCP server. Covers scoping memories correctly by owner_id/user_id/agent_id/session_id to avoid leaking one user's facts into another's results, and distinguishing Cognis memory from the separate Knowledge Graph system.
+license: MIT
+metadata:
+  author: lyzr-mcp
+  version: "0.1.0"
+  organization: Lyzr
 ---
 
 # Lyzr Cognis Memory

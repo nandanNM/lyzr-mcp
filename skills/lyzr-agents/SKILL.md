@@ -1,6 +1,12 @@
 ---
 name: lyzr-agents
-description: Use whenever the user wants to create, configure, chat with, or run a task on a Lyzr agent via the lyzr MCP server.
+description: >-
+  Load this skill before creating, configuring, updating, deleting, or chatting with a Lyzr agent via the lyzr MCP server, or before starting/polling a long-running agent task. Covers: choosing a provider/model, generating and reusing session_id across a conversation, when to use lyzr_chat vs lyzr_stream_chat vs lyzr_start_task, and looking up an existing agent by name before creating a duplicate.
+license: MIT
+metadata:
+  author: lyzr-mcp
+  version: "0.1.0"
+  organization: Lyzr
 ---
 
 # Lyzr Agents

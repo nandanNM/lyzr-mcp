@@ -15,16 +15,33 @@ import { fileURLToPath } from "node:url";
 
 const skillsRoot = join(dirname(fileURLToPath(import.meta.url)), "skills");
 
-/** Minimal frontmatter reader — this project's SKILL.md files only ever use flat `key: value` lines. */
+/**
+ * Minimal frontmatter reader for top-level `key: value` lines, plus the one
+ * YAML block-scalar form we actually use (`key: >-` folded description,
+ * unwrapped to a single space-joined line). Nested mappings (e.g. `metadata:`)
+ * are skipped — this installer only ever reads `name`/`description`.
+ */
 const readFrontmatter = (path) => {
   const text = readFileSync(path, "utf8");
   const match = /^---\n([\s\S]*?)\n---/.exec(text);
   const out = {};
   if (!match) return out;
-  for (const line of match[1].split("\n")) {
+  const lines = match[1].split("\n");
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (/^\s/.test(line)) continue; // indented continuation/nested key — not a top-level entry
     const idx = line.indexOf(":");
     if (idx === -1) continue;
-    out[line.slice(0, idx).trim()] = line.slice(idx + 1).trim();
+    const key = line.slice(0, idx).trim();
+    let value = line.slice(idx + 1).trim();
+    if (value === ">-" || value === ">") {
+      const parts = [];
+      while (i + 1 < lines.length && /^\s+\S/.test(lines[i + 1])) {
+        parts.push(lines[++i].trim());
+      }
+      value = parts.join(" ");
+    }
+    out[key] = value;
   }
   return out;
 };

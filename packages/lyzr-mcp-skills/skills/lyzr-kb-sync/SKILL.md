@@ -1,6 +1,12 @@
 ---
 name: lyzr-kb-sync
-description: Use whenever the user wants to connect a knowledge base to an external system (SharePoint, Google Drive, etc) for continuous syncing via the lyzr MCP server's KB Sync connectors.
+description: >-
+  Load this skill before connecting a knowledge base to an external system (SharePoint, a shared drive) for continuous syncing via the lyzr MCP server's KB Sync connectors, or before checking/pausing/resuming an existing sync's status and attempt history. Covers the three-layer connector/credential/cc-pair model, why this is a heavier-weight system than lyzr-credentials's Live Sources, and which tools are deprecated legacy paths.
+license: MIT
+metadata:
+  author: lyzr-mcp
+  version: "0.1.0"
+  organization: Lyzr
 ---
 
 # Lyzr KB Sync (connectors)

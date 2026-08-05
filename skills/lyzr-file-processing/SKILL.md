@@ -1,6 +1,12 @@
 ---
 name: lyzr-file-processing
-description: Use whenever the user wants to parse or train a knowledge base from an actual file (PDF, DOCX, TXT, CSV, XLSX, PPTX, image) via the lyzr MCP server, or extract structured data from a document.
+description: >-
+  Load this skill before parsing or training a knowledge base from an actual binary file (PDF, DOCX, TXT, CSV, XLSX, PPTX, image) via the lyzr MCP server, or before extracting structured fields from a document. Covers the base64-encode-the-file-yourself pattern every one of these tools requires, parse-vs-train tool selection, and matching the tool to the file's real type rather than its extension.
+license: MIT
+metadata:
+  author: lyzr-mcp
+  version: "0.1.0"
+  organization: Lyzr
 ---
 
 # Lyzr File Processing (parse / train / extract)

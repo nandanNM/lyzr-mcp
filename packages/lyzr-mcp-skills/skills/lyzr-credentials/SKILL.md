@@ -1,6 +1,12 @@
 ---
 name: lyzr-credentials
-description: Use whenever the user wants to manage stored API credentials or keep a knowledge base synced to a live external source via the lyzr MCP server.
+description: >-
+  Load this skill before creating, listing, updating, or deleting a stored API credential, or before adding/syncing/pausing/resuming a live source that keeps a knowledge base continuously synced to an external system, via the lyzr MCP server. Covers not echoing raw secrets back into chat, and the three-layer live-source model (kb_id + credential_id + sync lifecycle).
+license: MIT
+metadata:
+  author: lyzr-mcp
+  version: "0.1.0"
+  organization: Lyzr
 ---
 
 # Lyzr Credentials & Live Sources

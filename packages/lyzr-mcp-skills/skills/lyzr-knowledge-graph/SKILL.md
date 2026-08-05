@@ -1,6 +1,12 @@
 ---
 name: lyzr-knowledge-graph
-description: Use whenever the user wants to build or query a knowledge graph (entity graph) from text or a website via the lyzr MCP server.
+description: >-
+  Load this skill before building or querying a knowledge graph (entities + relationships, not chunked retrieval text) from text, a website, or a file via the lyzr MCP server — including the Neo4j-backed variants. Covers the default-store vs Neo4j-store distinction, sync vs async/task training, deduplicating entities after repeated training runs, and not conflating this with the Knowledge Base (RAG) tools.
+license: MIT
+metadata:
+  author: lyzr-mcp
+  version: "0.1.0"
+  organization: Lyzr
 ---
 
 # Lyzr Knowledge Graph (v4)

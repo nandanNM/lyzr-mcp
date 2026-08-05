@@ -1,6 +1,12 @@
 ---
 name: lyzr-scheduler
-description: Use whenever the user wants to run a Lyzr agent on a recurring cron schedule via the lyzr MCP server.
+description: >-
+  Load this skill before creating, listing, pausing, resuming, triggering, or deleting a cron schedule that runs a Lyzr agent automatically via the lyzr MCP server. Covers cron_expression/timezone/retry defaults, using an immediate trigger to test before leaving a schedule unattended, and preferring pause/resume over delete-and-recreate.
+license: MIT
+metadata:
+  author: lyzr-mcp
+  version: "0.1.0"
+  organization: Lyzr
 ---
 
 # Lyzr Scheduler
