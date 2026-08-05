@@ -11,7 +11,7 @@ const SPECS = [
     name: "Lyzr Agent API",
     url: "https://agent-dev.test.studio.lyzr.ai/openapi.json",
     outputPath: new URL(
-      "../src/lyzr/generated/agent-api-types.ts",
+      "../packages/mcp-server-lyzr/src/lyzr/generated/agent-api-types.ts",
       import.meta.url,
     ),
   },
@@ -19,7 +19,7 @@ const SPECS = [
     name: "Lyzr RAG API",
     url: "https://rag-dev.test.studio.lyzr.ai/openapi.json",
     outputPath: new URL(
-      "../src/lyzr/generated/rag-api-types.ts",
+      "../packages/mcp-server-lyzr/src/lyzr/generated/rag-api-types.ts",
       import.meta.url,
     ),
   },

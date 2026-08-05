@@ -37,6 +37,29 @@ export interface CreateAgentInput {
   temperature?: number;
   top_p?: number;
   description?: string;
+  agent_context?: string;
+  agent_output?: string;
+  examples?: string;
+  features?: unknown[];
+  tools?: string[];
+  tool_usage_description?: string;
+  tool_configs?: unknown[];
+  llm_credential_id?: string;
+  response_format?: Record<string, unknown>;
+  managed_agents?: unknown[];
+  store_messages?: boolean;
+  file_output?: boolean;
+  disable_artifacts?: boolean;
+  a2a_tools?: unknown[];
+  voice_config?: Record<string, unknown>;
+  additional_model_params?: Record<string, unknown>;
+  image_output_config?: Record<string, unknown>;
+  max_iterations?: number;
+  git_agent?: Record<string, unknown>;
+  proxy_config?: Record<string, unknown>;
+  skills_catalog?: string[];
+  mcp_resources?: unknown[];
+  mcp_prompts?: unknown[];
 }
 
 export interface Agent {
@@ -84,6 +107,10 @@ export interface UpdateAgentInput {
   temperature?: number;
   top_p?: number;
   description?: string;
+  /** New LLM provider alias (e.g. "openai", "anthropic"). Resolved via PROVIDER_MAP, same as createAgent. */
+  provider?: string;
+  /** New model name. Only takes effect together with (or already having) a resolvable provider. */
+  model?: string;
   /** Tool ids to attach to the agent (replaces the existing tool list). */
   tools?: string[];
   /**
@@ -92,7 +119,35 @@ export interface UpdateAgentInput {
    * `resolveToolConfigs` for why this matters.
    */
   tool_configs?: unknown[];
+  agent_context?: string;
+  agent_output?: string;
+  examples?: string;
+  features?: unknown[];
+  tool_usage_description?: string;
+  llm_credential_id?: string;
+  response_format?: Record<string, unknown>;
+  managed_agents?: unknown[];
+  store_messages?: boolean;
+  file_output?: boolean;
+  disable_artifacts?: boolean;
+  a2a_tools?: unknown[];
+  voice_config?: Record<string, unknown>;
+  additional_model_params?: Record<string, unknown>;
+  image_output_config?: Record<string, unknown>;
+  max_iterations?: number;
+  git_agent?: Record<string, unknown>;
+  proxy_config?: Record<string, unknown>;
+  skills_catalog?: string[];
+  mcp_resources?: unknown[];
+  mcp_prompts?: unknown[];
 }
+
+const MEMORY_FEATURE_TYPES = new Set([
+  "memory",
+  "long_term_memory",
+  "short_term_memory",
+  "struct_memory",
+]);
 
 
 export class LyzrClient extends LyzrHttp {
@@ -218,29 +273,52 @@ export class LyzrClient extends LyzrHttp {
         `Unknown provider "${input.provider}". Valid providers: ${KNOWN_PROVIDERS.join(", ")}`,
       );
     }
+    if (
+      input.store_messages === false &&
+      (input.features ?? []).some(
+        (f) =>
+          typeof f === "object" &&
+          f !== null &&
+          MEMORY_FEATURE_TYPES.has(String((f as Record<string, unknown>).type)),
+      )
+    ) {
+      throw new Error(
+        `store_messages:false is incompatible with a memory feature (${Array.from(MEMORY_FEATURE_TYPES).join(", ")}) in features[] — the backend rejects this combination with a 422.`,
+      );
+    }
     const payload = {
       name: input.name,
       description: input.description ?? null,
       agent_role: input.role,
       agent_goal: input.goal,
       agent_instructions: input.instructions,
-      examples: null,
-      tools: [],
-      tool_usage_description: "{}",
-      tool_configs: [],
+      agent_context: input.agent_context ?? null,
+      agent_output: input.agent_output ?? null,
+      examples: input.examples ?? null,
+      tools: input.tools ?? [],
+      tool_usage_description: input.tool_usage_description ?? "{}",
+      tool_configs: input.tool_configs ?? [],
       provider_id: resolved.providerId,
       model: input.model,
       temperature: input.temperature ?? 0.7,
       top_p: input.top_p ?? 0.9,
-      llm_credential_id: resolved.credentialId,
-      features: [],
-      managed_agents: [],
-      a2a_tools: [],
-      additional_model_params: null,
-      response_format: { type: "text" },
-      store_messages: true,
-      file_output: false,
-      image_output_config: null,
+      llm_credential_id: input.llm_credential_id ?? resolved.credentialId,
+      features: input.features ?? [],
+      managed_agents: input.managed_agents ?? [],
+      a2a_tools: input.a2a_tools ?? [],
+      additional_model_params: input.additional_model_params ?? null,
+      response_format: input.response_format ?? { type: "text" },
+      store_messages: input.store_messages ?? true,
+      file_output: input.file_output ?? false,
+      disable_artifacts: input.disable_artifacts ?? false,
+      voice_config: input.voice_config ?? null,
+      image_output_config: input.image_output_config ?? null,
+      max_iterations: input.max_iterations ?? 25,
+      git_agent: input.git_agent ?? null,
+      proxy_config: input.proxy_config ?? null,
+      skills_catalog: input.skills_catalog ?? [],
+      mcp_resources: input.mcp_resources ?? [],
+      mcp_prompts: input.mcp_prompts ?? [],
     };
     return this.request<CreateAgentResult>("POST", "/v3/agents/", {
       body: payload,
@@ -386,10 +464,72 @@ export class LyzrClient extends LyzrHttp {
         ? await this.resolveToolConfigs(updates.tools, signal)
         : undefined;
 
+    // Bug fix: provider/model used to be unconditionally frozen to the
+    // agent's CURRENT values on every update, making it impossible to ever
+    // change an agent's model/provider through this tool. If the caller
+    // supplies either, resolve provider via PROVIDER_MAP (same as
+    // createAgent) and use the new values; otherwise preserve current.
+    let providerId = current.provider_id;
+    let llmCredentialId = current.llm_credential_id;
+    let model = current.model;
+    if (updates.provider !== undefined) {
+      const resolved = PROVIDER_MAP[updates.provider.trim().toLowerCase()];
+      if (!resolved) {
+        throw new Error(
+          `Unknown provider "${updates.provider}". Valid providers: ${KNOWN_PROVIDERS.join(", ")}`,
+        );
+      }
+      providerId = resolved.providerId;
+      llmCredentialId = updates.llm_credential_id ?? resolved.credentialId;
+    }
+    if (updates.model !== undefined) {
+      model = updates.model;
+    }
+
+    const mergedFeatures = pick(updates.features, current.features ?? []) as
+      | unknown[]
+      | undefined;
+    const storeMessages = pick(
+      updates.store_messages,
+      current.store_messages ?? true,
+    );
+    if (
+      storeMessages === false &&
+      Array.isArray(mergedFeatures) &&
+      mergedFeatures.some(
+        (f) =>
+          typeof f === "object" &&
+          f !== null &&
+          MEMORY_FEATURE_TYPES.has(String((f as Record<string, unknown>).type)),
+      )
+    ) {
+      throw new Error(
+        `store_messages:false is incompatible with a memory feature (${Array.from(MEMORY_FEATURE_TYPES).join(", ")}) in features[] — the backend rejects this combination with a 422.`,
+      );
+    }
+
+    const managedAgents = pick(
+      updates.managed_agents,
+      current.managed_agents ?? [],
+    );
+    if (
+      Array.isArray(managedAgents) &&
+      managedAgents.some(
+        (m) =>
+          typeof m === "object" &&
+          m !== null &&
+          (m as Record<string, unknown>).id === agentId,
+      )
+    ) {
+      throw new Error(
+        `managed_agents cannot reference the agent's own id ("${agentId}") — the backend rejects self-referencing managed_agents with a 400.`,
+      );
+    }
+
     const payload: Record<string, unknown> = {
       name: pick(updates.name, current.name),
-      provider_id: current.provider_id,
-      model: current.model,
+      provider_id: providerId,
+      model,
       temperature: pick(updates.temperature, current.temperature ?? 0.7),
       top_p: pick(updates.top_p, current.top_p ?? 0.9),
       description: pick(updates.description, current.description ?? null),
@@ -399,22 +539,56 @@ export class LyzrClient extends LyzrHttp {
         updates.instructions,
         current.agent_instructions,
       ),
-      examples: current.examples ?? null,
+      agent_context: pick(updates.agent_context, current.agent_context ?? null),
+      agent_output: pick(updates.agent_output, current.agent_output ?? null),
+      examples: pick(updates.examples, current.examples ?? null),
       tools: pick(
         resolvedToolConfigs?.tools ?? updates.tools,
         current.tools ?? [],
       ),
-      tool_usage_description: current.tool_usage_description ?? "{}",
+      tool_usage_description: pick(
+        updates.tool_usage_description,
+        current.tool_usage_description ?? "{}",
+      ),
       tool_configs: pick(
         resolvedToolConfigs?.toolConfigs ?? updates.tool_configs,
         current.tool_configs ?? [],
       ),
-      managed_agents: current.managed_agents ?? [],
-      features: current.features ?? [],
-      llm_credential_id: current.llm_credential_id,
-      store_messages: current.store_messages ?? true,
-      file_output: current.file_output ?? false,
-      image_output_config: current.image_output_config ?? null,
+      managed_agents: managedAgents,
+      features: mergedFeatures,
+      llm_credential_id: llmCredentialId,
+      response_format: pick(
+        updates.response_format,
+        current.response_format ?? { type: "text" },
+      ),
+      store_messages: storeMessages,
+      file_output: pick(updates.file_output, current.file_output ?? false),
+      disable_artifacts: pick(
+        updates.disable_artifacts,
+        current.disable_artifacts ?? false,
+      ),
+      a2a_tools: pick(updates.a2a_tools, current.a2a_tools ?? []),
+      voice_config: pick(updates.voice_config, current.voice_config ?? null),
+      additional_model_params: pick(
+        updates.additional_model_params,
+        current.additional_model_params ?? null,
+      ),
+      image_output_config: pick(
+        updates.image_output_config,
+        current.image_output_config ?? null,
+      ),
+      max_iterations: pick(
+        updates.max_iterations,
+        current.max_iterations ?? 25,
+      ),
+      git_agent: pick(updates.git_agent, current.git_agent ?? null),
+      proxy_config: pick(updates.proxy_config, current.proxy_config ?? null),
+      skills_catalog: pick(
+        updates.skills_catalog,
+        current.skills_catalog ?? [],
+      ),
+      mcp_resources: pick(updates.mcp_resources, current.mcp_resources ?? []),
+      mcp_prompts: pick(updates.mcp_prompts, current.mcp_prompts ?? []),
     };
     const result = await this.request<Record<string, unknown>>(
       "PUT",

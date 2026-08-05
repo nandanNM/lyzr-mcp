@@ -346,6 +346,109 @@ describe("LyzrClient", () => {
     expect(putUrl).toBe("https://api.example.test/v3/agents/agent-1");
   });
 
+  it("updateAgent actually changes provider_id/model when updates.provider/model are given (regression for the freeze bug)", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(
+        okJson({
+          name: "Agent",
+          provider_id: "OpenAI",
+          model: "gpt-4o",
+          agent_role: "role",
+          agent_goal: "goal",
+          agent_instructions: "instr",
+          temperature: 0.7,
+          top_p: 0.9,
+          llm_credential_id: "lyzr_openai",
+        }),
+      )
+      .mockResolvedValueOnce(okJson({ message: "updated" }));
+    const client = makeClient(fetchMock as unknown as typeof fetch);
+
+    await client.updateAgent("agent-1", {
+      provider: "anthropic",
+      model: "claude-sonnet-4-5",
+    });
+
+    const [, putInit] = fetchMock.mock.calls[1] as [string, RequestInit];
+    const body = JSON.parse(putInit.body as string);
+    // Must be the NEW values, not the GET-mocked "OpenAI"/"gpt-4o".
+    expect(body.provider_id).toBe("Anthropic");
+    expect(body.model).toBe("claude-sonnet-4-5");
+    expect(body.llm_credential_id).toBe("lyzr_anthropic");
+  });
+
+  it("updateAgent rejects an unknown provider", async () => {
+    const fetchMock = vi.fn().mockResolvedValueOnce(
+      okJson({
+        name: "Agent",
+        provider_id: "OpenAI",
+        model: "gpt-4o",
+      }),
+    );
+    const client = makeClient(fetchMock as unknown as typeof fetch);
+    await expect(
+      client.updateAgent("agent-1", { provider: "not-a-provider" }),
+    ).rejects.toThrow(/Unknown provider/);
+  });
+
+  it("updateAgent round-trips new pass-through fields (agent_context, max_iterations, response_format) into the PUT payload", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(
+        okJson({
+          name: "Agent",
+          provider_id: "OpenAI",
+          model: "gpt-4o",
+          agent_role: "role",
+          agent_goal: "goal",
+          agent_instructions: "instr",
+          temperature: 0.7,
+          top_p: 0.9,
+          llm_credential_id: "lyzr_openai",
+        }),
+      )
+      .mockResolvedValueOnce(okJson({ message: "updated" }));
+    const client = makeClient(fetchMock as unknown as typeof fetch);
+
+    await client.updateAgent("agent-1", {
+      agent_context: "some context",
+      max_iterations: 40,
+      response_format: { type: "json_schema", json_schema: { foo: "bar" } },
+    });
+
+    const [, putInit] = fetchMock.mock.calls[1] as [string, RequestInit];
+    const body = JSON.parse(putInit.body as string);
+    expect(body.agent_context).toBe("some context");
+    expect(body.max_iterations).toBe(40);
+    expect(body.response_format).toEqual({
+      type: "json_schema",
+      json_schema: { foo: "bar" },
+    });
+  });
+
+  it("updateAgent throws before any HTTP call when store_messages:false is combined with a memory feature", async () => {
+    const fetchMock = vi.fn().mockResolvedValueOnce(
+      okJson({
+        name: "Agent",
+        provider_id: "OpenAI",
+        model: "gpt-4o",
+        features: [],
+      }),
+    );
+    const client = makeClient(fetchMock as unknown as typeof fetch);
+
+    await expect(
+      client.updateAgent("agent-1", {
+        store_messages: false,
+        features: [{ type: "long_term_memory", priority: 1 }],
+      }),
+    ).rejects.toThrow(/store_messages/);
+
+    // Only the GET happened — no PUT was attempted.
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
   it("deleteAgent DELETEs by id", async () => {
     const fetchMock = vi.fn(async () => okJson({}, 200));
     const client = makeClient(fetchMock as unknown as typeof fetch);

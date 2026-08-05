@@ -3,7 +3,7 @@ import {
   SubscribeRequestSchema,
   UnsubscribeRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
-import { sendLog } from "../server/logging.js";
+import { sendLog } from "mcp-utils";
 
 /**
  * Resource subscription handling — mirrors the reference server. Clients may

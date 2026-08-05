@@ -58,8 +58,7 @@ import {
   setSubscriptionHandlers,
   stopResourceUpdates,
 } from "../resources/subscriptions.js";
-import { stopLogging } from "./logging.js";
-import { syncRoots } from "./roots.js";
+import { stopLogging, syncRoots } from "mcp-utils";
 import { DEFAULT_BASE_URL, getServiceUrls } from "../config.js";
 
 export type ServerFactoryResponse = {
@@ -88,7 +87,7 @@ export interface CreateServerOptions {
   readOnly?: boolean;
 }
 
-export const createServer = (
+export const createLyzrMcpServer = (
   apiKey: string,
   baseUrl: string = DEFAULT_BASE_URL,
   options: CreateServerOptions = {},

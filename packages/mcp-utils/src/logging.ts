@@ -22,10 +22,11 @@ export const sendLog = async (
   level: LoggingLevel,
   data: string,
   sessionId?: string,
+  logger = "lyzr-mcp",
 ): Promise<void> => {
   try {
     await server.server.sendLoggingMessage(
-      { level, logger: "lyzr-mcp", data },
+      { level, logger, data },
       sessionId,
     );
   } catch {

@@ -1,5 +1,7 @@
 node_modules/
 build/
+dist/
+*.tsbuildinfo
 *.log
 .env
 .env.local
@@ -10,7 +12,7 @@ IMPLEMENTATION-PLAN.md
 mcp-everything-server-explained.md
 .mcp
 # OpenAPI drift-detection output (npm run generate:openapi-types) — regenerate on demand, not committed
-src/lyzr/generated/
+packages/mcp-server-lyzr/src/lyzr/generated/
 mcp/
 # Reference clones (external repos, not part of this project)
 lyzr-agent/

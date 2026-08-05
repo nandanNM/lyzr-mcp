@@ -1,6 +1,6 @@
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { parseArgs } from "node:util";
-import { createServer } from "../server/index.js";
+import { createLyzrMcpServer } from "../server/index.js";
 import {
   getStdioKey,
   getBaseUrl,
@@ -54,7 +54,7 @@ async function main(): Promise<void> {
   const readOnly =
     cliReadOnly !== undefined ? Boolean(cliReadOnly) : getReadOnly();
 
-  const { server, cleanup } = createServer(apiKey, getBaseUrl(), {
+  const { server, cleanup } = createLyzrMcpServer(apiKey, getBaseUrl(), {
     features,
     readOnly,
   });

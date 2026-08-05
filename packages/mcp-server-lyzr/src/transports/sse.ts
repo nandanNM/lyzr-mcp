@@ -1,7 +1,7 @@
 import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
 import express, { type Request, type Response } from "express";
 import cors from "cors";
-import { createServer } from "../server/index.js";
+import { createLyzrMcpServer } from "../server/index.js";
 import {
   extractHttpKey,
   getBaseUrl,
@@ -34,7 +34,7 @@ app.get("/sse", async (req: Request, res: Response) => {
     throw error;
   }
 
-  const { server, cleanup } = createServer(apiKey, getBaseUrl(), {
+  const { server, cleanup } = createLyzrMcpServer(apiKey, getBaseUrl(), {
     features: getFeatures(),
     readOnly: getReadOnly(),
   });

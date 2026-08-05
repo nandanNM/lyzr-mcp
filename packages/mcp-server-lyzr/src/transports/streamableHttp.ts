@@ -5,7 +5,7 @@ import {
 import express, { type Request, type Response } from "express";
 import cors from "cors";
 import { randomUUID } from "node:crypto";
-import { createServer } from "../server/index.js";
+import { createLyzrMcpServer } from "../server/index.js";
 import {
   extractHttpKey,
   getBaseUrl,
@@ -98,7 +98,7 @@ app.post("/mcp", async (req: Request, res: Response) => {
         throw error;
       }
 
-      const { server, cleanup } = createServer(apiKey, getBaseUrl(), {
+      const { server, cleanup } = createLyzrMcpServer(apiKey, getBaseUrl(), {
         features: getFeatures(),
         readOnly: getReadOnly(),
       });
