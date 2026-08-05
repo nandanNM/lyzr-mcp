@@ -406,11 +406,23 @@ export class LyzrClient extends LyzrHttp {
       file_output: current.file_output ?? false,
       image_output_config: current.image_output_config ?? null,
     };
-    return this.request<unknown>(
+    const result = await this.request<Record<string, unknown>>(
       "PUT",
       `/v3/agents/${encodeURIComponent(agentId)}`,
       { body: payload, signal },
     );
+    // Surface exactly what's now attached — not just a bare "updated" message
+    // — so the caller has full context on the tool(s) without a second
+    // lyzr_get_agent round-trip, and can see resolved tool_source/action_names
+    // even when they only passed bare ids.
+    if (updates.tools !== undefined) {
+      return {
+        ...result,
+        tools: payload.tools,
+        tool_configs: payload.tool_configs,
+      };
+    }
+    return result;
   }
 
   /** Delete an agent. DELETE /v3/agents/{agent_id} */

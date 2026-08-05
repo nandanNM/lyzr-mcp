@@ -265,8 +265,16 @@ describe("LyzrClient", () => {
     // Pass the catalog _id for one and the provider_id for the other — both
     // must resolve correctly, since chat-time validation only recognizes
     // provider_id, not the catalog _id.
-    await client.updateAgent("agent-1", {
+    const returned = await client.updateAgent("agent-1", {
       tools: ["catalog-id-1", "HACKERNEWS"],
+    });
+
+    // The caller gets full context of what's actually attached back in the
+    // response — not just a bare "updated" message — without a second
+    // lyzr_get_agent round-trip.
+    expect(returned).toMatchObject({
+      message: "updated",
+      tools: ["openapi-agify_age_predictor-predictAge", "HACKERNEWS"],
     });
 
     const [toolsUrl, toolsInit] = fetchMock.mock.calls[1] as [

@@ -15,7 +15,11 @@ export const registerUpdateAgentTool = (
     {
       title: "Update Lyzr Agent",
       description:
-        "Update fields (name/role/goal/instructions/temperature/description) on an existing Lyzr agent.",
+        "Update fields (name/role/goal/instructions/temperature/description) on an existing Lyzr agent. " +
+        "When attaching tools via `tools`, pass either the tool's catalog id or its provider_id (from " +
+        "lyzr_get_all_tools/lyzr_list_all_user_tools) — the correct tool_source and action_names are " +
+        "resolved automatically unless you pass `tool_configs` explicitly. The response echoes back the " +
+        "resolved tools/tool_configs so you have full context on what's actually attached.",
       inputSchema: {
         agent_id: z.string().describe("The agent_id to update"),
         name: z.string().optional().describe("New agent name"),
