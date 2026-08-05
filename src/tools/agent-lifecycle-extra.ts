@@ -11,62 +11,22 @@ const txt = (data: unknown) => ({
   ],
 });
 
-/** Register the Agent Lifecycle Extra tools (status/lock/bulk-delete/org/versions/clone/reassign/publish). */
+/**
+ * Register the Agent Lifecycle Extra tools
+ * (bulk-delete/org/versions/clone/reassign).
+ *
+ * `lyzr_set_agent_status`, `lyzr_set_agent_lock`, and `lyzr_publish_agents`
+ * were removed: the first two target `/v3/agents/{id}/status` and
+ * `/v3/agents/{id}/lock`, neither of which exists in the backend (confirmed
+ * live 404 / 405 — see agent-lifecycle-extra.ts); the third,
+ * `POST /v3/agents/publish`, exists but requires a server-to-server
+ * `x-server-token` secret no MCP caller's API key can supply (confirmed
+ * live 403).
+ */
 export const registerAgentLifecycleExtraTools = (
   server: McpServer,
   client: AgentLifecycleExtraClient,
 ) => {
-  server.registerTool(
-    "lyzr_set_agent_status",
-    {
-      title: "Set Agent Status",
-      description: "Activate or deactivate an agent.",
-      inputSchema: {
-        agent_id: z.string().describe("The agent_id to update"),
-        is_active: z.boolean().describe("Whether the agent should be active"),
-      },
-      annotations: {
-        readOnlyHint: false,
-        destructiveHint: false,
-        idempotentHint: true,
-        openWorldHint: true,
-      },
-    },
-    async ({ agent_id, is_active }, extra) =>
-      txt(await client.setAgentStatus(agent_id, { is_active }, extra.signal)),
-  );
-
-  server.registerTool(
-    "lyzr_set_agent_lock",
-    {
-      title: "Set Agent Lock",
-      description:
-        "Lock or unlock an agent, optionally scoped to an environment.",
-      inputSchema: {
-        agent_id: z.string().describe("The agent_id to update"),
-        is_locked: z.boolean().describe("Whether the agent should be locked"),
-        environment: z
-          .string()
-          .optional()
-          .describe("Optional environment to scope the lock to"),
-      },
-      annotations: {
-        readOnlyHint: false,
-        destructiveHint: false,
-        idempotentHint: true,
-        openWorldHint: true,
-      },
-    },
-    async ({ agent_id, is_locked, environment }, extra) =>
-      txt(
-        await client.setAgentLock(
-          agent_id,
-          { is_locked, environment },
-          extra.signal,
-        ),
-      ),
-  );
-
   server.registerTool(
     "lyzr_bulk_delete_agents",
     {
@@ -220,33 +180,5 @@ export const registerAgentLifecycleExtraTools = (
     },
     async ({ agent_id, target_email }, extra) =>
       txt(await client.reassignAgent({ agent_id, target_email }, extra.signal)),
-  );
-
-  server.registerTool(
-    "lyzr_publish_agents",
-    {
-      title: "Publish Agents",
-      description: "Publish one or more agents with a given access level.",
-      inputSchema: {
-        agent_ids: z
-          .array(z.string())
-          .min(1)
-          .describe("List of agent IDs to publish"),
-        access_level: z
-          .string()
-          .optional()
-          .describe("Access level for the published agents (default public)"),
-      },
-      annotations: {
-        readOnlyHint: false,
-        destructiveHint: false,
-        idempotentHint: false,
-        openWorldHint: true,
-      },
-    },
-    async ({ agent_ids, access_level }, extra) =>
-      txt(
-        await client.publishAgents({ agent_ids, access_level }, extra.signal),
-      ),
   );
 };

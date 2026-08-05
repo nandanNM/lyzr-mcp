@@ -15,7 +15,15 @@ const passthroughObj = z
   .record(z.string(), z.unknown())
   .describe("Arbitrary key/value object");
 
-/** Register the Inference-extra tools (tools/execute, chat tasks, voice, files, v4/OpenAI-compatible). */
+/**
+ * Register the Inference-extra tools (tools/execute, chat tasks, voice,
+ * files, v3+v4 OpenAI-compatible completions).
+ *
+ * `lyzr_create_inference_v4` / `lyzr_create_response_v4` were removed:
+ * `/v4/inference` and `/v4/responses` don't exist in the backend — the
+ * entire `/v4` surface is just `POST /v4/chat/completions` (see
+ * inference-extra.ts).
+ */
 export const registerInferenceExtraTools = (
   server: McpServer,
   client: InferenceExtraClient,
@@ -289,62 +297,6 @@ export const registerInferenceExtraTools = (
   );
 
   server.registerTool(
-    "lyzr_create_inference_v4",
-    {
-      title: "Create Inference (v4)",
-      description:
-        "Create a v4 inference response (OpenAI Responses-API style: model + input + tools).",
-      inputSchema: {
-        model: z.string().describe("The model name"),
-        input: z
-          .union([z.string(), z.array(passthroughObj)])
-          .describe("A plain text prompt, or a list of structured input items"),
-        instructions: z.string().optional().describe("System instructions"),
-        stream: z
-          .boolean()
-          .optional()
-          .describe("Whether to stream (default false)"),
-        temperature: z.number().optional().describe("Sampling temperature"),
-        top_p: z.number().optional().describe("Top-p"),
-        max_output_tokens: z
-          .number()
-          .int()
-          .optional()
-          .describe("Max output tokens"),
-        tools: z.array(passthroughObj).optional().describe("Tool definitions"),
-        tool_choice: z
-          .union([z.string(), passthroughObj])
-          .optional()
-          .describe("Tool choice strategy"),
-        text: passthroughObj.optional().describe("Text output format options"),
-        previous_response_id: z
-          .string()
-          .optional()
-          .describe("Previous response id to continue from"),
-        store: z
-          .boolean()
-          .optional()
-          .describe("Whether to store the response (default true)"),
-        user: z.string().optional().describe("End-user identifier"),
-        reasoning: passthroughObj.optional().describe("Reasoning options"),
-        truncation: z.string().optional().describe("Truncation strategy"),
-        include: z
-          .array(z.string())
-          .optional()
-          .describe("Additional fields to include in the response"),
-      },
-      annotations: {
-        readOnlyHint: false,
-        destructiveHint: false,
-        idempotentHint: false,
-        openWorldHint: true,
-      },
-    },
-    async (args, extra) =>
-      txt(await client.createInference(args, extra.signal)),
-  );
-
-  server.registerTool(
     "lyzr_chat_completions_v4",
     {
       title: "Chat Completions (v4)",
@@ -400,61 +352,5 @@ export const registerInferenceExtraTools = (
     },
     async (args, extra) =>
       txt(await client.chatCompletionsV4(args, extra.signal)),
-  );
-
-  server.registerTool(
-    "lyzr_create_response_v4",
-    {
-      title: "Create Response (v4)",
-      description:
-        "OpenAI-compatible v4 responses endpoint (model + input + tools).",
-      inputSchema: {
-        model: z.string().describe("The model name"),
-        input: z
-          .union([z.string(), z.array(passthroughObj)])
-          .describe("A plain text prompt, or a list of structured input items"),
-        instructions: z.string().optional().describe("System instructions"),
-        stream: z
-          .boolean()
-          .optional()
-          .describe("Whether to stream (default false)"),
-        temperature: z.number().optional().describe("Sampling temperature"),
-        top_p: z.number().optional().describe("Top-p"),
-        max_output_tokens: z
-          .number()
-          .int()
-          .optional()
-          .describe("Max output tokens"),
-        tools: z.array(passthroughObj).optional().describe("Tool definitions"),
-        tool_choice: z
-          .union([z.string(), passthroughObj])
-          .optional()
-          .describe("Tool choice strategy"),
-        text: passthroughObj.optional().describe("Text output format options"),
-        previous_response_id: z
-          .string()
-          .optional()
-          .describe("Previous response id to continue from"),
-        store: z
-          .boolean()
-          .optional()
-          .describe("Whether to store the response (default true)"),
-        user: z.string().optional().describe("End-user identifier"),
-        reasoning: passthroughObj.optional().describe("Reasoning options"),
-        truncation: z.string().optional().describe("Truncation strategy"),
-        include: z
-          .array(z.string())
-          .optional()
-          .describe("Additional fields to include in the response"),
-      },
-      annotations: {
-        readOnlyHint: false,
-        destructiveHint: false,
-        idempotentHint: false,
-        openWorldHint: true,
-      },
-    },
-    async (args, extra) =>
-      txt(await client.createResponseV4(args, extra.signal)),
   );
 };

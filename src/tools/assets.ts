@@ -115,48 +115,11 @@ export const registerAssetsTools = (
   );
 
   server.registerTool(
-    "lyzr_resolve_asset_by_source",
-    {
-      title: "Resolve Asset By Source",
-      description:
-        "Resolve an asset from a knowledge base document's source path.",
-      inputSchema: {
-        rag_id: z.string().describe("Knowledge base the document belongs to"),
-        source: z
-          .string()
-          .describe("RAG document source, e.g. 'storage/report.pdf'"),
-      },
-      annotations: {
-        readOnlyHint: true,
-        idempotentHint: true,
-        openWorldHint: true,
-      },
-    },
-    async ({ rag_id, source }, extra) =>
-      txt(await client.resolveAssetBySource(rag_id, source, extra.signal)),
-  );
-
-  server.registerTool(
-    "lyzr_get_asset_raw",
-    {
-      title: "Get Asset Raw Content",
-      description: "Fetch the raw content of an asset by id.",
-      inputSchema: { asset_id: z.string().describe("Asset id") },
-      annotations: {
-        readOnlyHint: true,
-        idempotentHint: true,
-        openWorldHint: true,
-      },
-    },
-    async ({ asset_id }, extra) =>
-      txt(await client.getAssetRaw(asset_id, extra.signal)),
-  );
-
-  server.registerTool(
     "lyzr_get_asset",
     {
       title: "Get Asset",
-      description: "Fetch asset metadata by id.",
+      description:
+        "Fetch an asset by id, including its extracted text content (if any) under the 'content' field.",
       inputSchema: { asset_id: z.string().describe("Asset id") },
       annotations: {
         readOnlyHint: true,

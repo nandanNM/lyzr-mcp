@@ -1,17 +1,18 @@
 /**
  * Lyzr Agent lifecycle "extra" endpoints (host: agent-prod).
- * Status/lock toggles, bulk delete, org listing, versioning, clone/reassign/publish.
+ * Bulk delete, org listing, versioning, clone/reassign.
+ *
+ * NOTE: `PATCH /v3/agents/{id}/status` and `PATCH /v3/agents/{id}/lock` do
+ * NOT exist in the backend (api/factory/v3/agents/endpoints.py has no
+ * "/status" or "/lock" route, and "is_active"/"is_locked" aren't fields on
+ * any agent model) — confirmed 404/405 live. `POST /v3/agents/publish`
+ * exists but requires an `x-server-token` header holding a server-to-server
+ * secret (`settings.server_auth_token`) that no MCP caller's API key can
+ * ever supply — confirmed live 403 "Invalid or missing server
+ * authentication token". All three were removed rather than "fixed" since
+ * there is no reachable backend behavior for an MCP client to wrap.
  */
 import { LyzrHttp, normalizeList } from "./http.js";
-
-export interface SetAgentStatusInput {
-  is_active: boolean;
-}
-
-export interface SetAgentLockInput {
-  is_locked: boolean;
-  environment?: string | null;
-}
 
 export interface BulkDeleteInput {
   agent_ids: string[];
@@ -32,43 +33,12 @@ export interface ReassignAgentInput {
   target_email: string;
 }
 
-export interface PublishAgentsInput {
-  agent_ids: string[];
-  access_level?: string;
-}
-
 export interface AgentVersion {
   version_id?: string;
   [key: string]: unknown;
 }
 
 export class AgentLifecycleExtraClient extends LyzrHttp {
-  /** Set agent active/inactive status. PATCH /v3/agents/{agent_id}/status */
-  setAgentStatus(
-    agentId: string,
-    input: SetAgentStatusInput,
-    signal?: AbortSignal,
-  ): Promise<unknown> {
-    return this.request<unknown>(
-      "PATCH",
-      `/v3/agents/${encodeURIComponent(agentId)}/status`,
-      { body: input, signal },
-    );
-  }
-
-  /** Lock or unlock an agent. PATCH /v3/agents/{agent_id}/lock */
-  setAgentLock(
-    agentId: string,
-    input: SetAgentLockInput,
-    signal?: AbortSignal,
-  ): Promise<unknown> {
-    return this.request<unknown>(
-      "PATCH",
-      `/v3/agents/${encodeURIComponent(agentId)}/lock`,
-      { body: input, signal },
-    );
-  }
-
   /** Bulk delete agents. POST /v3/agents/bulk-delete */
   bulkDeleteAgents(
     input: BulkDeleteInput,
@@ -154,18 +124,4 @@ export class AgentLifecycleExtraClient extends LyzrHttp {
     });
   }
 
-  /** Publish one or more agents. POST /v3/agents/publish */
-  publishAgents(
-    input: PublishAgentsInput,
-    signal?: AbortSignal,
-  ): Promise<unknown> {
-    const payload = {
-      agent_ids: input.agent_ids,
-      access_level: input.access_level ?? "public",
-    };
-    return this.request<unknown>("POST", "/v3/agents/publish", {
-      body: payload,
-      signal,
-    });
-  }
 }

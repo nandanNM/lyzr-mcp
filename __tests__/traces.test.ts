@@ -100,21 +100,6 @@ describe("TracesClient", () => {
     expect(init.method).toBe("GET");
   });
 
-  it("killSwitchTrace POSTs /v3/traces/{trace_id}/kill-switch", async () => {
-    const f = vi.fn(async () => okJson({ ok: true }));
-    const traces = mk(
-      TracesClient,
-      f as unknown as typeof fetch,
-      "https://traces.test",
-    );
-    const result = await traces.killSwitchTrace("t1");
-    const [url, init] = f.mock.calls[0] as [string, RequestInit];
-    expect(url).toBe("https://traces.test/v3/traces/t1/kill-switch");
-    expect(init.method).toBe("POST");
-    expect(init.body).toBeUndefined();
-    expect(result).toEqual({ ok: true });
-  });
-
   it("getDashboardMetrics GETs /v3/traces/dashboard with query params", async () => {
     const f = vi.fn(async () =>
       okJson({

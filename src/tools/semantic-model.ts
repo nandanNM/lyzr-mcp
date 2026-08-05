@@ -106,7 +106,7 @@ export const registerSemanticModelTools = (
     {
       title: "List Tables",
       description:
-        "List table names available in a connected database for a RAG config.",
+        "List schemas/tables available in a connected database for a RAG config, with each table's inclusion status.",
       inputSchema: {
         rag_config_id: z.string().describe("RAG config id"),
         database_id: z.string().describe("Database id"),

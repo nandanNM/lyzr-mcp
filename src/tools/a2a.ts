@@ -17,10 +17,6 @@ const a2aAgentConfigSchema = {
     .string()
     .optional()
     .describe("Provider of the remote agent"),
-  agent_card_path: z
-    .string()
-    .optional()
-    .describe("Path to the agent card, relative to base_url"),
   name: z.string().optional().describe("Agent name"),
   description: z.string().optional().describe("Agent description"),
   version: z.string().optional().describe("Agent version"),
@@ -35,19 +31,6 @@ const a2aAgentConfigSchema = {
     .optional()
     .describe("Skill definitions advertised by the agent"),
   agent_type: z.string().optional().describe("Agent type, defaults to 'a2a'"),
-  auth_type: z.string().optional().describe("Authentication type"),
-  credential_id: z
-    .string()
-    .optional()
-    .describe("Credential id used to authenticate with the remote agent"),
-  custom_tags: z
-    .array(z.string())
-    .optional()
-    .describe("Custom tags for the agent"),
-  custom_metadata: z
-    .string()
-    .optional()
-    .describe("Custom metadata (string, e.g. JSON-encoded)"),
 };
 
 /** Register the A2A (Agent-to-Agent) tools. */
@@ -166,72 +149,5 @@ export const registerA2ATools = (server: McpServer, client: A2AClient) => {
     },
     async ({ agent_id, ...input }, extra) =>
       txt(await client.inferAgent(agent_id, input, extra.signal)),
-  );
-
-  server.registerTool(
-    "lyzr_get_a2a_agent_card",
-    {
-      title: "Get A2A Agent Card",
-      description:
-        "Fetch the A2A agent card (the .well-known/agent-card.json descriptor) for a served agent.",
-      inputSchema: {
-        agent_id: z.string().describe("The A2A agent id"),
-      },
-      annotations: {
-        readOnlyHint: true,
-        destructiveHint: false,
-        idempotentHint: true,
-        openWorldHint: true,
-      },
-    },
-    async ({ agent_id }, extra) =>
-      txt(await client.getAgentCard(agent_id, extra.signal)),
-  );
-
-  server.registerTool(
-    "lyzr_get_a2a_agent_card_convenience",
-    {
-      title: "Get A2A Agent Card (Convenience)",
-      description:
-        "Fetch the A2A agent card via the convenience path (without .well-known/agent-card.json).",
-      inputSchema: {
-        agent_id: z.string().describe("The A2A agent id"),
-      },
-      annotations: {
-        readOnlyHint: true,
-        destructiveHint: false,
-        idempotentHint: true,
-        openWorldHint: true,
-      },
-    },
-    async ({ agent_id }, extra) =>
-      txt(await client.getAgentCardConvenience(agent_id, extra.signal)),
-  );
-
-  server.registerTool(
-    "lyzr_send_a2a_jsonrpc",
-    {
-      title: "Send A2A JSON-RPC Request",
-      description:
-        "Send a raw JSON-RPC 2.0 request to a served A2A agent's endpoint.",
-      inputSchema: {
-        agent_id: z
-          .string()
-          .describe("The A2A agent id to send the request to"),
-        request: z
-          .record(z.unknown())
-          .describe(
-            "The JSON-RPC 2.0 request payload (method, params, id, etc.)",
-          ),
-      },
-      annotations: {
-        readOnlyHint: false,
-        destructiveHint: false,
-        idempotentHint: false,
-        openWorldHint: true,
-      },
-    },
-    async ({ agent_id, request }, extra) =>
-      txt(await client.sendJsonRpc(agent_id, request, extra.signal)),
   );
 };

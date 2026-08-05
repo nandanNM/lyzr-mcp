@@ -42,11 +42,9 @@ export const registerSharingTools = (
         access_level: accessLevel
           .optional()
           .describe(
-            `Default access level (default private). One of: ${ACCESS_LEVELS.join(", ")}`,
+            `Default access level (default private). One of: ${ACCESS_LEVELS.join(", ")}. ` +
+              `Use "organisation" here (not a separate field) to grant access to the whole org.`,
           ),
-        org_access_level: accessLevel
-          .optional()
-          .describe("Access level granted to the whole organisation"),
         shared_with: z
           .array(sharedUserSchema)
           .optional()
@@ -124,11 +122,9 @@ export const registerSharingTools = (
         access_level: accessLevel
           .optional()
           .describe(
-            `New default access level. One of: ${ACCESS_LEVELS.join(", ")}`,
+            `New default access level. One of: ${ACCESS_LEVELS.join(", ")}. ` +
+              `Use "organisation" here (not a separate field) for org-wide access.`,
           ),
-        org_access_level: accessLevel
-          .optional()
-          .describe("New organisation-wide access level"),
         shared_with: z
           .array(sharedUserSchema)
           .optional()

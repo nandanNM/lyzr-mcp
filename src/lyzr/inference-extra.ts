@@ -1,8 +1,25 @@
 /**
  * Lyzr Inference "extra" endpoints (host: agent-prod) — tool execution, chat
  * tasks, voice/webrtc sessions, file chat, and the v4/OpenAI-compatible
- * inference surfaces. Basic chat/stream/task/generate-response live elsewhere
- * (see client.ts).
+ * chat/completions surface. Basic chat/stream/task/generate-response live
+ * elsewhere (see client.ts).
+ *
+ * NOTE: `POST /v4/inference` and `POST /v4/responses` do NOT exist in the
+ * backend — the entire `/v4` surface is exactly one route,
+ * `chat_completions_router` mounted as `v4_router` in
+ * api/factory/v4/__init__.py, which only registers
+ * `POST /v4/chat/completions` (api/factory/v4/chat_completions/endpoints.py).
+ * Confirmed live: `/v4/inference` → 405, `/v4/responses` → 401 (it doesn't
+ * exist either; that 401 comes from FastAPI matching no route and falling
+ * through to a catch-all auth-gated handler, not from the responses
+ * endpoint itself). `createInference`/`createResponseV4` were removed.
+ *
+ * `POST /v4/chat/completions` itself DOES exist but requires
+ * `Authorization: Bearer <api_key>` via `get_bearer_auth`
+ * (api/auth.py), not the `x-api-key` header every other Lyzr endpoint uses
+ * — confirmed live 401 when sent via the shared `LyzrHttp.request()` path.
+ * `chatCompletionsV4` below sends the Bearer header directly instead of
+ * going through `this.request()`.
  */
 import { LyzrHttp, LyzrApiError, normalizeList } from "./http.js";
 
@@ -77,26 +94,6 @@ export interface SimpleChatCompletionsInput {
   credential_id?: string;
   session_id?: string;
   provider_id?: string;
-}
-
-export interface InferenceV4Input {
-  model: string;
-  input: string | Record<string, unknown>[];
-  instructions?: string | null;
-  stream?: boolean | null;
-  temperature?: number | null;
-  top_p?: number | null;
-  max_output_tokens?: number | null;
-  tools?: Record<string, unknown>[] | null;
-  tool_choice?: string | Record<string, unknown> | null;
-  text?: Record<string, unknown> | null;
-  previous_response_id?: string | null;
-  store?: boolean | null;
-  user?: string | null;
-  reasoning?: Record<string, unknown> | null;
-  truncation?: string | null;
-  include?: string[] | null;
-  [key: string]: unknown;
 }
 
 export interface ChatCompletionV4Input {
@@ -296,36 +293,31 @@ export class InferenceExtraClient extends LyzrHttp {
     });
   }
 
-  /** Create a v4 inference response (OpenAI Responses-style). POST /v4/inference */
-  createInference(
-    input: InferenceV4Input,
-    signal?: AbortSignal,
-  ): Promise<unknown> {
-    return this.request<unknown>("POST", "/v4/inference", {
-      body: input,
-      signal,
-    });
-  }
-
-  /** OpenAI-compatible v4 chat completions. POST /v4/chat/completions */
-  chatCompletionsV4(
+  /**
+   * OpenAI-compatible v4 chat completions. POST /v4/chat/completions
+   * Requires `Authorization: Bearer <api_key>` (via `get_bearer_auth`) —
+   * NOT the `x-api-key` header the rest of this API uses — so this bypasses
+   * `this.request()` to send the correct auth header.
+   */
+  async chatCompletionsV4(
     input: ChatCompletionV4Input,
     signal?: AbortSignal,
   ): Promise<unknown> {
-    return this.request<unknown>("POST", "/v4/chat/completions", {
-      body: input,
+    const res = await this.fetchImpl(this.buildUrl("/v4/chat/completions"), {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${this.apiKey}`,
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify(input),
       signal,
     });
-  }
-
-  /** OpenAI-compatible v4 responses endpoint. POST /v4/responses */
-  createResponseV4(
-    input: InferenceV4Input,
-    signal?: AbortSignal,
-  ): Promise<unknown> {
-    return this.request<unknown>("POST", "/v4/responses", {
-      body: input,
-      signal,
-    });
+    if (!res.ok) {
+      const text = await res.text().catch(() => "");
+      throw new LyzrApiError(res.status, text);
+    }
+    const text = await res.text();
+    return text ? JSON.parse(text) : {};
   }
 }

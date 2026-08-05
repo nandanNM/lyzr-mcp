@@ -24,14 +24,7 @@ const TIMEFRAME_VALUES = [
   "custom",
 ] as const;
 
-const GROUP_BY_VALUES = ["month", "billing_cycle"] as const;
-
-const REPORT_TYPE_VALUES = [
-  "usage_by_agent",
-  "usage_by_user",
-  "usage_by_model",
-  "usage_by_sub_account",
-] as const;
+const REPORT_TYPE_VALUES = ["usage_by_agent", "usage_by_user"] as const;
 
 const REPORT_STATUS_VALUES = ["queued", "running", "ready", "failed"] as const;
 
@@ -51,12 +44,6 @@ const baseReportFields = {
     .string()
     .optional()
     .describe("End date (YYYY-MM-DD), required when timeframe is 'custom'"),
-  group_by: z
-    .enum(GROUP_BY_VALUES)
-    .optional()
-    .describe(
-      "Optional row-splitting dimension: 'month' splits by calendar month, 'billing_cycle' splits by the org's subscription cycle. Omit for a single aggregated row per entity.",
-    ),
 };
 
 /** Register the Reports tools. */
@@ -120,61 +107,6 @@ export const registerReportsTools = (
     },
     async (args, extra) =>
       txt(await reports.requestUsageByUserReport(args, extra.signal)),
-  );
-
-  server.registerTool(
-    "lyzr_report_usage_by_model",
-    {
-      title: "Request Usage-By-Model Report",
-      description:
-        "Request an async usage report broken down by model. Returns a job_id; poll with lyzr_report_get_status.",
-      inputSchema: {
-        ...baseReportFields,
-        provider_id: z
-          .string()
-          .optional()
-          .describe("Filter by LLM provider id"),
-        model: z.string().optional().describe("Filter by model name"),
-        include_sub_orgs: z
-          .boolean()
-          .optional()
-          .describe(
-            "When true, include usage from the current org AND all its sub-orgs",
-          ),
-      },
-      annotations: {
-        readOnlyHint: false,
-        destructiveHint: false,
-        idempotentHint: false,
-        openWorldHint: true,
-      },
-    },
-    async (args, extra) =>
-      txt(await reports.requestUsageByModelReport(args, extra.signal)),
-  );
-
-  server.registerTool(
-    "lyzr_report_usage_by_sub_account",
-    {
-      title: "Request Usage-By-Sub-Account Report",
-      description:
-        "Request an async usage report broken down by sub-account. Returns a job_id; poll with lyzr_report_get_status.",
-      inputSchema: {
-        ...baseReportFields,
-        sub_org_id: z
-          .string()
-          .optional()
-          .describe("Narrow to a single sub-account's organization_id"),
-      },
-      annotations: {
-        readOnlyHint: false,
-        destructiveHint: false,
-        idempotentHint: false,
-        openWorldHint: true,
-      },
-    },
-    async (args, extra) =>
-      txt(await reports.requestUsageBySubAccountReport(args, extra.signal)),
   );
 
   server.registerTool(

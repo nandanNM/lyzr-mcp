@@ -202,19 +202,6 @@ describe("ProvidersCoreClient", () => {
     expect(init.method).toBe("DELETE");
   });
 
-  it("resolveLlmCredential GETs the resolve endpoint with query params", async () => {
-    const f = vi.fn(async () => okJson({ credential_id: "c1" }));
-    const client = mk(f as unknown as typeof fetch);
-    await client.resolveLlmCredential({
-      credential_id: "c1",
-      provider_id: "p1",
-    });
-    const [url] = f.mock.calls[0] as [string];
-    expect(url).toBe(
-      "https://prov.test/v3/providers/internal/resolve-llm-credential?credential_id=c1&provider_id=p1",
-    );
-  });
-
   it("throws LyzrApiError on non-2xx and never leaks the api key", async () => {
     const f = vi.fn(async () => okJson({ detail: "not found" }, 404));
     const client = mk(f as unknown as typeof fetch);

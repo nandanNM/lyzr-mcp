@@ -1,17 +1,25 @@
 /**
  * Lyzr A2A (Agent-to-Agent) client (host: agent).
- * Covers the "A2A Agents v3" management endpoints and the "A2A Server v3"
- * agent-card / JSON-RPC serving endpoints.
+ * Covers the "A2A Agents v3" management endpoints
+ * (api/factory/v3/agents/a2a_endpoints.py). There is no "serve" router on
+ * the backend that hosts an agent-card / JSON-RPC endpoint for *our*
+ * registered agents — the backend only fetches the discovery card from the
+ * *remote* agent's own base_url when creating/updating the record.
  */
 import { LyzrHttp, LyzrApiError, normalizeList } from "./http.js";
 
 export { LyzrApiError };
 
-/** Config for registering/updating an A2A agent record. */
+/**
+ * Config for registering/updating an A2A agent record. Field set matches
+ * `A2AAgentConfig` in api/factory/v3/agents/a2a_models.py — the backend
+ * ignores unknown extra fields, so anything not listed there (e.g. an
+ * `auth_type`/`credential_id`/`custom_tags` field) would silently do
+ * nothing if sent.
+ */
 export interface A2AAgentConfig {
   agent_provider?: string | null;
   base_url: string;
-  agent_card_path?: string | null;
   name?: string | null;
   description?: string | null;
   version?: string | null;
@@ -20,10 +28,6 @@ export interface A2AAgentConfig {
   a2a_tools?: string[];
   skills?: Record<string, unknown>[] | null;
   agent_type?: string | null;
-  auth_type?: string | null;
-  credential_id?: string | null;
-  custom_tags?: string[] | null;
-  custom_metadata?: string | null;
   [key: string]: unknown;
 }
 
@@ -39,10 +43,6 @@ export interface A2AInferenceInput {
 }
 
 export interface A2AInferenceResult {
-  [key: string]: unknown;
-}
-
-export interface A2AJsonRpcRequest {
   [key: string]: unknown;
 }
 
@@ -107,43 +107,6 @@ export class A2AClient extends LyzrHttp {
       "POST",
       `/v3/a2a/agents/${encodeURIComponent(agentId)}/infer`,
       { body: input, signal },
-    );
-  }
-
-  /** Get the A2A agent card. GET /v3/a2a/serve/{agent_id}/.well-known/agent-card.json */
-  getAgentCard(
-    agentId: string,
-    signal?: AbortSignal,
-  ): Promise<Record<string, unknown>> {
-    return this.request<Record<string, unknown>>(
-      "GET",
-      `/v3/a2a/serve/${encodeURIComponent(agentId)}/.well-known/agent-card.json`,
-      { signal },
-    );
-  }
-
-  /** Get the A2A agent card (convenience path). GET /v3/a2a/serve/{agent_id} */
-  getAgentCardConvenience(
-    agentId: string,
-    signal?: AbortSignal,
-  ): Promise<Record<string, unknown>> {
-    return this.request<Record<string, unknown>>(
-      "GET",
-      `/v3/a2a/serve/${encodeURIComponent(agentId)}`,
-      { signal },
-    );
-  }
-
-  /** Send a JSON-RPC request to the A2A server. POST /v3/a2a/serve/{agent_id} */
-  sendJsonRpc(
-    agentId: string,
-    request: A2AJsonRpcRequest,
-    signal?: AbortSignal,
-  ): Promise<Record<string, unknown>> {
-    return this.request<Record<string, unknown>>(
-      "POST",
-      `/v3/a2a/serve/${encodeURIComponent(agentId)}`,
-      { body: request, signal },
     );
   }
 }

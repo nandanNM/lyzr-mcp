@@ -86,6 +86,12 @@ export const registerKnowledgeBaseTools = (
       inputSchema: {
         rag_id: z.string().describe("Knowledge base id"),
         texts: z.array(z.string()).min(1).describe("Text chunks to ingest"),
+        source: z
+          .string()
+          .optional()
+          .describe(
+            "Label identifying where the text came from (backend requires this per-chunk; default 'manual')",
+          ),
       },
       annotations: {
         readOnlyHint: false,
@@ -93,8 +99,8 @@ export const registerKnowledgeBaseTools = (
         openWorldHint: true,
       },
     },
-    async ({ rag_id, texts }, extra) =>
-      txt(await rag.trainText(rag_id, texts, extra.signal)),
+    async ({ rag_id, texts, source }, extra) =>
+      txt(await rag.trainText(rag_id, texts, extra.signal, source)),
   );
 
   server.registerTool(

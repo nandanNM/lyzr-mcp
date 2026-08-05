@@ -59,38 +59,66 @@ describe("SemanticModelClient", () => {
     expect(init.method).toBe("POST");
   });
 
-  it("listTables GETs /v3/semantic_model/list_tables/{rag_config_id}/{database_id}", async () => {
-    const f = vi.fn(async () => okJson(["table1", "table2"]));
+  // Backend (table_names_endpoint in semantic_model/endpoints.py) wraps the
+  // result as {"schemas_and_tables": {schemas, tables}} — a nested object,
+  // never a bare list of table name strings. Confirmed by reading
+  // get_table_names in semantic_model/manager.py (returns SchemaTablesJSON).
+  it("listTables GETs /v3/semantic_model/list_tables/{rag_config_id}/{database_id} and unwraps schemas_and_tables", async () => {
+    const f = vi.fn(async () =>
+      okJson({
+        schemas_and_tables: {
+          schemas: {},
+          tables: [{ name: "table1", included: true }],
+        },
+      }),
+    );
     const c = mk(f as unknown as typeof fetch, "https://sm.test");
     const result = await c.listTables("rc1", "db1");
     const [url, init] = f.mock.calls[0] as [string, RequestInit];
     expect(url).toBe("https://sm.test/v3/semantic_model/list_tables/rc1/db1");
     expect(init.method).toBe("GET");
-    expect(result).toEqual(["table1", "table2"]);
+    expect(result).toEqual({
+      schemas: {},
+      tables: [{ name: "table1", included: true }],
+    });
   });
 
-  it("getTablePreview GETs /v3/semantic_model/table_preview/{rag_config_id}/{database_id}/{table_name}", async () => {
-    const f = vi.fn(async () => okJson([{ col1: "v1" }]));
+  // Backend (table_preview_endpoint) wraps the result as {"table_preview": [...]}.
+  it("getTablePreview GETs /v3/semantic_model/table_preview/{rag_config_id}/{database_id}/{table_name} and unwraps table_preview", async () => {
+    const f = vi.fn(async () => okJson({ table_preview: [{ col1: "v1" }] }));
     const c = mk(f as unknown as typeof fetch, "https://sm.test");
-    await c.getTablePreview("rc1", "db1", "orders");
+    const result = await c.getTablePreview("rc1", "db1", "orders");
     const [url, init] = f.mock.calls[0] as [string, RequestInit];
     expect(url).toBe(
       "https://sm.test/v3/semantic_model/table_preview/rc1/db1/orders",
     );
     expect(init.method).toBe("GET");
+    expect(result).toEqual([{ col1: "v1" }]);
   });
 
-  it("getDescriptions GETs /v3/semantic_model/descriptions/{rag_config_id}/{database_id}/{table_name}", async () => {
+  // Backend (get_descriptions_endpoint) wraps the result as {"descriptions": {...}}.
+  it("getDescriptions GETs /v3/semantic_model/descriptions/{rag_config_id}/{database_id}/{table_name} and unwraps descriptions", async () => {
     const f = vi.fn(async () =>
-      okJson({ table_name: "orders", table_description: "d", columns: [] }),
+      okJson({
+        descriptions: {
+          table_name: "orders",
+          table_description: "d",
+          columns: [],
+        },
+      }),
     );
     const c = mk(f as unknown as typeof fetch, "https://sm.test");
-    await c.getDescriptions("rc1", "db1", "orders");
+    const result = await c.getDescriptions("rc1", "db1", "orders");
     const [url, init] = f.mock.calls[0] as [string, RequestInit];
     expect(url).toBe(
       "https://sm.test/v3/semantic_model/descriptions/rc1/db1/orders",
     );
     expect(init.method).toBe("GET");
+    expect(result).toEqual({
+      table_name: "orders",
+      table_description: "d",
+      columns: [],
+    });
   });
 
   it("saveDocumentation POSTs /v3/semantic_model/save_documentation/{rag_config_id}/{table_name} with body", async () => {

@@ -45,7 +45,10 @@ export const registerKbSyncConnectorsTools = (
           ),
         connector_specific_config: z
           .record(z.unknown())
-          .describe("Connector-specific configuration object"),
+          .optional()
+          .describe(
+            "Connector-specific configuration object (optional; defaults to {} server-side)",
+          ),
       },
       annotations: {
         readOnlyHint: false,

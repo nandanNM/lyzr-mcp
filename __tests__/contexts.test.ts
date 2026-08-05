@@ -66,19 +66,6 @@ describe("ContextsClient", () => {
     expect(init.method).toBe("GET");
   });
 
-  it("getContextUsage GETs /v3/contexts/{id}/usage", async () => {
-    const f = vi.fn(async () => okJson({ usage: 1 }));
-    const c = mk(
-      ContextsClient,
-      f as unknown as typeof fetch,
-      "https://ctx.test",
-    );
-    await c.getContextUsage("c1");
-    const [url, init] = f.mock.calls[0] as [string, RequestInit];
-    expect(url).toBe("https://ctx.test/v3/contexts/c1/usage");
-    expect(init.method).toBe("GET");
-  });
-
   it("getContext GETs /v3/contexts/{id}", async () => {
     const f = vi.fn(async () => okJson({ _id: "c1", name: "n", value: "v" }));
     const c = mk(

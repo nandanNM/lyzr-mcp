@@ -7,7 +7,8 @@ import { LyzrHttp, normalizeList } from "./http.js";
 export interface KbSyncConnectorCreateInput {
   name: string;
   source: string;
-  connector_specific_config: Record<string, unknown>;
+  /** Optional — the backend defaults this to {} when omitted. */
+  connector_specific_config?: Record<string, unknown>;
 }
 
 export interface KbSyncConnectorUpdateInput {

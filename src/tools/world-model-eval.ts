@@ -33,51 +33,42 @@ export const registerWorldModelEvalTools = (
         agent_name: z.string().describe("The agent's display name"),
         status: z
           .string()
-          .optional()
-          .describe("Initial run status (default handled server-side)"),
+          .describe(
+            "Run status, e.g. 'pending', 'running', 'completed', 'failed'",
+          ),
         selected_metrics: z
           .array(z.string())
-          .optional()
           .describe("Metric names to evaluate for this run"),
         overall_progress: z
           .number()
           .int()
-          .optional()
           .describe("Overall progress percentage"),
         is_running: z
           .boolean()
-          .optional()
           .describe("Whether the run is currently in progress"),
         total_test_cases: z
           .number()
           .int()
-          .optional()
           .describe("Total number of test cases in the run"),
         completed_test_cases: z
           .number()
           .int()
-          .optional()
           .describe("Number of completed test cases"),
-        failed_test_cases: z
-          .number()
-          .int()
-          .optional()
-          .describe("Number of failed test cases"),
+        failed_test_cases: z.number().int().describe("Number of failed test cases"),
         running_test_cases: z
           .number()
           .int()
-          .optional()
           .describe("Number of currently running test cases"),
         pending_test_cases: z
           .number()
           .int()
-          .optional()
           .describe("Number of pending test cases"),
-        duration_ms: z
-          .number()
-          .int()
-          .optional()
-          .describe("Run duration in milliseconds"),
+        duration_ms: z.number().int().describe("Run duration in milliseconds"),
+        test_cases: z
+          .array(z.record(z.unknown()))
+          .describe(
+            "Per-test-case result records (required by the backend, even as an empty array for a freshly-created run)",
+          ),
       },
       annotations: {
         readOnlyHint: false,

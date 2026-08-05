@@ -21,7 +21,7 @@ export const registerArtifactsTools = (
     {
       title: "Create Artifact",
       description:
-        "Create a new artifact for a user/session. Returns the created artifact.",
+        "Create a new artifact for a user/session. Returns only the new artifact_id (use lyzr_get_artifact to fetch the full artifact).",
       inputSchema: {
         user_id: z.string().describe("User id that owns the artifact"),
         session_id: z.string().describe("Session id the artifact belongs to"),

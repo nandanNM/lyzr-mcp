@@ -102,6 +102,12 @@ export const registerRagContentTools = (
       description: "Parse raw text into chunks (no knowledge base required).",
       inputSchema: {
         text: z.string().describe("Raw text to parse into chunks"),
+        source: z
+          .string()
+          .optional()
+          .describe(
+            "Label identifying where the text came from (backend requires this; default 'manual')",
+          ),
         chunk_size: z
           .number()
           .int()

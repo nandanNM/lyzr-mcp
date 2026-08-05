@@ -45,6 +45,20 @@ describe("RagClient", () => {
     );
   });
 
+  it("trainText sends each chunk as {text, source} — backend 422s without source", async () => {
+    const f = vi.fn(async () => okJson({ message: "ok" }));
+    const rag = mk(RagClient, f as unknown as typeof fetch, "https://rag.test");
+    await rag.trainText("kb1", ["hello", "world"]);
+    const [url, init] = f.mock.calls[0] as [string, RequestInit];
+    expect(url).toBe("https://rag.test/v3/train/text/?rag_id=kb1");
+    expect(JSON.parse(init.body as string)).toEqual({
+      data: [
+        { text: "hello", source: "manual" },
+        { text: "world", source: "manual" },
+      ],
+    });
+  });
+
   it("query GETs the retrieve endpoint with query params", async () => {
     const f = vi.fn(async () => okJson({ results: [] }));
     const rag = mk(RagClient, f as unknown as typeof fetch, "https://rag.test");

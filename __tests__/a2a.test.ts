@@ -91,44 +91,40 @@ describe("A2AClient", () => {
     });
   });
 
-  it("getAgentCard GETs the .well-known agent card path", async () => {
-    const f = vi.fn(async () => okJson({ name: "agent" }));
+  it("createAgent does not send fields the backend model doesn't have", async () => {
+    // api/factory/v3/agents/a2a_models.py's A2AAgentConfig has no
+    // agent_card_path / auth_type / credential_id / custom_tags /
+    // custom_metadata fields — the client type must not offer them so
+    // callers don't believe they do anything.
+    const f = vi.fn(async () => okJson({ agent_id: "a1" }));
     const client = mk(f as unknown as typeof fetch);
-    await client.getAgentCard("a1");
-    const [url, init] = f.mock.calls[0] as [string, RequestInit];
-    expect(url).toBe(
-      "https://a2a.test/v3/a2a/serve/a1/.well-known/agent-card.json",
-    );
-    expect(init.method).toBe("GET");
+    await client.createAgent({
+      base_url: "https://remote.example.com",
+      name: "remote agent",
+    });
+    const [, init] = f.mock.calls[0] as [string, RequestInit];
+    const body = JSON.parse(init.body as string);
+    expect(body).not.toHaveProperty("agent_card_path");
+    expect(body).not.toHaveProperty("auth_type");
+    expect(body).not.toHaveProperty("credential_id");
+    expect(body).not.toHaveProperty("custom_tags");
+    expect(body).not.toHaveProperty("custom_metadata");
   });
 
-  it("getAgentCardConvenience GETs the convenience serve path", async () => {
-    const f = vi.fn(async () => okJson({ name: "agent" }));
-    const client = mk(f as unknown as typeof fetch);
-    await client.getAgentCardConvenience("a1");
-    const [url, init] = f.mock.calls[0] as [string, RequestInit];
-    expect(url).toBe("https://a2a.test/v3/a2a/serve/a1");
-    expect(init.method).toBe("GET");
-  });
-
-  it("sendJsonRpc POSTs the serve path with the JSON-RPC body", async () => {
-    const f = vi.fn(async () => okJson({ jsonrpc: "2.0", id: 1, result: {} }));
-    const client = mk(f as unknown as typeof fetch);
-    await client.sendJsonRpc("a1", {
-      jsonrpc: "2.0",
-      id: 1,
-      method: "message/send",
-      params: {},
-    });
-    const [url, init] = f.mock.calls[0] as [string, RequestInit];
-    expect(url).toBe("https://a2a.test/v3/a2a/serve/a1");
-    expect(init.method).toBe("POST");
-    expect(JSON.parse(init.body as string)).toEqual({
-      jsonrpc: "2.0",
-      id: 1,
-      method: "message/send",
-      params: {},
-    });
+  it("does not expose a serve/agent-card/JSON-RPC client — no such backend route exists", () => {
+    // api/factory/v3/agents/a2a_endpoints.py only registers the
+    // "/v3/a2a/agents" management router; there is no "/v3/a2a/serve/*"
+    // router anywhere in the backend, so calls to it always 404. These
+    // methods were removed rather than pointed at a route that doesn't
+    // exist.
+    const client = mk((async () => okJson({})) as unknown as typeof fetch);
+    expect((client as unknown as Record<string, unknown>).getAgentCard).toBeUndefined();
+    expect(
+      (client as unknown as Record<string, unknown>).getAgentCardConvenience,
+    ).toBeUndefined();
+    expect(
+      (client as unknown as Record<string, unknown>).sendJsonRpc,
+    ).toBeUndefined();
   });
 
   it("throws LyzrApiError on a non-2xx response", async () => {

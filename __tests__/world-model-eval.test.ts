@@ -1,5 +1,8 @@
 import { describe, it, expect, vi } from "vitest";
-import { WorldModelEvalClient } from "../src/lyzr/world-model-eval";
+import {
+  WorldModelEvalClient,
+  type CreateEvaluationRunInput,
+} from "../src/lyzr/world-model-eval";
 import { LyzrApiError } from "../src/lyzr/http";
 
 const okJson = (data: unknown, status = 200) =>
@@ -12,26 +15,48 @@ const mk = (fetchImpl: typeof fetch, baseUrl = "https://agent.test") =>
   new WorldModelEvalClient({ apiKey: "test-key-123", baseUrl, fetchImpl });
 
 describe("WorldModelEvalClient", () => {
+  const fullEvaluationRunInput = {
+    world_model_id: "wm1",
+    run_name: "smoke test",
+    agent_id: "a1",
+    agent_name: "My Agent",
+    status: "pending",
+    selected_metrics: ["accuracy"],
+    overall_progress: 0,
+    is_running: false,
+    total_test_cases: 0,
+    completed_test_cases: 0,
+    failed_test_cases: 0,
+    running_test_cases: 0,
+    pending_test_cases: 0,
+    duration_ms: 0,
+    test_cases: [] as Record<string, unknown>[],
+  };
+
   it("createEvaluationRun POSTs /v3/world_model/evaluation_runs with the body", async () => {
     const f = vi.fn(async () => okJson({ id: "run1" }));
     const client = mk(f as unknown as typeof fetch);
-    await client.createEvaluationRun({
-      world_model_id: "wm1",
-      run_name: "smoke test",
-      agent_id: "a1",
-      agent_name: "My Agent",
-      selected_metrics: ["accuracy"],
-    });
+    await client.createEvaluationRun(fullEvaluationRunInput);
     const [url, init] = f.mock.calls[0] as [string, RequestInit];
     expect(url).toBe("https://agent.test/v3/world_model/evaluation_runs");
     expect(init.method).toBe("POST");
-    expect(JSON.parse(init.body as string)).toEqual({
-      world_model_id: "wm1",
-      run_name: "smoke test",
-      agent_id: "a1",
-      agent_name: "My Agent",
-      selected_metrics: ["accuracy"],
-    });
+    expect(JSON.parse(init.body as string)).toEqual(fullEvaluationRunInput);
+  });
+
+  it("createEvaluationRun's TS input type requires every field EvaluationRun requires (compile-time)", () => {
+    // api/factory/v3/evals/models.py's EvaluationRun has no defaults for
+    // status/selected_metrics/overall_progress/is_running/the five
+    // *_test_cases counters/duration_ms/test_cases — omitting any of them
+    // 422s server-side (confirmed live). CreateEvaluationRunInput marks
+    // them all required, so a call site missing one is a TS error — the
+    // @ts-expect-error below is the trip-wire: if the fields regress back
+    // to optional, this stops being an error and `tsc --noEmit` fails
+    // because of the now-unused directive.
+    const { test_cases, ...missingTestCases } = fullEvaluationRunInput;
+    // @ts-expect-error test_cases is required — omitting it must not typecheck
+    const input: CreateEvaluationRunInput = missingTestCases;
+    expect(input).toBeTruthy();
+    expect(test_cases).toEqual([]);
   });
 
   it("listEvaluationRuns GETs by world_model_id and normalizes a bare array", async () => {

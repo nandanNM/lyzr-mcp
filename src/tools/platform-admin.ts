@@ -48,7 +48,10 @@ export const registerPlatformAdminTools = (
         x_server_token: z
           .string()
           .optional()
-          .describe("Optional server-to-server auth token"),
+          .describe(
+            "Server-to-server auth token (sent as the x-server-token header) — the platform's " +
+              "settings.server_auth_token secret, distinct from the caller's regular Lyzr API key.",
+          ),
       },
       annotations: {
         readOnlyHint: true,
@@ -69,7 +72,10 @@ export const registerPlatformAdminTools = (
         x_server_token: z
           .string()
           .optional()
-          .describe("Optional server-to-server auth token"),
+          .describe(
+            "Server-to-server auth token (sent as the x-server-token header) — the platform's " +
+              "settings.server_auth_token secret, distinct from the caller's regular Lyzr API key.",
+          ),
       },
       annotations: {
         readOnlyHint: false,
@@ -101,21 +107,32 @@ export const registerPlatformAdminTools = (
   );
 
   // ---- Feature Flags Admin ----
+  // The /v3/admin/feature-flags* routes are gated by `verify_admin_token`
+  // (Authorization: Bearer <PAGOS_ADMIN_TOKEN>) — a separate platform secret,
+  // not the caller's Lyzr API key. Every admin tool below requires the caller
+  // to supply that token explicitly via `admin_token`.
+
+  const adminTokenSchema = z
+    .string()
+    .describe(
+      "The platform's PAGOS_ADMIN_TOKEN, sent as 'Authorization: Bearer <admin_token>'. " +
+        "This is a separate secret from your Lyzr API key — these admin routes do not accept the API key.",
+    );
 
   server.registerTool(
     "lyzr_list_feature_flags_admin",
     {
       title: "List Feature Flags (Admin)",
       description: "List all feature flags with their gating configuration.",
-      inputSchema: {},
+      inputSchema: { admin_token: adminTokenSchema },
       annotations: {
         readOnlyHint: true,
         idempotentHint: true,
         openWorldHint: true,
       },
     },
-    async (_args, extra) =>
-      txt(await client.listFeatureFlagsAdmin(extra.signal)),
+    async ({ admin_token }, extra) =>
+      txt(await client.listFeatureFlagsAdmin(admin_token, extra.signal)),
   );
 
   server.registerTool(
@@ -124,6 +141,7 @@ export const registerPlatformAdminTools = (
       title: "Create Feature Flag",
       description: "Create a new feature flag.",
       inputSchema: {
+        admin_token: adminTokenSchema,
         key: z.string().describe("Unique flag key"),
         description: z.string().describe("Human-readable description"),
         url: z.string().describe("URL/route this flag gates"),
@@ -144,8 +162,8 @@ export const registerPlatformAdminTools = (
         openWorldHint: true,
       },
     },
-    async (args, extra) =>
-      txt(await client.createFeatureFlag(args, extra.signal)),
+    async ({ admin_token, ...rest }, extra) =>
+      txt(await client.createFeatureFlag(admin_token, rest, extra.signal)),
   );
 
   server.registerTool(
@@ -153,15 +171,18 @@ export const registerPlatformAdminTools = (
     {
       title: "Get Feature Flag (Admin)",
       description: "Fetch a single feature flag by key.",
-      inputSchema: { key: z.string().describe("Feature flag key") },
+      inputSchema: {
+        admin_token: adminTokenSchema,
+        key: z.string().describe("Feature flag key"),
+      },
       annotations: {
         readOnlyHint: true,
         idempotentHint: true,
         openWorldHint: true,
       },
     },
-    async ({ key }, extra) =>
-      txt(await client.getFeatureFlagAdmin(key, extra.signal)),
+    async ({ admin_token, key }, extra) =>
+      txt(await client.getFeatureFlagAdmin(admin_token, key, extra.signal)),
   );
 
   server.registerTool(
@@ -170,6 +191,7 @@ export const registerPlatformAdminTools = (
       title: "Update Feature Flag",
       description: "Update an existing feature flag's fields.",
       inputSchema: {
+        admin_token: adminTokenSchema,
         key: z.string().describe("Feature flag key"),
         description: z
           .string()
@@ -187,8 +209,8 @@ export const registerPlatformAdminTools = (
         openWorldHint: true,
       },
     },
-    async ({ key, ...rest }, extra) =>
-      txt(await client.updateFeatureFlag(key, rest, extra.signal)),
+    async ({ admin_token, key, ...rest }, extra) =>
+      txt(await client.updateFeatureFlag(admin_token, key, rest, extra.signal)),
   );
 
   server.registerTool(
@@ -196,7 +218,10 @@ export const registerPlatformAdminTools = (
     {
       title: "Delete Feature Flag",
       description: "Permanently delete a feature flag by key.",
-      inputSchema: { key: z.string().describe("Feature flag key") },
+      inputSchema: {
+        admin_token: adminTokenSchema,
+        key: z.string().describe("Feature flag key"),
+      },
       annotations: {
         readOnlyHint: false,
         destructiveHint: true,
@@ -204,175 +229,14 @@ export const registerPlatformAdminTools = (
         openWorldHint: true,
       },
     },
-    async ({ key }, extra) =>
-      txt(await client.deleteFeatureFlag(key, extra.signal)),
+    async ({ admin_token, key }, extra) =>
+      txt(await client.deleteFeatureFlag(admin_token, key, extra.signal)),
   );
 
-  // ---- Modules (resolved) ----
-
-  server.registerTool(
-    "lyzr_get_modules",
-    {
-      title: "Get Modules",
-      description:
-        "Get the resolved sidebar modules (nav + footer) for the current caller.",
-      inputSchema: {},
-      annotations: {
-        readOnlyHint: true,
-        idempotentHint: true,
-        openWorldHint: true,
-      },
-    },
-    async (_args, extra) => txt(await client.getModules(extra.signal)),
-  );
-
-  // ---- Modules Admin ----
-
-  server.registerTool(
-    "lyzr_list_modules_admin",
-    {
-      title: "List Modules (Admin)",
-      description: "List all sidebar modules with their configuration.",
-      inputSchema: {},
-      annotations: {
-        readOnlyHint: true,
-        idempotentHint: true,
-        openWorldHint: true,
-      },
-    },
-    async (_args, extra) => txt(await client.listModulesAdmin(extra.signal)),
-  );
-
-  server.registerTool(
-    "lyzr_create_module",
-    {
-      title: "Create Module",
-      description: "Create a new sidebar module.",
-      inputSchema: {
-        key: z.string().describe("Unique module key"),
-        description: z.string().describe("Human-readable description"),
-        url: z.string().describe("URL/route this module points to"),
-        ...gatingSchema,
-        is_visible: z.boolean().optional().describe("Default true"),
-        is_accessible: z.boolean().optional().describe("Default true"),
-        name: z.string().nullable().optional().describe("Display name"),
-        icon: z.string().nullable().optional().describe("Icon identifier"),
-        route: z.string().nullable().optional().describe("Frontend route"),
-        order: z.number().int().nullable().optional().describe("Sort order"),
-        section: z.string().nullable().optional().describe("Sidebar section"),
-        heading: z.string().nullable().optional().describe("Section heading"),
-        type: z.string().nullable().optional().describe("Item type"),
-        external: z
-          .boolean()
-          .nullable()
-          .optional()
-          .describe("Whether this links externally"),
-        action_id: z.string().nullable().optional().describe("Action id"),
-        badge: z.string().nullable().optional().describe("Badge text"),
-        subtitle: z.string().nullable().optional().describe("Subtitle text"),
-        is_new: z.boolean().nullable().optional().describe("Show 'new' badge"),
-        beta: z.boolean().nullable().optional().describe("Show 'beta' badge"),
-        blocked: z
-          .boolean()
-          .nullable()
-          .optional()
-          .describe("Whether this module is blocked"),
-        upgrade_description: z
-          .string()
-          .nullable()
-          .optional()
-          .describe("Upgrade prompt text when blocked"),
-        config: z
-          .record(z.unknown())
-          .nullable()
-          .optional()
-          .describe("Arbitrary extra config"),
-        use_tracking: z
-          .boolean()
-          .optional()
-          .describe("Whether to track usage (default false)"),
-      },
-      annotations: {
-        readOnlyHint: false,
-        destructiveHint: false,
-        idempotentHint: false,
-        openWorldHint: true,
-      },
-    },
-    async (args, extra) => txt(await client.createModule(args, extra.signal)),
-  );
-
-  server.registerTool(
-    "lyzr_get_module_admin",
-    {
-      title: "Get Module (Admin)",
-      description: "Fetch a single sidebar module by key.",
-      inputSchema: { key: z.string().describe("Module key") },
-      annotations: {
-        readOnlyHint: true,
-        idempotentHint: true,
-        openWorldHint: true,
-      },
-    },
-    async ({ key }, extra) =>
-      txt(await client.getModuleAdmin(key, extra.signal)),
-  );
-
-  server.registerTool(
-    "lyzr_update_module",
-    {
-      title: "Update Module",
-      description: "Update an existing sidebar module's fields.",
-      inputSchema: {
-        key: z.string().describe("Module key"),
-        description: z.string().nullable().optional(),
-        ...gatingSchema,
-        is_visible: z.boolean().nullable().optional(),
-        is_accessible: z.boolean().nullable().optional(),
-        name: z.string().nullable().optional(),
-        icon: z.string().nullable().optional(),
-        route: z.string().nullable().optional(),
-        order: z.number().int().nullable().optional(),
-        section: z.string().nullable().optional(),
-        heading: z.string().nullable().optional(),
-        type: z.string().nullable().optional(),
-        external: z.boolean().nullable().optional(),
-        action_id: z.string().nullable().optional(),
-        badge: z.string().nullable().optional(),
-        subtitle: z.string().nullable().optional(),
-        is_new: z.boolean().nullable().optional(),
-        beta: z.boolean().nullable().optional(),
-        blocked: z.boolean().nullable().optional(),
-        upgrade_description: z.string().nullable().optional(),
-        config: z.record(z.unknown()).nullable().optional(),
-        use_tracking: z.boolean().nullable().optional(),
-      },
-      annotations: {
-        readOnlyHint: false,
-        destructiveHint: false,
-        idempotentHint: false,
-        openWorldHint: true,
-      },
-    },
-    async ({ key, ...rest }, extra) =>
-      txt(await client.updateModule(key, rest, extra.signal)),
-  );
-
-  server.registerTool(
-    "lyzr_delete_module",
-    {
-      title: "Delete Module",
-      description: "Permanently delete a sidebar module by key.",
-      inputSchema: { key: z.string().describe("Module key") },
-      annotations: {
-        readOnlyHint: false,
-        destructiveHint: true,
-        idempotentHint: true,
-        openWorldHint: true,
-      },
-    },
-    async ({ key }, extra) => txt(await client.deleteModule(key, extra.signal)),
-  );
+  // NOTE: A "Modules" admin/resolved tool set (`/v3/modules`, `/v3/admin/modules`)
+  // previously existed here but was removed — no such router is registered in
+  // the backend at all (checked app.py + every api/factory/v3/**/endpoints.py),
+  // and a live call confirms it: GET /v3/modules returns 405 Method Not Allowed.
 
   // ---- Features v3 (aggregate) ----
 

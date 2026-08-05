@@ -11,48 +11,6 @@ const mk = (fetchImpl: typeof fetch, baseUrl = "https://agent.test") =>
   new GitAgentClient({ apiKey: "k", baseUrl, fetchImpl });
 
 describe("GitAgentClient", () => {
-  it("saveGitConfig PUTs /v3/git-agent/{agent_id}/config with body", async () => {
-    const f = vi.fn(async () => okJson({ ok: true }));
-    const c = mk(f as unknown as typeof fetch);
-    await c.saveGitConfig("a1", { repo_name: "my-repo", org: "acme" });
-    const [url, init] = f.mock.calls[0] as [string, RequestInit];
-    expect(url).toBe("https://agent.test/v3/git-agent/a1/config");
-    expect(init.method).toBe("PUT");
-    expect(JSON.parse(init.body as string)).toEqual({
-      repo_name: "my-repo",
-      org: "acme",
-    });
-  });
-
-  it("disconnectGit DELETEs /v3/git-agent/{agent_id}/config with purge param", async () => {
-    const f = vi.fn(async () => okJson({ ok: true }));
-    const c = mk(f as unknown as typeof fetch);
-    await c.disconnectGit("a1", true);
-    const [url, init] = f.mock.calls[0] as [string, RequestInit];
-    expect(url).toBe("https://agent.test/v3/git-agent/a1/config?purge=true");
-    expect(init.method).toBe("DELETE");
-  });
-
-  it("validateGitConfig POSTs /v3/git-agent/{agent_id}/config/validate", async () => {
-    const f = vi.fn(async () => okJson({ valid: true }));
-    const c = mk(f as unknown as typeof fetch);
-    await c.validateGitConfig("a1", { repo_name: "r" });
-    const [url, init] = f.mock.calls[0] as [string, RequestInit];
-    expect(url).toBe("https://agent.test/v3/git-agent/a1/config/validate");
-    expect(init.method).toBe("POST");
-    expect(JSON.parse(init.body as string)).toEqual({ repo_name: "r" });
-  });
-
-  it("pullFromGit POSTs /v3/git-agent/{agent_id}/pull with branch body", async () => {
-    const f = vi.fn(async () => okJson({ ok: true }));
-    const c = mk(f as unknown as typeof fetch);
-    await c.pullFromGit("a1", { branch: "main" });
-    const [url, init] = f.mock.calls[0] as [string, RequestInit];
-    expect(url).toBe("https://agent.test/v3/git-agent/a1/pull");
-    expect(init.method).toBe("POST");
-    expect(JSON.parse(init.body as string)).toEqual({ branch: "main" });
-  });
-
   it("initGitRepo POSTs /v3/git-agent/{agent_id}/init", async () => {
     const f = vi.fn(async () => okJson({ ok: true }));
     const c = mk(f as unknown as typeof fetch);
@@ -121,16 +79,6 @@ describe("GitAgentClient", () => {
       source_branch: "feat",
       target_branch: "main",
     });
-  });
-
-  it("deployBranch POSTs /v3/git-agent/{agent_id}/deploy with body", async () => {
-    const f = vi.fn(async () => okJson({ ok: true }));
-    const c = mk(f as unknown as typeof fetch);
-    await c.deployBranch("a1", { branch: "main" });
-    const [url, init] = f.mock.calls[0] as [string, RequestInit];
-    expect(url).toBe("https://agent.test/v3/git-agent/a1/deploy");
-    expect(init.method).toBe("POST");
-    expect(JSON.parse(init.body as string)).toEqual({ branch: "main" });
   });
 
   it("updateReviewers PUTs /v3/git-agent/{agent_id}/reviewers with body", async () => {

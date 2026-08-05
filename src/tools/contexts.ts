@@ -84,25 +84,6 @@ export const registerContextsTools = (
   );
 
   server.registerTool(
-    "lyzr_get_context_usage",
-    {
-      title: "Get Context Usage",
-      description: "Get usage information for a context by id.",
-      inputSchema: {
-        context_id: z.string().describe("Context id"),
-      },
-      annotations: {
-        readOnlyHint: true,
-        destructiveHint: false,
-        idempotentHint: true,
-        openWorldHint: true,
-      },
-    },
-    async ({ context_id }, extra) =>
-      txt(await contexts.getContextUsage(context_id, extra.signal)),
-  );
-
-  server.registerTool(
     "lyzr_get_context",
     {
       title: "Get Context",

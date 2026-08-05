@@ -62,52 +62,6 @@ describe("ReportsClient", () => {
     });
   });
 
-  it("requestUsageByModelReport POSTs /v3/reports/usage-by-model with the body", async () => {
-    const f = vi.fn(async () =>
-      okJson({ job_id: "j3", status: "queued", message: "queued" }),
-    );
-    const reports = mk(
-      ReportsClient,
-      f as unknown as typeof fetch,
-      "https://agent.test",
-    );
-    await reports.requestUsageByModelReport({
-      timeframe: "this_month",
-      provider_id: "OpenAI",
-      model: "gpt-4o",
-    });
-    const [url, init] = f.mock.calls[0] as [string, RequestInit];
-    expect(url).toBe("https://agent.test/v3/reports/usage-by-model");
-    expect(JSON.parse(init.body as string)).toEqual({
-      timeframe: "this_month",
-      provider_id: "OpenAI",
-      model: "gpt-4o",
-    });
-  });
-
-  it("requestUsageBySubAccountReport POSTs /v3/reports/usage-by-sub-account with the body", async () => {
-    const f = vi.fn(async () =>
-      okJson({ job_id: "j4", status: "queued", message: "queued" }),
-    );
-    const reports = mk(
-      ReportsClient,
-      f as unknown as typeof fetch,
-      "https://agent.test",
-    );
-    await reports.requestUsageBySubAccountReport({
-      timeframe: "last_week",
-      sub_org_id: "org_123",
-      group_by: "month",
-    });
-    const [url, init] = f.mock.calls[0] as [string, RequestInit];
-    expect(url).toBe("https://agent.test/v3/reports/usage-by-sub-account");
-    expect(JSON.parse(init.body as string)).toEqual({
-      timeframe: "last_week",
-      sub_org_id: "org_123",
-      group_by: "month",
-    });
-  });
-
   it("getReportStatus GETs /v3/reports/{job_id}", async () => {
     const f = vi.fn(async () =>
       okJson({

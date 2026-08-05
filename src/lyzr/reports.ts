@@ -18,22 +18,22 @@ export type TimeframePreset =
   | "last_12_months"
   | "custom";
 
-export type GroupByOption = "month" | "billing_cycle";
-
-export type ReportType =
-  | "usage_by_agent"
-  | "usage_by_user"
-  | "usage_by_model"
-  | "usage_by_sub_account";
+export type ReportType = "usage_by_agent" | "usage_by_user";
 
 export type ReportStatus = "queued" | "running" | "ready" | "failed";
 
-/** Shared fields across all usage-report request bodies. */
+/**
+ * Shared fields across all usage-report request bodies.
+ *
+ * NOTE: the backend's `_TimeframeBase` (api/factory/v3/reports/models.py) does
+ * NOT have a `group_by` field — it is silently dropped (Pydantic ignores
+ * unknown fields by default). Do not resurrect it here without adding the
+ * field on the backend first.
+ */
 export interface BaseReportRequest {
   timeframe: TimeframePreset;
   start_date?: string | null;
   end_date?: string | null;
-  group_by?: GroupByOption | null;
   [key: string]: unknown;
 }
 
@@ -46,16 +46,6 @@ export interface UsageByAgentReportRequest extends BaseReportRequest {
 
 export interface UsageByUserReportRequest extends BaseReportRequest {
   include_sub_orgs?: boolean;
-}
-
-export interface UsageByModelReportRequest extends BaseReportRequest {
-  provider_id?: string | null;
-  model?: string | null;
-  include_sub_orgs?: boolean;
-}
-
-export interface UsageBySubAccountReportRequest extends BaseReportRequest {
-  sub_org_id?: string | null;
 }
 
 export interface ReportJobResponse {
@@ -115,30 +105,6 @@ export class ReportsClient extends LyzrHttp {
     return this.request<ReportJobResponse>(
       "POST",
       "/v3/reports/usage-by-user",
-      { body: input, signal },
-    );
-  }
-
-  /** Request a usage-by-model report. POST /v3/reports/usage-by-model */
-  requestUsageByModelReport(
-    input: UsageByModelReportRequest,
-    signal?: AbortSignal,
-  ): Promise<ReportJobResponse> {
-    return this.request<ReportJobResponse>(
-      "POST",
-      "/v3/reports/usage-by-model",
-      { body: input, signal },
-    );
-  }
-
-  /** Request a usage-by-sub-account report. POST /v3/reports/usage-by-sub-account */
-  requestUsageBySubAccountReport(
-    input: UsageBySubAccountReportRequest,
-    signal?: AbortSignal,
-  ): Promise<ReportJobResponse> {
-    return this.request<ReportJobResponse>(
-      "POST",
-      "/v3/reports/usage-by-sub-account",
       { body: input, signal },
     );
   }

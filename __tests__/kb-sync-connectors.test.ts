@@ -47,6 +47,20 @@ describe("KbSyncConnectorsClient", () => {
     });
   });
 
+  it("createConnector omits connector_specific_config when not given (backend defaults it to {})", async () => {
+    const f = vi.fn(async () => okJson({ id: 6 }));
+    const client = mk(f as unknown as typeof fetch);
+    await client.createConnector({
+      name: "my-connector",
+      source: "sharepoint",
+    });
+    const [, init] = f.mock.calls[0] as [string, RequestInit];
+    expect(JSON.parse(init.body as string)).toEqual({
+      name: "my-connector",
+      source: "sharepoint",
+    });
+  });
+
   it("getConnector GETs by id", async () => {
     const f = vi.fn(async () => okJson({ id: 7 }));
     const client = mk(f as unknown as typeof fetch);

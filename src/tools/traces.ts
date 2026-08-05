@@ -101,30 +101,6 @@ export const registerTracesTools = (
   );
 
   server.registerTool(
-    "lyzr_kill_switch_trace",
-    {
-      title: "Kill Switch Trace Agents",
-      description:
-        "Trigger the kill switch to stop agents running under a trace.",
-      inputSchema: {
-        trace_id: z.string().describe("Trace id"),
-      },
-      annotations: {
-        readOnlyHint: false,
-        destructiveHint: true,
-        idempotentHint: false,
-        openWorldHint: true,
-      },
-    },
-    async ({ trace_id }, extra) => {
-      const result = await traces.killSwitchTrace(trace_id, extra.signal);
-      return txt(
-        `Kill switch triggered for trace ${trace_id}.\n${JSON.stringify(result, null, 2)}`,
-      );
-    },
-  );
-
-  server.registerTool(
     "lyzr_get_traces_dashboard",
     {
       title: "Get Traces Dashboard Metrics",

@@ -129,18 +129,6 @@ export class TracesClient extends LyzrHttp {
     );
   }
 
-  /** Trigger the kill switch for agents in a trace. POST /v3/traces/{trace_id}/kill-switch */
-  async killSwitchTrace(
-    traceId: string,
-    signal?: AbortSignal,
-  ): Promise<Record<string, unknown>> {
-    return this.request<Record<string, unknown>>(
-      "POST",
-      `/v3/traces/${encodeURIComponent(traceId)}/kill-switch`,
-      { signal },
-    );
-  }
-
   /** Get dashboard metrics. GET /v3/traces/dashboard */
   async getDashboardMetrics(
     params?: DashboardMetricsParams,

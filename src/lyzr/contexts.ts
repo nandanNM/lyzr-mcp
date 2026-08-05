@@ -56,18 +56,6 @@ export class ContextsClient extends LyzrHttp {
     });
   }
 
-  /** Get context usage. GET /v3/contexts/{context_id}/usage */
-  getContextUsage(
-    contextId: string,
-    signal?: AbortSignal,
-  ): Promise<Record<string, unknown>> {
-    return this.request<Record<string, unknown>>(
-      "GET",
-      `/v3/contexts/${encodeURIComponent(contextId)}/usage`,
-      { signal },
-    );
-  }
-
   /** Get one context. GET /v3/contexts/{context_id} */
   getContext(
     contextId: string,

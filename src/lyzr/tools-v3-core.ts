@@ -37,19 +37,39 @@ export interface CreateAciConfigurationInput {
 }
 
 export class ToolsV3CoreClient extends LyzrHttp {
-  /** List the caller's tools. GET /v3/tools/ */
+  /**
+   * List the caller's tools. GET /v3/tools/
+   *
+   * Backend quirk (confirmed live): `get_user_tools` in endpoints.py has its
+   * real body commented out and unconditionally `return {}`. This endpoint
+   * will always resolve to an empty array here regardless of how many tools
+   * exist — it is effectively dead/deprecated on the backend. Prefer
+   * `listAllUserTools` (GET /v3/tools/all/user) to actually enumerate tools.
+   */
   listTools(signal?: AbortSignal): Promise<Tool[]> {
     return this.request<unknown>("GET", "/v3/tools/", { signal }).then((raw) =>
       normalizeList<Tool>(raw, "tools"),
     );
   }
 
-  /** Create an OpenAPI tool. POST /v3/tools/ */
+  /**
+   * Create an OpenAPI tool. POST /v3/tools/
+   *
+   * The backend's response_model is `dict` and the endpoint literally returns
+   * `{"tool_ids": [...]}` — NOT a bare Tool object. Confirmed live: the
+   * "tool_ids" array actually holds the full generated tool dicts (name,
+   * description, parameters, method, path), not id strings, despite the key
+   * name. Callers that need the created tool's id should read it off
+   * `tool_ids[i].name` (which is the `{tool_id}` used by get/update/delete).
+   */
   createTool(
     input: CreateOpenApiToolInput,
     signal?: AbortSignal,
-  ): Promise<Tool> {
-    return this.request<Tool>("POST", "/v3/tools/", { body: input, signal });
+  ): Promise<{ tool_ids: Tool[] }> {
+    return this.request<{ tool_ids: Tool[] }>("POST", "/v3/tools/", {
+      body: input,
+      signal,
+    });
   }
 
   /** Get a tool by id. GET /v3/tools/{tool_id} */

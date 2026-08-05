@@ -122,15 +122,18 @@ export class RagClient extends LyzrHttp {
     );
   }
 
-  /** Ingest text chunks. POST /v3/train/text/?rag_id=... */
+  /** Ingest text chunks. POST /v3/train/text/?rag_id=...
+   *  Each item requires BOTH `text` and `source` — the backend 422s with
+   *  "Field required" at body.data[i].source if source is omitted. */
   trainText(
     ragId: string,
     texts: string[],
     signal?: AbortSignal,
+    source = "manual",
   ): Promise<unknown> {
     return this.request<unknown>("POST", "/v3/train/text/", {
       params: { rag_id: ragId },
-      body: { data: texts.map((text) => ({ text })) },
+      body: { data: texts.map((text) => ({ text, source })) },
       signal,
     });
   }

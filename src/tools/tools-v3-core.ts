@@ -20,7 +20,9 @@ export const registerToolsV3CoreTools = (
     "lyzr_list_tools",
     {
       title: "List Tools",
-      description: "List the caller's registered tools.",
+      description:
+        "List the caller's registered tools. Note: this endpoint is deprecated on " +
+        "the backend and always returns an empty list — use lyzr_list_all_user_tools instead.",
       inputSchema: {},
       annotations: {
         readOnlyHint: true,

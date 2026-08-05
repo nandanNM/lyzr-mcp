@@ -53,12 +53,19 @@ export interface ArtifactListResult {
 }
 
 export class ArtifactsClient extends LyzrHttp {
-  /** Create an artifact. POST /v3/artifacts/ */
+  /**
+   * Create an artifact. POST /v3/artifacts/
+   * The backend (create_artifact_endpoint in artifacts/endpoints.py) returns
+   * only `{"artifact_id": "..."}`, never the full artifact document — confirmed
+   * both by reading manager.py's `create_artifact` (returns `result["artifact_id"]`
+   * as a bare string) and by a live round-trip call. Fetch the full artifact
+   * afterwards with getArtifact if you need it.
+   */
   createArtifact(
     input: ArtifactCreateInput,
     signal?: AbortSignal,
-  ): Promise<Artifact> {
-    return this.request<Artifact>("POST", "/v3/artifacts/", {
+  ): Promise<{ artifact_id: string }> {
+    return this.request<{ artifact_id: string }>("POST", "/v3/artifacts/", {
       body: input,
       signal,
     });

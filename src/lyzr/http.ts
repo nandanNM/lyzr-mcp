@@ -51,6 +51,8 @@ export interface RequestOptions {
   body?: unknown;
   params?: Record<string, unknown>;
   signal?: AbortSignal;
+  /** Extra headers to merge on top of the default x-api-key/Content-Type/Accept set. */
+  headers?: Record<string, string>;
 }
 
 export interface LyzrHttpConfig {
@@ -120,7 +122,7 @@ export class LyzrHttp {
   ): Promise<T> {
     const res = await this.fetchImpl(this.buildUrl(path, opts.params), {
       method,
-      headers: this.headers(),
+      headers: this.headers(opts.headers),
       body: opts.body === undefined ? undefined : JSON.stringify(opts.body),
       signal: opts.signal,
     });

@@ -41,6 +41,10 @@ Update selected fields; unspecified fields are preserved (fetch → merge → PU
 | `agent_id` | string | ✓ | |
 | `name`, `role`, `goal`, `instructions`, `description` | string | | any subset |
 | `temperature` | number (0–2) | | |
+| `tools` | string[] | | Tool catalog id or provider_id; replaces the existing tool list. `tool_source`/`action_names` are resolved automatically unless `tool_configs` is also passed. |
+| `tool_configs` | object[] | | Explicit per-tool config overrides; skips auto-resolution. |
+
+Response echoes the resolved `tools`/`tool_configs` when `tools` was set, so callers can confirm what actually got attached without a follow-up `lyzr_get_agent`.
 
 ### `lyzr_delete_agent` 🔴
 Permanently delete an agent. — `{ agent_id: string }`

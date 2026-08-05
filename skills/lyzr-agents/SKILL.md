@@ -45,8 +45,19 @@ few seconds apart.
 `lyzr_update_agent` only needs the fields that change — it merges with the existing config server-side.
 `lyzr_delete_agent` is irreversible: confirm with the user before calling it, same as any destructive action.
 
+## Attaching tools
+
+`lyzr_update_agent` accepts a `tools` array of tool ids (either the catalog id
+or the tool's provider_id — from `lyzr_get_all_tools`/`lyzr_list_all_user_tools`)
+and now correctly resolves tool identity, `tool_source`, and `action_names`
+automatically, so a bare id attaches a fully working, callable tool. The
+response echoes back the resolved `tools`/`tool_configs` that were actually
+persisted — read that response rather than assuming success from a generic
+`{"message": "updated"}` ack, since it's the only way to confirm what was
+really attached without a separate `lyzr_get_agent` call.
+
 ## Gotchas
 
 - Look up an agent by name with `lyzr_agent_id_by_name` before assuming you need to create a new one.
-- An agent's tools/features (KB attachment, RAI policy, etc.) are **not** settable through this MCP server —
-  they're configured in Lyzr Studio's UI. Say so if asked.
+- Other agent features (KB attachment, RAI policy, etc.) besides tools are **not** settable through this
+  MCP server — they're configured in Lyzr Studio's UI. Say so if asked.

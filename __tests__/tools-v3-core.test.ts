@@ -29,10 +29,25 @@ describe("ToolsV3CoreClient", () => {
     expect(result).toEqual([{ tool_id: "t2" }]);
   });
 
-  it("createTool POSTs /v3/tools/ with the body", async () => {
-    const f = vi.fn(async () => okJson({ tool_id: "t1" }));
+  it("createTool POSTs /v3/tools/ with the body and returns the raw {tool_ids} shape", async () => {
+    // Live-confirmed backend response: response_model=dict, and the endpoint
+    // literally returns {"tool_ids": [...]} where each entry is a full tool
+    // dict (name/description/parameters/method/path), NOT a bare Tool object
+    // and NOT a list of id strings despite the key name.
+    const f = vi.fn(async () =>
+      okJson({
+        tool_ids: [
+          {
+            name: "openapi-myset-predictAge",
+            description: "Predict age",
+            method: "get",
+            path: "/",
+          },
+        ],
+      }),
+    );
     const c = mk(f as unknown as typeof fetch);
-    await c.createTool({
+    const result = await c.createTool({
       tool_set_name: "myset",
       openapi_schema: { openapi: "3.0.0" },
       enhance_descriptions: true,
@@ -44,6 +59,16 @@ describe("ToolsV3CoreClient", () => {
       tool_set_name: "myset",
       openapi_schema: { openapi: "3.0.0" },
       enhance_descriptions: true,
+    });
+    expect(result).toEqual({
+      tool_ids: [
+        {
+          name: "openapi-myset-predictAge",
+          description: "Predict age",
+          method: "get",
+          path: "/",
+        },
+      ],
     });
   });
 

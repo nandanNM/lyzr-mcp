@@ -1,35 +1,40 @@
 /**
- * Misc: Usage Alerts + Widget Stream + User Assets client (host: agent-prod).
+ * Misc: User Assets client (host: agent-prod).
+ *
+ * NOTE: this module previously also wrapped a "usage alerts" runner and a
+ * "widget stream" chat endpoint. Neither /v3/usage-alerts/run nor
+ * /v3/widget/stream/ exist anywhere in the backend (api/factory/v3 has no
+ * such routers) and both 405 live against production. They were removed —
+ * see git history if this needs to be resurrected once the backend actually
+ * ships those routes.
  */
 import { LyzrHttp, LyzrApiError, normalizeList } from "./http.js";
 
 export { LyzrApiError };
 
+/**
+ * Matches api/factory/v3/user_assets/models.py::UserAssetType exactly.
+ * There is no "a2a_agent" variant on the backend.
+ */
 export type UserAssetType =
   | "all"
   | "folder"
   | "agent"
   | "manager_agent"
-  | "a2a_agent"
   | "workflow";
 
+/**
+ * The backend (api/factory/v3/user_assets/endpoints.py) only accepts
+ * page/limit/type (and `q` for search) — no sort_by, order, providers,
+ * models, owners, is_active, has_schedule, has_trigger, tags, capabilities,
+ * response_format, updated_within_days, or metadata_contains. Those extra
+ * fields used to be sent as dead query params (silently ignored by FastAPI,
+ * giving the false impression the filter was applied).
+ */
 export interface UserAssetListParams {
   page?: number;
   limit?: number;
   type?: UserAssetType;
-  sort_by?: "name" | "created_at" | "updated_at";
-  order?: "asc" | "desc";
-  providers?: string[];
-  models?: string[];
-  owners?: string[];
-  is_active?: boolean;
-  has_schedule?: boolean;
-  has_trigger?: boolean;
-  tags?: string[];
-  capabilities?: string[];
-  response_format?: string;
-  updated_within_days?: number;
-  metadata_contains?: string;
 }
 
 export interface SearchUserAssetsParams extends UserAssetListParams {
@@ -49,102 +54,7 @@ export interface UserAssetListResponse {
   [key: string]: unknown;
 }
 
-export interface WidgetStreamInput {
-  message: string;
-  session_id: string;
-}
-
 export class MiscUsageWidgetUserAssetsClient extends LyzrHttp {
-  /** Run usage alert pass. POST /v3/usage-alerts/run */
-  async runUsageAlerts(
-    serverToken?: string,
-    signal?: AbortSignal,
-  ): Promise<unknown> {
-    const res = await this.fetchImpl(this.buildUrl("/v3/usage-alerts/run"), {
-      method: "POST",
-      headers: this.headers(
-        serverToken ? { "x-server-token": serverToken } : undefined,
-      ),
-      signal,
-    });
-    if (!res.ok) {
-      const text = await res.text().catch(() => "");
-      throw new LyzrApiError(res.status, text);
-    }
-    const text = await res.text();
-    return text ? JSON.parse(text) : {};
-  }
-
-  /** Widget stream chat (SSE). POST /v3/widget/stream/ Returns the full text. */
-  async widgetStream(
-    input: WidgetStreamInput,
-    onChunk: (delta: string) => void,
-    signal?: AbortSignal,
-  ): Promise<string> {
-    const res = await this.fetchImpl(this.buildUrl("/v3/widget/stream/"), {
-      method: "POST",
-      headers: this.headers({ Accept: "text/event-stream" }),
-      body: JSON.stringify({
-        message: input.message,
-        session_id: input.session_id,
-      }),
-      signal,
-    });
-
-    if (!res.ok) {
-      const text = await res.text().catch(() => "");
-      throw new LyzrApiError(res.status, text);
-    }
-    if (!res.body) {
-      const text = await res.text();
-      if (text) onChunk(text);
-      return text;
-    }
-
-    let full = "";
-    const handleLine = (line: string): boolean => {
-      const trimmed = line.trim();
-      if (!trimmed.startsWith("data:")) return false;
-      const dataStr = trimmed.slice(5).trim();
-      if (dataStr === "[DONE]") return true;
-      let content = dataStr;
-      try {
-        const parsed = JSON.parse(dataStr) as Record<string, unknown>;
-        content = String(parsed.content ?? parsed.delta ?? "");
-      } catch {
-        // plain-text chunk
-      }
-      if (content) {
-        full += content;
-        onChunk(content);
-      }
-      return false;
-    };
-
-    const reader = res.body.getReader();
-    const decoder = new TextDecoder();
-    let buffer = "";
-    for (;;) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      buffer += decoder.decode(value, { stream: true });
-      const lines = buffer.split("\n");
-      buffer = lines.pop() ?? "";
-      for (const line of lines) {
-        if (handleLine(line)) return full;
-      }
-    }
-    if (buffer) handleLine(buffer);
-    return full;
-  }
-
-  /** List filter facets for user assets. GET /v3/user-assets/filters */
-  listUserAssetFilters(signal?: AbortSignal): Promise<unknown> {
-    return this.request<unknown>("GET", "/v3/user-assets/filters", {
-      signal,
-    });
-  }
-
   /** List user assets. GET /v3/user-assets/ */
   async listUserAssets(
     params: UserAssetListParams = {},

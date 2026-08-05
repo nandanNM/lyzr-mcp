@@ -9,22 +9,32 @@ export interface TestCaseResult {
   [key: string]: unknown;
 }
 
-/** Input for creating an evaluation run. POST /v3/world_model/evaluation_runs */
+/**
+ * Input for creating an evaluation run. POST /v3/world_model/evaluation_runs
+ *
+ * The backend's `EvaluationRun` Pydantic model (api/factory/v3/evals/models.py)
+ * has NO defaults for `status`, `selected_metrics`, `overall_progress`,
+ * `is_running`, the five `*_test_cases` counters, `duration_ms`, or
+ * `test_cases` — every one of them is required and a request missing any of
+ * them 422s (confirmed live). They were previously typed `optional` here,
+ * which let callers omit them and always fail.
+ */
 export interface CreateEvaluationRunInput {
   world_model_id: string;
   run_name: string;
   agent_id: string;
   agent_name: string;
-  status?: string;
-  selected_metrics?: string[];
-  overall_progress?: number;
-  is_running?: boolean;
-  total_test_cases?: number;
-  completed_test_cases?: number;
-  failed_test_cases?: number;
-  running_test_cases?: number;
-  pending_test_cases?: number;
-  duration_ms?: number;
+  status: string;
+  selected_metrics: string[];
+  overall_progress: number;
+  is_running: boolean;
+  total_test_cases: number;
+  completed_test_cases: number;
+  failed_test_cases: number;
+  running_test_cases: number;
+  pending_test_cases: number;
+  duration_ms: number;
+  test_cases: TestCaseResult[];
   [key: string]: unknown;
 }
 

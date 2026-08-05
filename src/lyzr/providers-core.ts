@@ -23,6 +23,11 @@ export interface UpdateProviderInput {
   meta_data: Record<string, unknown>;
 }
 
+/** Response shape from create endpoints: `{"Provider created with ID": "<id>"}`. */
+export interface CreateProviderResult {
+  [key: string]: string;
+}
+
 export interface Provider {
   provider_id?: string;
   type?: string;
@@ -65,8 +70,8 @@ export class ProvidersCoreClient extends LyzrHttp {
   createProvider(
     input: CreateProviderInput,
     signal?: AbortSignal,
-  ): Promise<Provider> {
-    return this.request<Provider>("POST", "/v3/providers/", {
+  ): Promise<CreateProviderResult> {
+    return this.request<CreateProviderResult>("POST", "/v3/providers/", {
       body: input,
       signal,
     });
@@ -76,8 +81,8 @@ export class ProvidersCoreClient extends LyzrHttp {
   createLyzrProvider(
     input: CreateLyzrProviderInput,
     signal?: AbortSignal,
-  ): Promise<Provider> {
-    return this.request<Provider>("POST", "/v3/providers/lyzr", {
+  ): Promise<CreateProviderResult> {
+    return this.request<CreateProviderResult>("POST", "/v3/providers/lyzr", {
       body: input,
       signal,
     });
@@ -214,21 +219,4 @@ export class ProvidersCoreClient extends LyzrHttp {
     );
   }
 
-  /** Resolve an LLM credential (internal). GET /v3/providers/internal/resolve-llm-credential */
-  resolveLlmCredential(
-    params: { credential_id?: string; provider_id?: string },
-    signal?: AbortSignal,
-  ): Promise<unknown> {
-    return this.request<unknown>(
-      "GET",
-      "/v3/providers/internal/resolve-llm-credential",
-      {
-        params: {
-          credential_id: params.credential_id,
-          provider_id: params.provider_id,
-        },
-        signal,
-      },
-    );
-  }
 }

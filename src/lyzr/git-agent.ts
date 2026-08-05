@@ -7,21 +7,6 @@ import { LyzrHttp, LyzrApiError, normalizeList } from "./http.js";
 
 export { LyzrApiError };
 
-export interface GitConfigInput {
-  provider?: string;
-  repo_name: string;
-  org?: string | null;
-  pat?: string | null;
-  branch?: string;
-  base_url?: string | null;
-  environments?: string[] | null;
-  [key: string]: unknown;
-}
-
-export interface PullConfigInput {
-  branch?: string | null;
-}
-
 export interface CreatePRInput {
   source_branch: string;
   target_branch: string;
@@ -34,10 +19,6 @@ export interface MergeBranchInput {
   source_branch: string;
   target_branch: string;
   commit_message?: string | null;
-}
-
-export interface DeployBranchInput {
-  branch: string;
 }
 
 export interface UpdateReviewersInput {
@@ -75,58 +56,6 @@ export interface GitAgentResult {
 }
 
 export class GitAgentClient extends LyzrHttp {
-  /** Save Git Config. PUT /v3/git-agent/{agent_id}/config */
-  saveGitConfig(
-    agentId: string,
-    input: GitConfigInput,
-    signal?: AbortSignal,
-  ): Promise<GitAgentResult> {
-    return this.request<GitAgentResult>(
-      "PUT",
-      `/v3/git-agent/${agentId}/config`,
-      { body: input, signal },
-    );
-  }
-
-  /** Disconnect Git. DELETE /v3/git-agent/{agent_id}/config */
-  disconnectGit(
-    agentId: string,
-    purge?: boolean,
-    signal?: AbortSignal,
-  ): Promise<GitAgentResult> {
-    return this.request<GitAgentResult>(
-      "DELETE",
-      `/v3/git-agent/${agentId}/config`,
-      { params: { purge }, signal },
-    );
-  }
-
-  /** Validate Git Config. POST /v3/git-agent/{agent_id}/config/validate */
-  validateGitConfig(
-    agentId: string,
-    input: GitConfigInput,
-    signal?: AbortSignal,
-  ): Promise<GitAgentResult> {
-    return this.request<GitAgentResult>(
-      "POST",
-      `/v3/git-agent/${agentId}/config/validate`,
-      { body: input, signal },
-    );
-  }
-
-  /** Pull From Git. POST /v3/git-agent/{agent_id}/pull */
-  pullFromGit(
-    agentId: string,
-    input: PullConfigInput = {},
-    signal?: AbortSignal,
-  ): Promise<GitAgentResult> {
-    return this.request<GitAgentResult>(
-      "POST",
-      `/v3/git-agent/${agentId}/pull`,
-      { body: input, signal },
-    );
-  }
-
   /** Init Git Repo. POST /v3/git-agent/{agent_id}/init */
   initGitRepo(agentId: string, signal?: AbortSignal): Promise<GitAgentResult> {
     return this.request<GitAgentResult>(
@@ -185,19 +114,6 @@ export class GitAgentClient extends LyzrHttp {
     return this.request<GitAgentResult>(
       "POST",
       `/v3/git-agent/${agentId}/merge`,
-      { body: input, signal },
-    );
-  }
-
-  /** Deploy Branch. POST /v3/git-agent/{agent_id}/deploy */
-  deployBranch(
-    agentId: string,
-    input: DeployBranchInput,
-    signal?: AbortSignal,
-  ): Promise<GitAgentResult> {
-    return this.request<GitAgentResult>(
-      "POST",
-      `/v3/git-agent/${agentId}/deploy`,
       { body: input, signal },
     );
   }

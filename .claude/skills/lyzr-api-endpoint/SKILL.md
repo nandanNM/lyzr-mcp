@@ -166,6 +166,44 @@ Also assert:
 - At least one non-2xx path: `await expect(client.foo()).rejects.toBeInstanceOf(LyzrApiError)`, and confirm the message never contains the api key (`expect(e.message).not.toContain("test-key-123")`).
 - List-normalization: feed array / `{key:[...]}` / `{data:[...]}` shapes through the same test.
 
+## Attaching tools to an agent (a cautionary example)
+
+If you're wiring up any "attach thing X to agent by id" flow, read this first —
+`updateAgent`'s tool-attach path (`src/lyzr/client.ts`, see `resolveToolConfigs`)
+got this wrong three separate ways before it worked, and the failure modes were
+silent or misleading rather than a clean error:
+
+1. **Identity**: chat-time validation looks tools up by `provider_id`
+   (e.g. `"openapi-agify_age_predictor-predictAge"`, `"HACKERNEWS"`) against the
+   `tools_v2` collection — **not** by the catalog's Mongo `_id`. Passing the
+   `_id` a caller would naturally have (from a list/get-tool response) gets a
+   401 `"Tool not found"` even though the tool exists. Fix: resolve whatever id
+   the caller passes against `/v3/providers/tools/all` and always emit the
+   resolved `provider_id`, never the raw `_id`.
+2. **`tool_source`**: don't trust a naive default or string-match on the id
+   (e.g. checking whether `"openapi"` appears in the raw id) — that's exactly
+   the backend's own broken auto-migration logic, and it silently mis-tags
+   everything as the wrong source. Read the real `provider_source` off the
+   catalog entry instead.
+3. **`action_names`**: never leave this `null`/`None` (crashes the backend
+   with a bare 500 iterating over it) or an empty list (attaches without
+   erroring but contributes zero callable actions — the tool becomes
+   invisible to the LLM with no error at all, the worst kind of silent
+   failure). Derive the real action names — from the id's structure for
+   `openapi`-sourced tools, or via a dedicated actions-lookup endpoint for
+   everything else.
+
+The general lesson: when an "attach by id" endpoint accepts a bare id/list and
+does its own implicit defaulting server-side for source/action-name fields,
+don't trust that defaulting — resolve identity and every dependent field
+client-side against the authoritative catalog before sending the payload, and
+verify live end-to-end (not just against a mock) that the attached thing is
+actually *callable*, not merely accepted. `resolveToolConfigs` in
+`src/lyzr/client.ts` is the reference implementation: it resolves id →
+provider_id, looks up the real `provider_source`, and derives real
+`action_names` per source, only when the caller didn't already supply explicit
+`tool_configs`.
+
 ## Checking for API drift
 
 The two live OpenAPI specs (`agent-dev.test.studio.lyzr.ai/openapi.json`,

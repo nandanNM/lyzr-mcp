@@ -17,6 +17,9 @@ export interface WebsiteParseInput {
 
 export interface TextParseInput {
   text: string;
+  /** Label identifying where the text came from. Backend requires this
+   *  per-item; defaults to "manual" if omitted. */
+  source?: string;
   chunk_size?: number;
   chunk_overlap?: number;
   parser_config?: string;
@@ -40,35 +43,45 @@ export interface ClassifyInput {
 }
 
 export class RagContentClient extends LyzrHttp {
-  /** Parse a website into chunks. POST /v3/parse/website/ */
+  /** Parse a website into chunks. POST /v3/parse/website/
+   *  Backend requires `urls: string[]`, not a single `url` — a bare `url`
+   *  field 422s with "Field required" at body.urls. */
   parseWebsite(
     input: WebsiteParseInput,
     signal?: AbortSignal,
   ): Promise<unknown> {
-    const { extra_fields, ...rest } = input;
+    const { extra_fields, url, ...rest } = input;
     return this.request<unknown>("POST", "/v3/parse/website/", {
-      body: { ...rest, ...(extra_fields ?? {}) },
+      body: { ...rest, urls: [url], ...(extra_fields ?? {}) },
       signal,
     });
   }
 
-  /** Parse a website via Apify. POST /v3/parse/website_apify/ */
+  /** Parse a website via Apify. POST /v3/parse/website_apify/
+   *  Same `urls: string[]` requirement as parseWebsite. */
   parseWebsiteApify(
     input: WebsiteParseInput,
     signal?: AbortSignal,
   ): Promise<unknown> {
-    const { extra_fields, ...rest } = input;
+    const { extra_fields, url, ...rest } = input;
     return this.request<unknown>("POST", "/v3/parse/website_apify/", {
-      body: { ...rest, ...(extra_fields ?? {}) },
+      body: { ...rest, urls: [url], ...(extra_fields ?? {}) },
       signal,
     });
   }
 
-  /** Parse raw text into chunks. POST /v3/parse/text/ */
+  /** Parse raw text into chunks. POST /v3/parse/text/
+   *  Backend requires body.data to be a LIST of {text, source} objects, not
+   *  a bare {text}. A missing `source` 422s with "Field required" at
+   *  body.data[0].source. */
   parseText(input: TextParseInput, signal?: AbortSignal): Promise<unknown> {
-    const { extra_fields, ...rest } = input;
+    const { extra_fields, text, source, ...rest } = input;
     return this.request<unknown>("POST", "/v3/parse/text/", {
-      body: { ...rest, ...(extra_fields ?? {}) },
+      body: {
+        ...rest,
+        data: [{ text, source: source ?? "manual" }],
+        ...(extra_fields ?? {}),
+      },
       signal,
     });
   }

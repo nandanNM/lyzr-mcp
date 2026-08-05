@@ -128,27 +128,6 @@ export class AssetsClient extends LyzrHttp {
     return (text ? JSON.parse(text) : {}) as MultiAssetUploadResponse;
   }
 
-  /** Resolve an asset by its RAG document source. GET /v3/assets/resolve-by-source */
-  resolveAssetBySource(
-    ragId: string,
-    source: string,
-    signal?: AbortSignal,
-  ): Promise<AssetResponse> {
-    return this.request<AssetResponse>("GET", "/v3/assets/resolve-by-source", {
-      params: { rag_id: ragId, source },
-      signal,
-    });
-  }
-
-  /** Get an asset's raw content. GET /v3/assets/{asset_id}/raw */
-  getAssetRaw(assetId: string, signal?: AbortSignal): Promise<unknown> {
-    return this.request<unknown>(
-      "GET",
-      `/v3/assets/${encodeURIComponent(assetId)}/raw`,
-      { signal },
-    );
-  }
-
   /** Get an asset by id. GET /v3/assets/{asset_id} */
   getAsset(assetId: string, signal?: AbortSignal): Promise<AssetResponse> {
     return this.request<AssetResponse>(

@@ -332,29 +332,4 @@ export const registerProvidersCoreTools = (
     async ({ provider_id }, extra) =>
       txt(await client.deleteLyzrAciTool(provider_id, extra.signal)),
   );
-
-  server.registerTool(
-    "lyzr_resolve_llm_credential",
-    {
-      title: "Resolve LLM Credential",
-      description: "Resolve an LLM credential by credential or provider id.",
-      inputSchema: {
-        credential_id: z
-          .string()
-          .optional()
-          .describe("The credential id to resolve"),
-        provider_id: z
-          .string()
-          .optional()
-          .describe("The provider id to resolve a credential for"),
-      },
-      annotations: {
-        readOnlyHint: true,
-        idempotentHint: true,
-        openWorldHint: true,
-      },
-    },
-    async (args, extra) =>
-      txt(await client.resolveLlmCredential(args, extra.signal)),
-  );
 };

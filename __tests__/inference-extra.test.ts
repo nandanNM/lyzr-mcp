@@ -146,19 +146,16 @@ describe("InferenceExtraClient", () => {
     ]);
   });
 
-  it("createInference POSTs /v4/inference", async () => {
-    const f = vi.fn(async () => okJson({ id: "resp1" }));
-    const c = mk(f as unknown as typeof fetch, "https://inf.test");
-    await c.createInference({ model: "gpt-4o", input: "hello" });
-    const [url, init] = f.mock.calls[0] as [string, RequestInit];
-    expect(url).toBe("https://inf.test/v4/inference");
-    expect(JSON.parse(init.body as string)).toEqual({
-      model: "gpt-4o",
-      input: "hello",
-    });
+  it("does not expose createInference/createResponseV4 (no matching backend route)", () => {
+    const c = mk(
+      (async () => okJson({})) as unknown as typeof fetch,
+      "https://inf.test",
+    );
+    expect((c as any).createInference).toBeUndefined();
+    expect((c as any).createResponseV4).toBeUndefined();
   });
 
-  it("chatCompletionsV4 POSTs /v4/chat/completions", async () => {
+  it("chatCompletionsV4 POSTs /v4/chat/completions with Authorization: Bearer, not x-api-key", async () => {
     const f = vi.fn(async () => okJson({ id: "chatcmpl-1" }));
     const c = mk(f as unknown as typeof fetch, "https://inf.test");
     await c.chatCompletionsV4({
@@ -167,21 +164,12 @@ describe("InferenceExtraClient", () => {
     });
     const [url, init] = f.mock.calls[0] as [string, RequestInit];
     expect(url).toBe("https://inf.test/v4/chat/completions");
+    const headers = init.headers as Record<string, string>;
+    expect(headers.Authorization).toBe("Bearer k");
+    expect(headers["x-api-key"]).toBeUndefined();
     expect(JSON.parse(init.body as string)).toEqual({
       model: "gpt-4o",
       messages: [{ role: "user", content: "hi" }],
-    });
-  });
-
-  it("createResponseV4 POSTs /v4/responses", async () => {
-    const f = vi.fn(async () => okJson({ id: "resp1" }));
-    const c = mk(f as unknown as typeof fetch, "https://inf.test");
-    await c.createResponseV4({ model: "gpt-4o", input: "hello" });
-    const [url, init] = f.mock.calls[0] as [string, RequestInit];
-    expect(url).toBe("https://inf.test/v4/responses");
-    expect(JSON.parse(init.body as string)).toEqual({
-      model: "gpt-4o",
-      input: "hello",
     });
   });
 

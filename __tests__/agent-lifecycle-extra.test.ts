@@ -15,35 +15,15 @@ const mk = <T>(
 ) => new Cls({ apiKey: "k", baseUrl, fetchImpl });
 
 describe("AgentLifecycleExtraClient", () => {
-  it("setAgentStatus PATCHes /v3/agents/{id}/status", async () => {
-    const f = vi.fn(async () => okJson({ ok: true }));
+  it("does not expose setAgentStatus/setAgentLock/publishAgents (no matching backend route)", () => {
     const c = mk(
       AgentLifecycleExtraClient,
-      f as unknown as typeof fetch,
+      (async () => okJson({})) as unknown as typeof fetch,
       "https://agent.test",
     );
-    await c.setAgentStatus("a1", { is_active: false });
-    const [url, init] = f.mock.calls[0] as [string, RequestInit];
-    expect(url).toBe("https://agent.test/v3/agents/a1/status");
-    expect(init.method).toBe("PATCH");
-    expect(JSON.parse(init.body as string)).toEqual({ is_active: false });
-  });
-
-  it("setAgentLock PATCHes /v3/agents/{id}/lock with environment", async () => {
-    const f = vi.fn(async () => okJson({ ok: true }));
-    const c = mk(
-      AgentLifecycleExtraClient,
-      f as unknown as typeof fetch,
-      "https://agent.test",
-    );
-    await c.setAgentLock("a1", { is_locked: true, environment: "prod" });
-    const [url, init] = f.mock.calls[0] as [string, RequestInit];
-    expect(url).toBe("https://agent.test/v3/agents/a1/lock");
-    expect(init.method).toBe("PATCH");
-    expect(JSON.parse(init.body as string)).toEqual({
-      is_locked: true,
-      environment: "prod",
-    });
+    expect((c as any).setAgentStatus).toBeUndefined();
+    expect((c as any).setAgentLock).toBeUndefined();
+    expect((c as any).publishAgents).toBeUndefined();
   });
 
   it("bulkDeleteAgents POSTs /v3/agents/bulk-delete", async () => {
@@ -161,38 +141,6 @@ describe("AgentLifecycleExtraClient", () => {
     expect(JSON.parse(init.body as string)).toEqual({
       agent_id: "a1",
       target_email: "x@y.com",
-    });
-  });
-
-  it("publishAgents POSTs /v3/agents/publish with default access_level", async () => {
-    const f = vi.fn(async () => okJson({ ok: true }));
-    const c = mk(
-      AgentLifecycleExtraClient,
-      f as unknown as typeof fetch,
-      "https://agent.test",
-    );
-    await c.publishAgents({ agent_ids: ["a1", "a2"] });
-    const [url, init] = f.mock.calls[0] as [string, RequestInit];
-    expect(url).toBe("https://agent.test/v3/agents/publish");
-    expect(init.method).toBe("POST");
-    expect(JSON.parse(init.body as string)).toEqual({
-      agent_ids: ["a1", "a2"],
-      access_level: "public",
-    });
-  });
-
-  it("publishAgents respects an explicit access_level", async () => {
-    const f = vi.fn(async () => okJson({ ok: true }));
-    const c = mk(
-      AgentLifecycleExtraClient,
-      f as unknown as typeof fetch,
-      "https://agent.test",
-    );
-    await c.publishAgents({ agent_ids: ["a1"], access_level: "private" });
-    const [, init] = f.mock.calls[0] as [string, RequestInit];
-    expect(JSON.parse(init.body as string)).toEqual({
-      agent_ids: ["a1"],
-      access_level: "private",
     });
   });
 

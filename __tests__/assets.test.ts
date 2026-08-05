@@ -48,24 +48,13 @@ describe("AssetsClient", () => {
     await expect(client.uploadAssets([])).rejects.toThrow(/at least one file/);
   });
 
-  it("resolveAssetBySource GETs with rag_id + source query params", async () => {
-    const f = vi.fn(async () => okJson({ asset_id: "a1", file_name: "x.pdf" }));
-    const client = mk(f as unknown as typeof fetch);
-    await client.resolveAssetBySource("kb1", "storage/report.pdf");
-    const [url] = f.mock.calls[0] as [string];
-    expect(url).toBe(
-      "https://assets.test/v3/assets/resolve-by-source?rag_id=kb1&source=storage%2Freport.pdf",
-    );
-  });
-
-  it("getAssetRaw GETs /v3/assets/{asset_id}/raw", async () => {
-    const f = vi.fn(async () => okJson({ raw: "content" }));
-    const client = mk(f as unknown as typeof fetch);
-    await client.getAssetRaw("a1");
-    const [url, init] = f.mock.calls[0] as [string, RequestInit];
-    expect(url).toBe("https://assets.test/v3/assets/a1/raw");
-    expect(init.method).toBe("GET");
-  });
+  // NOTE: resolveAssetBySource (GET /v3/assets/resolve-by-source) and
+  // getAssetRaw (GET /v3/assets/{asset_id}/raw) were removed: neither route
+  // exists in api/factory/v3/assets/endpoints.py, and live calls against
+  // production confirmed 404 / 405 respectively. Raw/extracted text content
+  // is already returned under the `content` field of GET /v3/assets/{asset_id}
+  // (see AssetResponse in api/factory/v3/assets/models.py + the "content" key
+  // accepted by PATCH .../parsing-status), covered by the getAsset test above.
 
   it("getAsset GETs /v3/assets/{asset_id}", async () => {
     const f = vi.fn(async () => okJson({ asset_id: "a1", file_name: "x.pdf" }));

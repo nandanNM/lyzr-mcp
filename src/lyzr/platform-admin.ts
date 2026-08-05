@@ -29,6 +29,18 @@ export interface GatingFields {
   is_accessible?: boolean;
 }
 
+/**
+ * The `/v3/admin/feature-flags*` routes are gated by a completely separate
+ * `verify_admin_token` dependency (api.factory.v3.feature_flags.endpoints /
+ * app.py) that checks `Authorization: Bearer <PAGOS_ADMIN_TOKEN>` — a
+ * platform secret, not the caller's regular Lyzr `x-api-key`. Callers must
+ * supply that token explicitly; there is no way to derive it from the API key.
+ */
+export interface AdminAuth {
+  /** The PAGOS_ADMIN_TOKEN bearer token required by the admin feature-flags routes. */
+  adminToken: string;
+}
+
 export interface CreateFeatureFlagInput extends GatingFields {
   key: string;
   description: string;
@@ -59,80 +71,33 @@ export interface FeatureFlagListResult {
   total: number;
 }
 
-/** Extra sidebar/module fields on top of the shared gating fields. */
-export interface ModuleExtraFields {
-  name?: string | null;
-  icon?: string | null;
-  route?: string | null;
-  order?: number | null;
-  sub_routes?: unknown[] | null;
-  section?: string | null;
-  heading?: string | null;
-  type?: string | null;
-  external?: boolean | null;
-  action_id?: string | null;
-  badge?: string | null;
-  subtitle?: string | null;
-  is_new?: boolean | null;
-  beta?: boolean | null;
-  blocked?: boolean | null;
-  upgrade_description?: string | null;
-  config?: Record<string, unknown> | null;
-  use_tracking?: boolean | null;
-}
-
-export interface CreateModuleInput extends GatingFields, ModuleExtraFields {
-  key: string;
-  description: string;
-  url: string;
-}
-
-export interface UpdateModuleInput extends ModuleExtraFields {
-  description?: string | null;
-  enabled_for_roles?: string[] | null;
-  enabled_for_plans?: string[] | null;
-  enabled_for_envs?: string[] | null;
-  is_visible?: boolean | null;
-  is_accessible?: boolean | null;
-}
-
-export interface Module extends GatingFields, ModuleExtraFields {
-  id?: string | null;
-  key: string;
-  description: string;
-  url: string;
-  created_at?: string | null;
-  updated_at?: string | null;
-  [key: string]: unknown;
-}
-
-export interface ModuleListResult {
-  modules: Module[];
-  total: number;
-  flags: Module[];
-}
-
 export class PlatformAdminClient extends LyzrHttp {
   // ---- Credits ----
 
-  /** Get cached credits. GET /v3/credits/cache */
+  /**
+   * Get cached credits. GET /v3/credits/cache
+   * Requires the `x-server-token` server-to-server auth token as a HEADER
+   * (verify_server_token in api/factory/v3/credits/endpoints.py reads it via
+   * `Header(None)`, not a query parameter) — this is the platform's
+   * `settings.server_auth_token` secret, not the caller's Lyzr API key.
+   */
   getCachedCredits(
     xServerToken?: string,
     signal?: AbortSignal,
   ): Promise<Record<string, Credit>> {
     return this.request<Record<string, Credit>>("GET", "/v3/credits/cache", {
-      params: xServerToken ? { "x-server-token": xServerToken } : undefined,
+      headers: xServerToken ? { "x-server-token": xServerToken } : undefined,
       signal,
     });
   }
 
-  /** Refresh credit cache. POST /v3/credits/cache/refresh */
+  /** Refresh credit cache. POST /v3/credits/cache/refresh (also needs `x-server-token` as a header). */
   refreshCreditCache(
     xServerToken?: string,
     signal?: AbortSignal,
   ): Promise<unknown> {
     return this.request<unknown>("POST", "/v3/credits/cache/refresh", {
-      params: xServerToken ? { "x-server-token": xServerToken } : undefined,
+      headers: xServerToken ? { "x-server-token": xServerToken } : undefined,
       signal,
     });
   }
@@ -146,37 +111,52 @@ export class PlatformAdminClient extends LyzrHttp {
 
   // ---- Feature Flags Admin ----
 
-  /** List feature flags. GET /v3/admin/feature-flags */
-  listFeatureFlagsAdmin(signal?: AbortSignal): Promise<FeatureFlagListResult> {
+  /**
+   * List feature flags. GET /v3/admin/feature-flags
+   * Requires `adminToken` — this router only depends on `verify_admin_token`
+   * (Authorization: Bearer <PAGOS_ADMIN_TOKEN>), not the regular `x-api-key`
+   * auth used by every other endpoint in this client.
+   */
+  listFeatureFlagsAdmin(
+    adminToken: string,
+    signal?: AbortSignal,
+  ): Promise<FeatureFlagListResult> {
     return this.request<FeatureFlagListResult>(
       "GET",
       "/v3/admin/feature-flags",
-      { signal },
+      { headers: { Authorization: `Bearer ${adminToken}` }, signal },
     );
   }
 
-  /** Create a feature flag. POST /v3/admin/feature-flags */
+  /** Create a feature flag. POST /v3/admin/feature-flags (requires `adminToken`, see listFeatureFlagsAdmin). */
   createFeatureFlag(
+    adminToken: string,
     input: CreateFeatureFlagInput,
     signal?: AbortSignal,
   ): Promise<unknown> {
     return this.request<unknown>("POST", "/v3/admin/feature-flags", {
       body: input,
+      headers: { Authorization: `Bearer ${adminToken}` },
       signal,
     });
   }
 
-  /** Get a feature flag. GET /v3/admin/feature-flags/{key} */
-  getFeatureFlagAdmin(key: string, signal?: AbortSignal): Promise<FeatureFlag> {
+  /** Get a feature flag. GET /v3/admin/feature-flags/{key} (requires `adminToken`, see listFeatureFlagsAdmin). */
+  getFeatureFlagAdmin(
+    adminToken: string,
+    key: string,
+    signal?: AbortSignal,
+  ): Promise<FeatureFlag> {
     return this.request<FeatureFlag>(
       "GET",
       `/v3/admin/feature-flags/${encodeURIComponent(key)}`,
-      { signal },
+      { headers: { Authorization: `Bearer ${adminToken}` }, signal },
     );
   }
 
-  /** Update a feature flag. PATCH /v3/admin/feature-flags/{key} */
+  /** Update a feature flag. PATCH /v3/admin/feature-flags/{key} (requires `adminToken`, see listFeatureFlagsAdmin). */
   updateFeatureFlag(
+    adminToken: string,
     key: string,
     input: UpdateFeatureFlagInput,
     signal?: AbortSignal,
@@ -184,76 +164,28 @@ export class PlatformAdminClient extends LyzrHttp {
     return this.request<FeatureFlag>(
       "PATCH",
       `/v3/admin/feature-flags/${encodeURIComponent(key)}`,
-      { body: input, signal },
+      { body: input, headers: { Authorization: `Bearer ${adminToken}` }, signal },
     );
   }
 
-  /** Delete a feature flag. DELETE /v3/admin/feature-flags/{key} */
-  deleteFeatureFlag(key: string, signal?: AbortSignal): Promise<unknown> {
+  /** Delete a feature flag. DELETE /v3/admin/feature-flags/{key} (requires `adminToken`, see listFeatureFlagsAdmin). */
+  deleteFeatureFlag(
+    adminToken: string,
+    key: string,
+    signal?: AbortSignal,
+  ): Promise<unknown> {
     return this.request<unknown>(
       "DELETE",
       `/v3/admin/feature-flags/${encodeURIComponent(key)}`,
-      { signal },
+      { headers: { Authorization: `Bearer ${adminToken}` }, signal },
     );
   }
 
-  // ---- Modules (resolved, for the current caller) ----
-
-  /** Get resolved modules (sidebar). GET /v3/modules */
-  getModules(signal?: AbortSignal): Promise<unknown> {
-    return this.request<unknown>("GET", "/v3/modules", { signal });
-  }
-
-  // ---- Modules Admin ----
-
-  /** List modules. GET /v3/admin/modules */
-  listModulesAdmin(signal?: AbortSignal): Promise<ModuleListResult> {
-    return this.request<ModuleListResult>("GET", "/v3/admin/modules", {
-      signal,
-    });
-  }
-
-  /** Create a module. POST /v3/admin/modules */
-  createModule(
-    input: CreateModuleInput,
-    signal?: AbortSignal,
-  ): Promise<unknown> {
-    return this.request<unknown>("POST", "/v3/admin/modules", {
-      body: input,
-      signal,
-    });
-  }
-
-  /** Get a module. GET /v3/admin/modules/{key} */
-  getModuleAdmin(key: string, signal?: AbortSignal): Promise<Module> {
-    return this.request<Module>(
-      "GET",
-      `/v3/admin/modules/${encodeURIComponent(key)}`,
-      { signal },
-    );
-  }
-
-  /** Update a module. PATCH /v3/admin/modules/{key} */
-  updateModule(
-    key: string,
-    input: UpdateModuleInput,
-    signal?: AbortSignal,
-  ): Promise<Module> {
-    return this.request<Module>(
-      "PATCH",
-      `/v3/admin/modules/${encodeURIComponent(key)}`,
-      { body: input, signal },
-    );
-  }
-
-  /** Delete a module. DELETE /v3/admin/modules/{key} */
-  deleteModule(key: string, signal?: AbortSignal): Promise<unknown> {
-    return this.request<unknown>(
-      "DELETE",
-      `/v3/admin/modules/${encodeURIComponent(key)}`,
-      { signal },
-    );
-  }
+  // NOTE: A "Modules" admin/resolved section (`/v3/modules`, `/v3/admin/modules`)
+  // previously existed here but was removed — no such router is registered in
+  // the backend (app.py has no modules_router / include_router for /v3/modules
+  // or /v3/admin/modules), and live calls confirm this: GET /v3/modules returns
+  // 405 Method Not Allowed (nothing in the app matches those paths for GET).
 
   // ---- Features v3 (aggregate) ----
 
