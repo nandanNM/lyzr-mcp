@@ -1,4 +1,4 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { registerDraftSupportAgentPrompt } from "./draft-support-agent.js";
 import { registerSummarizeConversationPrompt } from "./summarize-conversation.js";
 import { registerSetupRagAgentPrompt } from "./setup-rag-agent.js";

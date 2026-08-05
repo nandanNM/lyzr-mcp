@@ -1,6 +1,6 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { ProviderCredentialsClient } from "../lyzr/providers-credentials.js";
+import type { ProviderCredentialsClient } from "../lyzr/providers-credentials.js";
 
 const txt = (data: unknown) => ({
   content: [
@@ -33,7 +33,9 @@ export const registerProviderCredentialsTools = (
         "Create a credential for a Lyzr provider (e.g. a database or SaaS integration). Returns the new credential_id.",
       inputSchema: {
         name: z.string().describe("Credential name"),
-        provider_id: z.string().describe("The provider id this credential is for"),
+        provider_id: z
+          .string()
+          .describe("The provider id this credential is for"),
         type: z.string().describe("Credential type"),
         credentials: z
           .record(z.string(), z.unknown())
@@ -67,7 +69,9 @@ export const registerProviderCredentialsTools = (
       inputSchema: {
         credential_data: z
           .string()
-          .describe("JSON-encoded string with credential metadata (name, provider_id, etc.)"),
+          .describe(
+            "JSON-encoded string with credential metadata (name, provider_id, etc.)",
+          ),
         service_account_json: credentialFileSchema.describe(
           "The GCP service account JSON key file",
         ),
@@ -92,7 +96,9 @@ export const registerProviderCredentialsTools = (
       inputSchema: {
         credential_data: z
           .string()
-          .describe("JSON-encoded string with credential metadata (name, provider_id, etc.)"),
+          .describe(
+            "JSON-encoded string with credential metadata (name, provider_id, etc.)",
+          ),
         files: z
           .array(credentialFileSchema)
           .min(1)

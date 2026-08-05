@@ -1,6 +1,6 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { GitAgentClient } from "../lyzr/git-agent.js";
+import type { GitAgentClient } from "../lyzr/git-agent.js";
 
 const txt = (data: unknown) => ({
   content: [
@@ -187,7 +187,8 @@ export const registerGitAgentTools = (
     "lyzr_git_list_commits",
     {
       title: "List Commits",
-      description: "List commits for an agent's git repo, optionally filtered by branch.",
+      description:
+        "List commits for an agent's git repo, optionally filtered by branch.",
       inputSchema: {
         agent_id: z.string().describe("Agent id"),
         branch: z.string().optional().describe("Branch to filter commits by"),
@@ -207,16 +208,14 @@ export const registerGitAgentTools = (
     "lyzr_git_create_pr",
     {
       title: "Create PR",
-      description: "Create a pull request between two branches of an agent's repo.",
+      description:
+        "Create a pull request between two branches of an agent's repo.",
       inputSchema: {
         agent_id: z.string().describe("Agent id"),
         source_branch: z.string().describe("Source branch"),
         target_branch: z.string().describe("Target branch"),
         title: z.string().describe("Pull request title"),
-        description: z
-          .string()
-          .optional()
-          .describe("Pull request description"),
+        description: z.string().optional().describe("Pull request description"),
         reviewers: z
           .array(z.string())
           .optional()
@@ -248,7 +247,8 @@ export const registerGitAgentTools = (
         openWorldHint: true,
       },
     },
-    async ({ agent_id }, extra) => txt(await client.listPrs(agent_id, extra.signal)),
+    async ({ agent_id }, extra) =>
+      txt(await client.listPrs(agent_id, extra.signal)),
   );
 
   server.registerTool(
@@ -423,7 +423,8 @@ export const registerGitAgentTools = (
     "lyzr_git_list_repo_files",
     {
       title: "List Repo Files",
-      description: "List files in an agent's git repo, optionally at a specific branch.",
+      description:
+        "List files in an agent's git repo, optionally at a specific branch.",
       inputSchema: {
         agent_id: z.string().describe("Agent id"),
         branch: z.string().optional().describe("Branch to list files from"),
@@ -457,14 +458,17 @@ export const registerGitAgentTools = (
       },
     },
     async ({ agent_id, file_path, branch }, extra) =>
-      txt(await client.getFileContent(agent_id, file_path, branch, extra.signal)),
+      txt(
+        await client.getFileContent(agent_id, file_path, branch, extra.signal),
+      ),
   );
 
   server.registerTool(
     "lyzr_git_save_file_content",
     {
       title: "Save File Content",
-      description: "Save (create or update) a file's content in an agent's git repo.",
+      description:
+        "Save (create or update) a file's content in an agent's git repo.",
       inputSchema: {
         agent_id: z.string().describe("Agent id"),
         file_path: z.string().describe("Path to the file within the repo"),
@@ -506,7 +510,8 @@ export const registerGitAgentTools = (
     "lyzr_git_save_governance",
     {
       title: "Save Governance",
-      description: "Save or update the governance (approval pipeline) policy for an agent's git repo.",
+      description:
+        "Save or update the governance (approval pipeline) policy for an agent's git repo.",
       inputSchema: {
         agent_id: z.string().describe("Agent id"),
         entity_type: z

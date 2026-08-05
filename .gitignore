@@ -4,6 +4,11 @@ build/
 .env
 .env.local
 .DS_Store
-.claude/
+.claude/settings.local.json
+.claude/worktrees/
 IMPLEMENTATION-PLAN.md
 mcp-everything-server-explained.md
+.mcp
+# OpenAPI drift-detection output (npm run generate:openapi-types) — regenerate on demand, not committed
+src/lyzr/generated/
+mcp/

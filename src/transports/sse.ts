@@ -1,8 +1,14 @@
 import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
-import express, { Request, Response } from "express";
+import express, { type Request, type Response } from "express";
 import cors from "cors";
 import { createServer } from "../server/index.js";
-import { extractHttpKey, getBaseUrl, MissingApiKeyError } from "../config.js";
+import {
+  extractHttpKey,
+  getBaseUrl,
+  getFeatures,
+  getReadOnly,
+  MissingApiKeyError,
+} from "../config.js";
 
 /**
  * SSE transport — DEPRECATED (kept to mirror the reference server). One process
@@ -28,7 +34,10 @@ app.get("/sse", async (req: Request, res: Response) => {
     throw error;
   }
 
-  const { server, cleanup } = createServer(apiKey, getBaseUrl());
+  const { server, cleanup } = createServer(apiKey, getBaseUrl(), {
+    features: getFeatures(),
+    readOnly: getReadOnly(),
+  });
   const transport = new SSEServerTransport("/messages", res);
   transports.set(transport.sessionId, transport);
 

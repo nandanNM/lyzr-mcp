@@ -1,6 +1,6 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { KbSyncConnectorsClient } from "../lyzr/kb-sync-connectors.js";
+import type { KbSyncConnectorsClient } from "../lyzr/kb-sync-connectors.js";
 
 const txt = (data: unknown) => ({
   content: [
@@ -40,7 +40,9 @@ export const registerKbSyncConnectorsTools = (
         name: z.string().describe("Connector name"),
         source: z
           .string()
-          .describe("Document source type (e.g. google_drive, confluence, notion)"),
+          .describe(
+            "Document source type (e.g. google_drive, confluence, notion)",
+          ),
         connector_specific_config: z
           .record(z.unknown())
           .describe("Connector-specific configuration object"),
@@ -83,7 +85,8 @@ export const registerKbSyncConnectorsTools = (
     "lyzr_kbsync_connector_update",
     {
       title: "Update KB Sync Connector",
-      description: "Update a KB Sync connector's name, config, or disabled state.",
+      description:
+        "Update a KB Sync connector's name, config, or disabled state.",
       inputSchema: {
         connector_id: z.number().int().describe("The connector id to update"),
         name: z.string().optional().describe("New connector name"),

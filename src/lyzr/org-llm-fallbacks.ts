@@ -24,14 +24,10 @@ export interface OrgLlmFallbacksResult {
 
 export class OrgLlmFallbacksClient extends LyzrHttp {
   /** Get org LLM fallbacks. GET /v3/org/llm-fallbacks */
-  async getLlmFallbacks(
-    signal?: AbortSignal,
-  ): Promise<OrgLlmFallbacksResult> {
-    return this.request<OrgLlmFallbacksResult>(
-      "GET",
-      "/v3/org/llm-fallbacks",
-      { signal },
-    );
+  async getLlmFallbacks(signal?: AbortSignal): Promise<OrgLlmFallbacksResult> {
+    return this.request<OrgLlmFallbacksResult>("GET", "/v3/org/llm-fallbacks", {
+      signal,
+    });
   }
 
   /** Update org LLM fallbacks. PUT /v3/org/llm-fallbacks */
@@ -39,10 +35,9 @@ export class OrgLlmFallbacksClient extends LyzrHttp {
     input: UpdateOrgLlmFallbacksInput,
     signal?: AbortSignal,
   ): Promise<OrgLlmFallbacksResult> {
-    return this.request<OrgLlmFallbacksResult>(
-      "PUT",
-      "/v3/org/llm-fallbacks",
-      { body: input, signal },
-    );
+    return this.request<OrgLlmFallbacksResult>("PUT", "/v3/org/llm-fallbacks", {
+      body: input,
+      signal,
+    });
   }
 }

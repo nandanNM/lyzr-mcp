@@ -1,0 +1,20 @@
+{
+  "name": "lyzr-mcp-skills",
+  "version": "0.1.0",
+  "description": "Install Claude skills for the lyzr-mcp server (bring-your-own-key Lyzr Enterprise MCP tools) — interactive checklist, Supabase-style.",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "lyzr-mcp-skills": "index.js"
+  },
+  "files": ["index.js", "skills"],
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": ["mcp", "claude", "claude-code", "skills", "lyzr"],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/codernandan/lyzr-mcp.git",
+    "directory": "packages/lyzr-mcp-skills"
+  }
+}

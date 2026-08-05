@@ -17,9 +17,7 @@ describe("KbSyncLegacyClient — OAuth", () => {
     const client = mk(f as unknown as typeof fetch);
     await client.sharepointOauthExchange();
     const [url, init] = f.mock.calls[0] as [string, RequestInit];
-    expect(url).toBe(
-      "https://rag.test/v3/kb-sync/oauth/sharepoint/exchange",
-    );
+    expect(url).toBe("https://rag.test/v3/kb-sync/oauth/sharepoint/exchange");
     expect(init.method).toBe("POST");
   });
 
@@ -28,9 +26,7 @@ describe("KbSyncLegacyClient — OAuth", () => {
     const client = mk(f as unknown as typeof fetch);
     await client.sharepointOauthCallback();
     const [url, init] = f.mock.calls[0] as [string, RequestInit];
-    expect(url).toBe(
-      "https://rag.test/v3/kb-sync/oauth/sharepoint/callback",
-    );
+    expect(url).toBe("https://rag.test/v3/kb-sync/oauth/sharepoint/callback");
     expect(init.method).toBe("GET");
   });
 
@@ -39,9 +35,7 @@ describe("KbSyncLegacyClient — OAuth", () => {
     const client = mk(f as unknown as typeof fetch);
     await client.sharepointOauthAuthorize();
     const [url, init] = f.mock.calls[0] as [string, RequestInit];
-    expect(url).toBe(
-      "https://rag.test/v3/kb-sync/oauth/sharepoint/authorize",
-    );
+    expect(url).toBe("https://rag.test/v3/kb-sync/oauth/sharepoint/authorize");
     expect(init.method).toBe("GET");
   });
 });
@@ -97,9 +91,7 @@ describe("KbSyncLegacyClient — Browse", () => {
   });
 
   it("validateSiteAccess POSTs credential_id + site_urls body", async () => {
-    const f = vi.fn(async () =>
-      okJson({ results: [], all_accessible: true }),
-    );
+    const f = vi.fn(async () => okJson({ results: [], all_accessible: true }));
     const client = mk(f as unknown as typeof fetch);
     await client.validateSiteAccess({
       credential_id: "cred-1",

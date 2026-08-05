@@ -97,7 +97,9 @@ describe("ArtifactsClient", () => {
   });
 
   it("updateArtifact PUTs /v3/artifacts/{id} with body and params", async () => {
-    const f = vi.fn(async () => okJson({ artifact: { id: "a1", name: "new" } }));
+    const f = vi.fn(async () =>
+      okJson({ artifact: { id: "a1", name: "new" } }),
+    );
     const client = mk(
       ArtifactsClient,
       f as unknown as typeof fetch,
@@ -145,9 +147,7 @@ describe("ArtifactsClient", () => {
   });
 
   it("throws LyzrApiError on a non-2xx response", async () => {
-    const f = vi.fn(
-      async () => new Response("not found", { status: 404 }),
-    );
+    const f = vi.fn(async () => new Response("not found", { status: 404 }));
     const client = mk(
       ArtifactsClient,
       f as unknown as typeof fetch,

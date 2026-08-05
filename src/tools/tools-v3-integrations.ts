@@ -1,6 +1,6 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { ToolIntegrationsClient } from "../lyzr/tools-v3-integrations.js";
+import type { ToolIntegrationsClient } from "../lyzr/tools-v3-integrations.js";
 
 const txt = (data: unknown) => ({
   content: [
@@ -44,10 +44,7 @@ export const registerToolIntegrationsTools = (
         provider_id: z.string().describe("Composio provider id"),
         client_id: z.string().describe("OAuth client id"),
         client_secret: z.string().describe("OAuth client secret"),
-        scopes: z
-          .string()
-          .optional()
-          .describe("Space-separated OAuth scopes"),
+        scopes: z.string().optional().describe("Space-separated OAuth scopes"),
       },
       annotations: {
         readOnlyHint: false,
@@ -148,14 +145,16 @@ export const registerToolIntegrationsTools = (
         openWorldHint: true,
       },
     },
-    async (args, extra) => txt(await client.createMcpServer(args, extra.signal)),
+    async (args, extra) =>
+      txt(await client.createMcpServer(args, extra.signal)),
   );
 
   server.registerTool(
     "lyzr_initiate_mcp_oauth",
     {
       title: "Initiate MCP OAuth Flow",
-      description: "Start the OAuth flow for an MCP server; returns an auth URL.",
+      description:
+        "Start the OAuth flow for an MCP server; returns an auth URL.",
       inputSchema: {
         server_id: z.string().describe("MCP server id"),
       },
@@ -383,7 +382,9 @@ export const registerToolIntegrationsTools = (
       },
     },
     async ({ credential_id }, extra) =>
-      txt(await client.refreshToolCredentialStatus(credential_id, extra.signal)),
+      txt(
+        await client.refreshToolCredentialStatus(credential_id, extra.signal),
+      ),
   );
 
   server.registerTool(

@@ -1,6 +1,6 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { OpsClient } from "../lyzr/ops.js";
+import type { OpsClient } from "../lyzr/ops.js";
 
 const txt = (data: unknown) => ({
   content: [
@@ -57,11 +57,15 @@ export const registerOpsTools = (server: McpServer, ops: OpsClient) => {
     "lyzr_ops_get_dashboard",
     {
       title: "Get Ops Dashboard",
-      description: "Fetch the operations dashboard for a date range, optionally scoped to one agent.",
+      description:
+        "Fetch the operations dashboard for a date range, optionally scoped to one agent.",
       inputSchema: {
         start_date: z.string().describe("Start date-time (ISO 8601)"),
         end_date: z.string().describe("End date-time (ISO 8601)"),
-        agent_id: z.string().optional().describe("Restrict to a single agent id"),
+        agent_id: z
+          .string()
+          .optional()
+          .describe("Restrict to a single agent id"),
       },
       annotations: {
         readOnlyHint: true,
@@ -70,21 +74,37 @@ export const registerOpsTools = (server: McpServer, ops: OpsClient) => {
       },
     },
     async ({ start_date, end_date, agent_id }, extra) =>
-      txt(await ops.getDashboard({ start_date, end_date, agent_id }, extra.signal)),
+      txt(
+        await ops.getDashboard(
+          { start_date, end_date, agent_id },
+          extra.signal,
+        ),
+      ),
   );
 
   server.registerTool(
     "lyzr_ops_get_traces",
     {
       title: "List Ops Traces",
-      description: "List execution traces, optionally filtered by agent and date range.",
+      description:
+        "List execution traces, optionally filtered by agent and date range.",
       inputSchema: {
-        agent_id: z.string().optional().describe("Restrict to a single agent id"),
-        start_date: z.string().optional().describe("Start date-time (ISO 8601)"),
+        agent_id: z
+          .string()
+          .optional()
+          .describe("Restrict to a single agent id"),
+        start_date: z
+          .string()
+          .optional()
+          .describe("Start date-time (ISO 8601)"),
         end_date: z.string().optional().describe("End date-time (ISO 8601)"),
         page: z.number().int().optional().default(1).describe("Page number"),
         limit: z.number().int().optional().default(10).describe("Page size"),
-        count: z.boolean().optional().default(false).describe("Include total count"),
+        count: z
+          .boolean()
+          .optional()
+          .default(false)
+          .describe("Include total count"),
       },
       annotations: {
         readOnlyHint: true,
@@ -109,7 +129,8 @@ export const registerOpsTools = (server: McpServer, ops: OpsClient) => {
         openWorldHint: true,
       },
     },
-    async ({ trace_id }, extra) => txt(await ops.getTrace(trace_id, extra.signal)),
+    async ({ trace_id }, extra) =>
+      txt(await ops.getTrace(trace_id, extra.signal)),
   );
 
   server.registerTool(
@@ -135,7 +156,8 @@ export const registerOpsTools = (server: McpServer, ops: OpsClient) => {
     "lyzr_ops_get_grouped_logs",
     {
       title: "Get Grouped Activity Logs",
-      description: "Fetch grouped activity logs for a trace/run/log combination.",
+      description:
+        "Fetch grouped activity logs for a trace/run/log combination.",
       inputSchema: {
         trace_id: z.string().describe("Trace id"),
         run_id: z.string().describe("Run id"),
@@ -156,7 +178,8 @@ export const registerOpsTools = (server: McpServer, ops: OpsClient) => {
     "lyzr_ops_get_agent_tool_logs",
     {
       title: "Get Agent Tool Logs",
-      description: "Fetch agent tool logs for a trace/run/log/feature combination.",
+      description:
+        "Fetch agent tool logs for a trace/run/log/feature combination.",
       inputSchema: {
         trace_id: z.string().describe("Trace id"),
         run_id: z.string().describe("Run id"),

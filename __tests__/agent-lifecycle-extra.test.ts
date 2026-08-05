@@ -1,7 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import {
-  AgentLifecycleExtraClient,
-} from "../src/lyzr/agent-lifecycle-extra";
+import { AgentLifecycleExtraClient } from "../src/lyzr/agent-lifecycle-extra";
 import { LyzrApiError } from "../src/lyzr/http";
 
 const okJson = (data: unknown, status = 200) =>
@@ -96,9 +94,7 @@ describe("AgentLifecycleExtraClient", () => {
   });
 
   it("listAgentVersions GETs /v3/agents/{id}/versions", async () => {
-    const f = vi.fn(async () =>
-      okJson({ versions: [{ version_id: "v1" }] }),
-    );
+    const f = vi.fn(async () => okJson({ versions: [{ version_id: "v1" }] }));
     const c = mk(
       AgentLifecycleExtraClient,
       f as unknown as typeof fetch,
@@ -133,9 +129,7 @@ describe("AgentLifecycleExtraClient", () => {
     );
     await c.activateAgentVersion("a1", "v1");
     const [url, init] = f.mock.calls[0] as [string, RequestInit];
-    expect(url).toBe(
-      "https://agent.test/v3/agents/a1/versions/v1/activate",
-    );
+    expect(url).toBe("https://agent.test/v3/agents/a1/versions/v1/activate");
     expect(init.method).toBe("POST");
   });
 

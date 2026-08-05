@@ -1,6 +1,6 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { RagMiscExtraClient } from "../lyzr/rag-misc-extra.js";
+import type { RagMiscExtraClient } from "../lyzr/rag-misc-extra.js";
 
 const txt = (data: unknown) => ({
   content: [
@@ -32,7 +32,9 @@ export const registerRagMiscExtraTools = (
         filename: z
           .string()
           .optional()
-          .describe("Filename for the uploaded file (used with file_content_base64)"),
+          .describe(
+            "Filename for the uploaded file (used with file_content_base64)",
+          ),
         mime_type: z
           .string()
           .optional()
@@ -44,15 +46,22 @@ export const registerRagMiscExtraTools = (
         file_url: z
           .string()
           .optional()
-          .describe("URL of a file to extract from, instead of uploading bytes"),
+          .describe(
+            "URL of a file to extract from, instead of uploading bytes",
+          ),
         extraction_schema: z
           .string()
-          .describe("Schema string describing what fields/structure to extract"),
+          .describe(
+            "Schema string describing what fields/structure to extract",
+          ),
         target: z
           .string()
           .optional()
           .describe("Extraction target mode (default per_doc)"),
-        tier: z.string().optional().describe("Extraction tier (default standard)"),
+        tier: z
+          .string()
+          .optional()
+          .describe("Extraction tier (default standard)"),
         annotate: z
           .boolean()
           .optional()
@@ -190,9 +199,7 @@ export const registerRagMiscExtraTools = (
       },
     },
     async ({ rag_id, redirect_url }, extra) =>
-      txt(
-        await client.sharepointAuthorize(rag_id, redirect_url, extra.signal),
-      ),
+      txt(await client.sharepointAuthorize(rag_id, redirect_url, extra.signal)),
   );
 
   server.registerTool(
@@ -210,6 +217,7 @@ export const registerRagMiscExtraTools = (
         openWorldHint: true,
       },
     },
-    async ({ state }, extra) => txt(await client.aciHandoff(state, extra.signal)),
+    async ({ state }, extra) =>
+      txt(await client.aciHandoff(state, extra.signal)),
   );
 };

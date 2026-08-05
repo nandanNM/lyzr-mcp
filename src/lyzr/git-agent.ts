@@ -137,10 +137,7 @@ export class GitAgentClient extends LyzrHttp {
   }
 
   /** Get Git Status. GET /v3/git-agent/{agent_id}/status */
-  getGitStatus(
-    agentId: string,
-    signal?: AbortSignal,
-  ): Promise<GitAgentResult> {
+  getGitStatus(agentId: string, signal?: AbortSignal): Promise<GitAgentResult> {
     return this.request<GitAgentResult>(
       "GET",
       `/v3/git-agent/${agentId}/status`,
@@ -166,20 +163,17 @@ export class GitAgentClient extends LyzrHttp {
     input: CreatePRInput,
     signal?: AbortSignal,
   ): Promise<GitAgentResult> {
-    return this.request<GitAgentResult>(
-      "POST",
-      `/v3/git-agent/${agentId}/pr`,
-      { body: input, signal },
-    );
+    return this.request<GitAgentResult>("POST", `/v3/git-agent/${agentId}/pr`, {
+      body: input,
+      signal,
+    });
   }
 
   /** List Prs. GET /v3/git-agent/{agent_id}/prs */
   listPrs(agentId: string, signal?: AbortSignal): Promise<unknown[]> {
-    return this.request<unknown[]>(
-      "GET",
-      `/v3/git-agent/${agentId}/prs`,
-      { signal },
-    ).then((raw) => normalizeList(raw, "prs"));
+    return this.request<unknown[]>("GET", `/v3/git-agent/${agentId}/prs`, {
+      signal,
+    }).then((raw) => normalizeList(raw, "prs"));
   }
 
   /** Merge Branches. POST /v3/git-agent/{agent_id}/merge */
@@ -249,11 +243,9 @@ export class GitAgentClient extends LyzrHttp {
 
   /** List Branches. GET /v3/git-agent/{agent_id}/branches */
   listBranches(agentId: string, signal?: AbortSignal): Promise<unknown[]> {
-    return this.request<unknown[]>(
-      "GET",
-      `/v3/git-agent/${agentId}/branches`,
-      { signal },
-    ).then((raw) => normalizeList(raw, "branches"));
+    return this.request<unknown[]>("GET", `/v3/git-agent/${agentId}/branches`, {
+      signal,
+    }).then((raw) => normalizeList(raw, "branches"));
   }
 
   /** Get Commit Snapshot. GET /v3/git-agent/{agent_id}/commits/{commit_sha}/snapshot */

@@ -45,9 +45,7 @@ describe("WorldModelEvalClient", () => {
   });
 
   it("listEvaluationRuns normalizes a { evaluation_runs: [...] } wrapper", async () => {
-    const f = vi.fn(async () =>
-      okJson({ evaluation_runs: [{ id: "run1" }] }),
-    );
+    const f = vi.fn(async () => okJson({ evaluation_runs: [{ id: "run1" }] }));
     const client = mk(f as unknown as typeof fetch);
     const runs = await client.listEvaluationRuns("wm1");
     expect(runs).toEqual([{ id: "run1" }]);

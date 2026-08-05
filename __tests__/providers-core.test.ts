@@ -112,7 +112,9 @@ describe("ProvidersCoreClient", () => {
     const client = mk(f as unknown as typeof fetch);
     await client.getComposioActionLimit();
     const [url] = f.mock.calls[0] as [string];
-    expect(url).toBe("https://prov.test/v3/providers/tools/composio-action-limit");
+    expect(url).toBe(
+      "https://prov.test/v3/providers/tools/composio-action-limit",
+    );
   });
 
   it("getToolsActions GETs the actions endpoint with query params", async () => {

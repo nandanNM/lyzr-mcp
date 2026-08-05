@@ -1,6 +1,6 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { ReportsClient } from "../lyzr/reports.js";
+import type { ReportsClient } from "../lyzr/reports.js";
 
 const txt = (data: unknown) => ({
   content: [
@@ -37,7 +37,9 @@ const REPORT_STATUS_VALUES = ["queued", "running", "ready", "failed"] as const;
 
 const timeframeSchema = z
   .enum(TIMEFRAME_VALUES)
-  .describe("Timeframe preset for the report window. Use 'custom' with start_date/end_date.");
+  .describe(
+    "Timeframe preset for the report window. Use 'custom' with start_date/end_date.",
+  );
 
 const baseReportFields = {
   timeframe: timeframeSchema,
@@ -70,10 +72,7 @@ export const registerReportsTools = (
         "Request an async usage report broken down by agent. Returns a job_id; poll with lyzr_report_get_status.",
       inputSchema: {
         ...baseReportFields,
-        agent_type: z
-          .string()
-          .optional()
-          .describe("Filter by agent type"),
+        agent_type: z.string().optional().describe("Filter by agent type"),
         model: z.string().optional().describe("Filter by model name"),
         created_by: z
           .string()

@@ -1,6 +1,6 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { WorkflowsClient } from "../lyzr/workflows.js";
+import type { WorkflowsClient } from "../lyzr/workflows.js";
 
 const txt = (data: unknown) => ({
   content: [
@@ -148,10 +148,7 @@ export const registerWorkflowsTools = (
       title: "Bulk Delete Workflows",
       description: "Permanently delete multiple workflows by id.",
       inputSchema: {
-        flow_ids: z
-          .array(z.string())
-          .min(1)
-          .describe("Workflow ids to delete"),
+        flow_ids: z.array(z.string()).min(1).describe("Workflow ids to delete"),
       },
       annotations: {
         readOnlyHint: false,
@@ -185,11 +182,7 @@ export const registerWorkflowsTools = (
     },
     async ({ flow_id, input_data }, extra) =>
       txt(
-        await client.executeWorkflow(
-          flow_id,
-          input_data ?? {},
-          extra.signal,
-        ),
+        await client.executeWorkflow(flow_id, input_data ?? {}, extra.signal),
       ),
   );
 
@@ -239,7 +232,7 @@ export const registerWorkflowsTools = (
           .string()
           .optional()
           .describe(
-            "JSON string of additional form fields to send (default \"{}\")",
+            'JSON string of additional form fields to send (default "{}")',
           ),
       },
       annotations: {
@@ -250,8 +243,6 @@ export const registerWorkflowsTools = (
       },
     },
     async ({ flow_id, ...input }, extra) =>
-      txt(
-        await client.triggerWorkflowWithFile(flow_id, input, extra.signal),
-      ),
+      txt(await client.triggerWorkflowWithFile(flow_id, input, extra.signal)),
   );
 };

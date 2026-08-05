@@ -1,14 +1,14 @@
 import {
-  McpServer,
+  type McpServer,
   ResourceTemplate,
 } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { LyzrClient } from "../lyzr/client.js";
-import { RagClient } from "../lyzr/rag.js";
-import { AgentExtrasClient } from "../lyzr/agent-extras.js";
-import { WorkflowsClient } from "../lyzr/workflows.js";
-import { A2AClient } from "../lyzr/a2a.js";
-import { TracesClient } from "../lyzr/traces.js";
-import { WorldModelCoreClient } from "../lyzr/world-model-core.js";
+import type { LyzrClient } from "../lyzr/client.js";
+import type { RagClient } from "../lyzr/rag.js";
+import type { AgentExtrasClient } from "../lyzr/agent-extras.js";
+import type { WorkflowsClient } from "../lyzr/workflows.js";
+import type { A2AClient } from "../lyzr/a2a.js";
+import type { TracesClient } from "../lyzr/traces.js";
+import type { WorldModelCoreClient } from "../lyzr/world-model-core.js";
 
 /** Clients the resources read from. */
 export interface ResourceDeps {

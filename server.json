@@ -1,0 +1,101 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.NeuralgoLyzr/lyzr-mcp",
+  "title": "Lyzr",
+  "description": "MCP server wrapping the Lyzr Enterprise Agent API (bring-your-own-key).",
+  "repository": {
+    "url": "https://github.com/NeuralgoLyzr/lyzr-mcp",
+    "source": "github"
+  },
+  "websiteUrl": "https://www.lyzr.ai",
+  "version": "0.1.0",
+  "packages": [
+    {
+      "registryType": "npm",
+      "registryBaseUrl": "https://registry.npmjs.org",
+      "identifier": "lyzr-mcp",
+      "version": "0.1.0",
+      "transport": {
+        "type": "stdio"
+      },
+      "runtimeHint": "npx",
+      "runtimeArguments": [
+        {
+          "type": "positional",
+          "name": "transport",
+          "description": "Transport to run: stdio, sse, or streamableHttp",
+          "format": "string",
+          "isRequired": false,
+          "default": "stdio"
+        }
+      ],
+      "environmentVariables": [
+        {
+          "name": "LYZR_API_KEY",
+          "description": "Lyzr Enterprise API key used to authenticate all requests (bring-your-own-key)",
+          "format": "string",
+          "isRequired": true,
+          "isSecret": true
+        }
+      ]
+    },
+    {
+      "registryType": "npm",
+      "registryBaseUrl": "https://registry.npmjs.org",
+      "identifier": "lyzr-mcp",
+      "version": "0.1.0",
+      "transport": {
+        "type": "sse"
+      },
+      "runtimeHint": "npx",
+      "runtimeArguments": [
+        {
+          "type": "positional",
+          "name": "transport",
+          "description": "Transport to run",
+          "format": "string",
+          "isRequired": true,
+          "default": "sse"
+        }
+      ],
+      "environmentVariables": [
+        {
+          "name": "PORT",
+          "description": "Port to listen on for the HTTP transport",
+          "format": "string",
+          "isRequired": false,
+          "default": "3001"
+        }
+      ]
+    },
+    {
+      "registryType": "npm",
+      "registryBaseUrl": "https://registry.npmjs.org",
+      "identifier": "lyzr-mcp",
+      "version": "0.1.0",
+      "transport": {
+        "type": "streamable-http"
+      },
+      "runtimeHint": "npx",
+      "runtimeArguments": [
+        {
+          "type": "positional",
+          "name": "transport",
+          "description": "Transport to run",
+          "format": "string",
+          "isRequired": true,
+          "default": "streamableHttp"
+        }
+      ],
+      "environmentVariables": [
+        {
+          "name": "PORT",
+          "description": "Port to listen on for the HTTP transport",
+          "format": "string",
+          "isRequired": false,
+          "default": "3001"
+        }
+      ]
+    }
+  ]
+}

@@ -51,11 +51,9 @@ export class ContextsClient extends LyzrHttp {
 
   /** Get contexts count. GET /v3/contexts/count */
   getContextsCount(signal?: AbortSignal): Promise<Record<string, unknown>> {
-    return this.request<Record<string, unknown>>(
-      "GET",
-      "/v3/contexts/count",
-      { signal },
-    );
+    return this.request<Record<string, unknown>>("GET", "/v3/contexts/count", {
+      signal,
+    });
   }
 
   /** Get context usage. GET /v3/contexts/{context_id}/usage */
@@ -139,10 +137,10 @@ export class ContextsClient extends LyzrHttp {
     apiKey: string,
     signal?: AbortSignal,
   ): Promise<unknown> {
-    return this.request<unknown>(
-      "POST",
-      "/v3/contexts/internal/batch-values",
-      { params: { api_key: apiKey }, body: contextNames, signal },
-    );
+    return this.request<unknown>("POST", "/v3/contexts/internal/batch-values", {
+      params: { api_key: apiKey },
+      body: contextNames,
+      signal,
+    });
   }
 }

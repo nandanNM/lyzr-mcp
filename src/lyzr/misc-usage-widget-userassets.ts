@@ -156,7 +156,10 @@ export class MiscUsageWidgetUserAssetsClient extends LyzrHttp {
     });
     const list = normalizeList<UserAsset>(raw, "assets");
     if (raw && typeof raw === "object") {
-      return { ...(raw as Record<string, unknown>), assets: list } as UserAssetListResponse;
+      return {
+        ...(raw as Record<string, unknown>),
+        assets: list,
+      } as UserAssetListResponse;
     }
     return { assets: list, total: list.length };
   }
@@ -172,7 +175,10 @@ export class MiscUsageWidgetUserAssetsClient extends LyzrHttp {
     });
     const list = normalizeList<UserAsset>(raw, "assets");
     if (raw && typeof raw === "object") {
-      return { ...(raw as Record<string, unknown>), assets: list } as UserAssetListResponse;
+      return {
+        ...(raw as Record<string, unknown>),
+        assets: list,
+      } as UserAssetListResponse;
     }
     return { assets: list, total: list.length };
   }

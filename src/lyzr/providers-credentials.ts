@@ -58,7 +58,9 @@ export interface UpdateFileUploadCredentialInput {
 
 const fileToBlob = (file: CredentialFileInput): Blob => {
   const bytes = Buffer.from(file.content, "base64");
-  return new Blob([bytes], { type: file.contentType ?? "application/octet-stream" });
+  return new Blob([bytes], {
+    type: file.contentType ?? "application/octet-stream",
+  });
 };
 
 export class ProviderCredentialsClient extends LyzrHttp {
@@ -113,10 +115,7 @@ export class ProviderCredentialsClient extends LyzrHttp {
   }
 
   /** Get a provider credential. GET /v3/providers/credentials/{credential_id} */
-  getCredential(
-    credentialId: string,
-    signal?: AbortSignal,
-  ): Promise<unknown> {
+  getCredential(credentialId: string, signal?: AbortSignal): Promise<unknown> {
     return this.request<unknown>(
       "GET",
       `/v3/providers/credentials/${encodeURIComponent(credentialId)}`,

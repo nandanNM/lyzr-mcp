@@ -1,5 +1,5 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { LoggingLevel } from "@modelcontextprotocol/sdk/types.js";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { LoggingLevel } from "@modelcontextprotocol/sdk/types.js";
 
 /**
  * Logging helpers. Mirrors the reference server's per-session interval bookkeeping

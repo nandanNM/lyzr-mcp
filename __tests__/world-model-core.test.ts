@@ -23,7 +23,9 @@ describe("WorldModelCoreClient", () => {
   });
 
   it("listByAgent normalizes wrapped {world_models: [...]}", async () => {
-    const f = vi.fn(async () => okJson({ world_models: [{ world_model_id: "wm2" }] }));
+    const f = vi.fn(async () =>
+      okJson({ world_models: [{ world_model_id: "wm2" }] }),
+    );
     const client = mk(f as unknown as typeof fetch, "https://api.test");
     const result = await client.listByAgent("agent-1");
     expect(result).toEqual([{ world_model_id: "wm2" }]);

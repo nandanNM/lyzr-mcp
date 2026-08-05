@@ -1,6 +1,6 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { WorldModelCoreClient } from "../lyzr/world-model-core.js";
+import type { WorldModelCoreClient } from "../lyzr/world-model-core.js";
 
 const txt = (data: unknown) => ({
   content: [
@@ -68,7 +68,10 @@ export const registerWorldModelCoreTools = (
         source_agent_id: z
           .string()
           .describe("The agent id to build the world model from"),
-        name: z.string().optional().describe("Optional name for the world model"),
+        name: z
+          .string()
+          .optional()
+          .describe("Optional name for the world model"),
       },
       annotations: {
         readOnlyHint: false,

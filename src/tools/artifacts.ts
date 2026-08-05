@@ -1,6 +1,6 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { ArtifactsClient } from "../lyzr/artifacts.js";
+import type { ArtifactsClient } from "../lyzr/artifacts.js";
 
 const txt = (data: unknown) => ({
   content: [
@@ -20,7 +20,8 @@ export const registerArtifactsTools = (
     "lyzr_create_artifact",
     {
       title: "Create Artifact",
-      description: "Create a new artifact for a user/session. Returns the created artifact.",
+      description:
+        "Create a new artifact for a user/session. Returns the created artifact.",
       inputSchema: {
         user_id: z.string().describe("User id that owns the artifact"),
         session_id: z.string().describe("Session id the artifact belongs to"),
@@ -28,7 +29,9 @@ export const registerArtifactsTools = (
         format_type: z
           .string()
           .optional()
-          .describe("Format of the data, e.g. text, json, markdown (default text)"),
+          .describe(
+            "Format of the data, e.g. text, json, markdown (default text)",
+          ),
         name: z.string().optional().describe("Artifact name"),
         description: z.string().optional().describe("Artifact description"),
         metadata: z
@@ -53,7 +56,12 @@ export const registerArtifactsTools = (
       title: "List Artifacts",
       description: "List artifacts with optional pagination and filters.",
       inputSchema: {
-        page: z.number().int().min(1).optional().describe("Page number (default 1)"),
+        page: z
+          .number()
+          .int()
+          .min(1)
+          .optional()
+          .describe("Page number (default 1)"),
         limit: z
           .number()
           .int()
@@ -79,7 +87,8 @@ export const registerArtifactsTools = (
     "lyzr_get_artifact",
     {
       title: "Get Artifact",
-      description: "Fetch a single artifact by id, scoped to a user and session.",
+      description:
+        "Fetch a single artifact by id, scoped to a user and session.",
       inputSchema: {
         artifact_id: z.string().describe("Artifact id"),
         user_id: z.string().describe("User id"),
@@ -93,14 +102,22 @@ export const registerArtifactsTools = (
       },
     },
     async ({ artifact_id, user_id, session_id }, extra) =>
-      txt(await client.getArtifact(artifact_id, user_id, session_id, extra.signal)),
+      txt(
+        await client.getArtifact(
+          artifact_id,
+          user_id,
+          session_id,
+          extra.signal,
+        ),
+      ),
   );
 
   server.registerTool(
     "lyzr_update_artifact",
     {
       title: "Update Artifact",
-      description: "Update fields on an existing artifact, scoped to a user and session.",
+      description:
+        "Update fields on an existing artifact, scoped to a user and session.",
       inputSchema: {
         artifact_id: z.string().describe("Artifact id to update"),
         user_id: z.string().describe("User id"),
@@ -138,7 +155,8 @@ export const registerArtifactsTools = (
     "lyzr_delete_artifact",
     {
       title: "Delete Artifact",
-      description: "Permanently delete an artifact by id, scoped to a user and session.",
+      description:
+        "Permanently delete an artifact by id, scoped to a user and session.",
       inputSchema: {
         artifact_id: z.string().describe("Artifact id to delete"),
         user_id: z.string().describe("User id"),
@@ -152,18 +170,31 @@ export const registerArtifactsTools = (
       },
     },
     async ({ artifact_id, user_id, session_id }, extra) =>
-      txt(await client.deleteArtifact(artifact_id, user_id, session_id, extra.signal)),
+      txt(
+        await client.deleteArtifact(
+          artifact_id,
+          user_id,
+          session_id,
+          extra.signal,
+        ),
+      ),
   );
 
   server.registerTool(
     "lyzr_list_artifacts_by_session",
     {
       title: "List Artifacts by User Session",
-      description: "List paginated artifacts belonging to a specific user's session.",
+      description:
+        "List paginated artifacts belonging to a specific user's session.",
       inputSchema: {
         user_id: z.string().describe("User id"),
         session_id: z.string().describe("Session id"),
-        page: z.number().int().min(1).optional().describe("Page number (default 1)"),
+        page: z
+          .number()
+          .int()
+          .min(1)
+          .optional()
+          .describe("Page number (default 1)"),
         limit: z
           .number()
           .int()

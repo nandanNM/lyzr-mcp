@@ -1,6 +1,6 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { PlatformAdminClient } from "../lyzr/platform-admin.js";
+import type { PlatformAdminClient } from "../lyzr/platform-admin.js";
 
 const txt = (data: unknown) => ({
   content: [
@@ -144,7 +144,8 @@ export const registerPlatformAdminTools = (
         openWorldHint: true,
       },
     },
-    async (args, extra) => txt(await client.createFeatureFlag(args, extra.signal)),
+    async (args, extra) =>
+      txt(await client.createFeatureFlag(args, extra.signal)),
   );
 
   server.registerTool(
@@ -313,7 +314,8 @@ export const registerPlatformAdminTools = (
         openWorldHint: true,
       },
     },
-    async ({ key }, extra) => txt(await client.getModuleAdmin(key, extra.signal)),
+    async ({ key }, extra) =>
+      txt(await client.getModuleAdmin(key, extra.signal)),
   );
 
   server.registerTool(

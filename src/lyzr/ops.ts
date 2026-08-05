@@ -87,7 +87,10 @@ export class OpsClient extends LyzrHttp {
   }
 
   /** List traces. GET /v3/ops/traces */
-  getTraces(params: OpsTracesParams = {}, signal?: AbortSignal): Promise<unknown> {
+  getTraces(
+    params: OpsTracesParams = {},
+    signal?: AbortSignal,
+  ): Promise<unknown> {
     return this.request<unknown>("GET", "/v3/ops/traces", {
       params: {
         agent_id: params.agent_id,

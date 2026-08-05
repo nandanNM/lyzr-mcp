@@ -57,10 +57,14 @@ export class WorldModelEvalClient extends LyzrHttp {
     input: CreateEvaluationRunInput,
     signal?: AbortSignal,
   ): Promise<EvaluationRun> {
-    return this.request<EvaluationRun>("POST", "/v3/world_model/evaluation_runs", {
-      body: input,
-      signal,
-    });
+    return this.request<EvaluationRun>(
+      "POST",
+      "/v3/world_model/evaluation_runs",
+      {
+        body: input,
+        signal,
+      },
+    );
   }
 
   /** List evaluation runs for a world model. GET /v3/world_model/{world_model_id}/evaluation_runs */
@@ -77,7 +81,10 @@ export class WorldModelEvalClient extends LyzrHttp {
   }
 
   /** Get an evaluation run by id. GET /v3/world_model/evaluation_run/{run_id} */
-  getEvaluationRun(runId: string, signal?: AbortSignal): Promise<EvaluationRun> {
+  getEvaluationRun(
+    runId: string,
+    signal?: AbortSignal,
+  ): Promise<EvaluationRun> {
     return this.request<EvaluationRun>(
       "GET",
       `/v3/world_model/evaluation_run/${encodeURIComponent(runId)}`,

@@ -96,7 +96,9 @@ describe("AgentEvalClient", () => {
     );
     const result = await client.getAgentEvalResult("eval1");
     const [url, init] = f.mock.calls[0] as [string, RequestInit];
-    expect(url).toBe("https://agent.test/v3/agent_eval/result?agent_eval_id=eval1");
+    expect(url).toBe(
+      "https://agent.test/v3/agent_eval/result?agent_eval_id=eval1",
+    );
     expect(init.method).toBe("GET");
     expect(result).toEqual([{ id: "r1" }]);
   });
@@ -110,7 +112,9 @@ describe("AgentEvalClient", () => {
     );
     const result = await client.getAgentEvalResultByAgent("a1");
     const [url, init] = f.mock.calls[0] as [string, RequestInit];
-    expect(url).toBe("https://agent.test/v3/agent_eval/result/agent?agent_id=a1");
+    expect(url).toBe(
+      "https://agent.test/v3/agent_eval/result/agent?agent_id=a1",
+    );
     expect(init.method).toBe("GET");
     expect(result).toEqual([{ id: "r1" }]);
   });

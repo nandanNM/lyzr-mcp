@@ -57,7 +57,9 @@ describe("ToolsV3CoreClient", () => {
   });
 
   it("updateTool PUTs /v3/tools/{tool_id} with the update body", async () => {
-    const f = vi.fn(async () => okJson({ tool_id: "t1", tool_set_name: "renamed" }));
+    const f = vi.fn(async () =>
+      okJson({ tool_id: "t1", tool_set_name: "renamed" }),
+    );
     const c = mk(f as unknown as typeof fetch);
     await c.updateTool("t1", { tool_set_name: "renamed" });
     const [url, init] = f.mock.calls[0] as [string, RequestInit];

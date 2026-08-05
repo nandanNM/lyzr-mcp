@@ -57,7 +57,9 @@ describe("ProviderCredentialsClient", () => {
     expect(init.method).toBe("POST");
     expect(init.body).toBeInstanceOf(FormData);
     const form = init.body as FormData;
-    expect(form.get("credential_data")).toBe(JSON.stringify({ name: "bq-cred" }));
+    expect(form.get("credential_data")).toBe(
+      JSON.stringify({ name: "bq-cred" }),
+    );
     const file = form.get("service_account_json") as File;
     expect(file.name).toBe("sa.json");
   });
@@ -128,7 +130,9 @@ describe("ProviderCredentialsClient", () => {
     const client = mk(f as unknown as typeof fetch);
     await client.updateFileUploadCredential("cred1", {
       update_data: "{}",
-      files: [{ content: Buffer.from("x").toString("base64"), filename: "x.txt" }],
+      files: [
+        { content: Buffer.from("x").toString("base64"), filename: "x.txt" },
+      ],
     });
     const [url, init] = f.mock.calls[0] as [string, RequestInit];
     expect(url).toBe(
@@ -170,9 +174,7 @@ describe("ProviderCredentialsClient", () => {
   });
 
   it("throws LyzrApiError on non-2xx and never leaks the api key", async () => {
-    const f = vi.fn(async () =>
-      new Response("forbidden", { status: 403 }),
-    );
+    const f = vi.fn(async () => new Response("forbidden", { status: 403 }));
     const client = mk(f as unknown as typeof fetch);
     await expect(client.getCredential("cred1")).rejects.toBeInstanceOf(
       LyzrApiError,

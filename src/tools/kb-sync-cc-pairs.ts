@@ -1,6 +1,6 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { KbSyncCcPairsClient } from "../lyzr/kb-sync-cc-pairs.js";
+import type { KbSyncCcPairsClient } from "../lyzr/kb-sync-cc-pairs.js";
 
 const txt = (data: unknown) => ({
   content: [
@@ -71,7 +71,10 @@ export const registerKbSyncCcPairsTools = (
       title: "Get KB Sync Connector-Credential Pair",
       description: "Fetch a connector-credential pair by id.",
       inputSchema: {
-        cc_pair_id: z.number().int().describe("The connector-credential pair id"),
+        cc_pair_id: z
+          .number()
+          .int()
+          .describe("The connector-credential pair id"),
       },
       annotations: {
         readOnlyHint: true,
@@ -89,7 +92,10 @@ export const registerKbSyncCcPairsTools = (
       title: "Pause KB Sync Connector-Credential Pair",
       description: "Pause syncing for a connector-credential pair.",
       inputSchema: {
-        cc_pair_id: z.number().int().describe("The connector-credential pair id"),
+        cc_pair_id: z
+          .number()
+          .int()
+          .describe("The connector-credential pair id"),
       },
       annotations: {
         readOnlyHint: false,
@@ -108,7 +114,10 @@ export const registerKbSyncCcPairsTools = (
       title: "Resume KB Sync Connector-Credential Pair",
       description: "Resume syncing for a connector-credential pair.",
       inputSchema: {
-        cc_pair_id: z.number().int().describe("The connector-credential pair id"),
+        cc_pair_id: z
+          .number()
+          .int()
+          .describe("The connector-credential pair id"),
       },
       annotations: {
         readOnlyHint: false,
@@ -127,7 +136,10 @@ export const registerKbSyncCcPairsTools = (
       title: "Trigger KB Sync",
       description: "Trigger a sync run for a connector-credential pair.",
       inputSchema: {
-        cc_pair_id: z.number().int().describe("The connector-credential pair id"),
+        cc_pair_id: z
+          .number()
+          .int()
+          .describe("The connector-credential pair id"),
       },
       annotations: {
         readOnlyHint: false,
@@ -147,7 +159,10 @@ export const registerKbSyncCcPairsTools = (
       description:
         "Get the current sync status for a connector-credential pair, including its active and last completed index attempts.",
       inputSchema: {
-        cc_pair_id: z.number().int().describe("The connector-credential pair id"),
+        cc_pair_id: z
+          .number()
+          .int()
+          .describe("The connector-credential pair id"),
       },
       annotations: {
         readOnlyHint: true,
@@ -166,7 +181,10 @@ export const registerKbSyncCcPairsTools = (
       description:
         "List index attempts (sync runs) for a connector-credential pair.",
       inputSchema: {
-        cc_pair_id: z.number().int().describe("The connector-credential pair id"),
+        cc_pair_id: z
+          .number()
+          .int()
+          .describe("The connector-credential pair id"),
         limit: z
           .number()
           .int()
@@ -199,7 +217,10 @@ export const registerKbSyncCcPairsTools = (
       title: "Get KB Sync Index Attempt",
       description: "Fetch a single index attempt by id.",
       inputSchema: {
-        cc_pair_id: z.number().int().describe("The connector-credential pair id"),
+        cc_pair_id: z
+          .number()
+          .int()
+          .describe("The connector-credential pair id"),
         attempt_id: z.number().int().describe("The index attempt id"),
       },
       annotations: {
@@ -218,7 +239,10 @@ export const registerKbSyncCcPairsTools = (
       title: "Cancel KB Sync Index Attempt",
       description: "Cancel an in-progress index attempt.",
       inputSchema: {
-        cc_pair_id: z.number().int().describe("The connector-credential pair id"),
+        cc_pair_id: z
+          .number()
+          .int()
+          .describe("The connector-credential pair id"),
         attempt_id: z.number().int().describe("The index attempt id to cancel"),
       },
       annotations: {

@@ -23,7 +23,9 @@ describe("WorkflowsClient", () => {
   });
 
   it("createWorkflow POSTs /v3/workflows/ with the body", async () => {
-    const f = vi.fn(async () => okJson({ flow_id: "f1", flow_name: "my_flow" }));
+    const f = vi.fn(async () =>
+      okJson({ flow_id: "f1", flow_name: "my_flow" }),
+    );
     const wf = mk(f as unknown as typeof fetch);
     await wf.createWorkflow({ flow_name: "my_flow", flow_data: { a: 1 } });
     const [url, init] = f.mock.calls[0] as [string, RequestInit];
@@ -45,7 +47,9 @@ describe("WorkflowsClient", () => {
   });
 
   it("updateWorkflow PUTs /v3/workflows/{flow_id} with the body", async () => {
-    const f = vi.fn(async () => okJson({ flow_id: "f1", flow_name: "renamed" }));
+    const f = vi.fn(async () =>
+      okJson({ flow_id: "f1", flow_name: "renamed" }),
+    );
     const wf = mk(f as unknown as typeof fetch);
     await wf.updateWorkflow("f1", { flow_name: "renamed" });
     const [url, init] = f.mock.calls[0] as [string, RequestInit];

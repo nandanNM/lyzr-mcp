@@ -1,6 +1,6 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { AgentEvalClient } from "../lyzr/agent-eval.js";
+import type { AgentEvalClient } from "../lyzr/agent-eval.js";
 
 const txt = (data: unknown) => ({
   content: [
@@ -15,9 +15,7 @@ const agentEvalItemSchema = z.object({
   id: z.string().describe("Unique id for this eval case"),
   purpose: z.string().describe("Purpose of this eval case"),
   user_input: z.string().describe("The user input to test the agent with"),
-  expected_output: z
-    .string()
-    .describe("The expected output for this input"),
+  expected_output: z.string().describe("The expected output for this input"),
   evaluation_notes: z
     .string()
     .describe("Notes describing how to evaluate the output"),
@@ -51,7 +49,9 @@ export const registerAgentEvalTools = (
       inputSchema: {
         eval_name: z.string().describe("Name for this eval config"),
         agent_id: z.string().describe("Agent id being evaluated"),
-        session_id: z.string().describe("Session id to associate with the eval"),
+        session_id: z
+          .string()
+          .describe("Session id to associate with the eval"),
         agent_eval_list: z
           .array(agentEvalItemSchema)
           .describe("List of eval cases to run against the agent"),
@@ -63,7 +63,8 @@ export const registerAgentEvalTools = (
         openWorldHint: true,
       },
     },
-    async (args, extra) => txt(await agentEval.createAgentEval(args, extra.signal)),
+    async (args, extra) =>
+      txt(await agentEval.createAgentEval(args, extra.signal)),
   );
 
   server.registerTool(
@@ -92,7 +93,9 @@ export const registerAgentEvalTools = (
       description:
         "Submit the results of running an agent evaluation (pass/fail outcomes per eval case).",
       inputSchema: {
-        agent_eval_id: z.string().describe("Id of the agent eval config these results belong to"),
+        agent_eval_id: z
+          .string()
+          .describe("Id of the agent eval config these results belong to"),
         agent_id: z.string().describe("Agent id being evaluated"),
         agent_eval_result_list: z
           .array(agentEvalResultItemSchema)
@@ -115,7 +118,9 @@ export const registerAgentEvalTools = (
       title: "Get Agent Eval Result",
       description: "Get agent evaluation results by agent eval id.",
       inputSchema: {
-        agent_eval_id: z.string().describe("Agent eval config id whose results to fetch"),
+        agent_eval_id: z
+          .string()
+          .describe("Agent eval config id whose results to fetch"),
       },
       annotations: {
         readOnlyHint: true,

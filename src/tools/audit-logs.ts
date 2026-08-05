@@ -1,6 +1,6 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { AuditLogsClient } from "../lyzr/audit-logs.js";
+import type { AuditLogsClient } from "../lyzr/audit-logs.js";
 
 const txt = (data: unknown) => ({
   content: [
@@ -100,7 +100,8 @@ export const registerAuditLogsTools = (
     "lyzr_list_org_audit_logs",
     {
       title: "List Organization Audit Logs",
-      description: "Get audit logs for the whole organization, with optional filters.",
+      description:
+        "Get audit logs for the whole organization, with optional filters.",
       inputSchema: {
         user_id: z.string().optional().describe("Filter by specific user ID"),
         action: actionSchema,
@@ -134,14 +135,16 @@ export const registerAuditLogsTools = (
         openWorldHint: true,
       },
     },
-    async (args, extra) => txt(await client.listOrgAuditLogs(args, extra.signal)),
+    async (args, extra) =>
+      txt(await client.listOrgAuditLogs(args, extra.signal)),
   );
 
   server.registerTool(
     "lyzr_list_my_audit_logs",
     {
       title: "List My Audit Logs",
-      description: "Get audit logs for the current authenticated user, with optional filters.",
+      description:
+        "Get audit logs for the current authenticated user, with optional filters.",
       inputSchema: {
         action: actionSchema,
         resource_type: resourceTypeSchema,
@@ -169,14 +172,16 @@ export const registerAuditLogsTools = (
         openWorldHint: true,
       },
     },
-    async (args, extra) => txt(await client.listMyAuditLogs(args, extra.signal)),
+    async (args, extra) =>
+      txt(await client.listMyAuditLogs(args, extra.signal)),
   );
 
   server.registerTool(
     "lyzr_list_user_audit_logs",
     {
       title: "List User Audit Logs",
-      description: "Get audit logs for a specific user by ID, with optional filters.",
+      description:
+        "Get audit logs for a specific user by ID, with optional filters.",
       inputSchema: {
         user_id: z.string().describe("The user ID whose audit logs to fetch"),
         action: actionSchema,
@@ -212,7 +217,8 @@ export const registerAuditLogsTools = (
     "lyzr_list_resource_audit_logs",
     {
       title: "List Resource Audit Logs",
-      description: "Get audit logs for a specific resource type and ID, with optional filters.",
+      description:
+        "Get audit logs for a specific resource type and ID, with optional filters.",
       inputSchema: {
         resource_type: z
           .enum(AUDIT_RESOURCES)
@@ -288,7 +294,8 @@ export const registerAuditLogsTools = (
     "lyzr_get_audit_stats",
     {
       title: "Get Audit Stats",
-      description: "Get aggregated audit log statistics for an optional time range.",
+      description:
+        "Get aggregated audit log statistics for an optional time range.",
       inputSchema: {
         start_time: z
           .string()
@@ -312,12 +319,15 @@ export const registerAuditLogsTools = (
     "lyzr_get_activity_metrics",
     {
       title: "Get Activity Metrics",
-      description: "Get combined DAU/MAU activity metrics for a given date (defaults to today UTC).",
+      description:
+        "Get combined DAU/MAU activity metrics for a given date (defaults to today UTC).",
       inputSchema: {
         date: z
           .string()
           .optional()
-          .describe("Date to query, ISO 8601 date-time (defaults to today UTC)"),
+          .describe(
+            "Date to query, ISO 8601 date-time (defaults to today UTC)",
+          ),
       },
       annotations: {
         readOnlyHint: true,
@@ -333,12 +343,15 @@ export const registerAuditLogsTools = (
     "lyzr_get_dau",
     {
       title: "Get Daily Active Users",
-      description: "Get the daily active user count for a given date (defaults to today UTC).",
+      description:
+        "Get the daily active user count for a given date (defaults to today UTC).",
       inputSchema: {
         date: z
           .string()
           .optional()
-          .describe("Date to query, ISO 8601 date-time (defaults to today UTC)"),
+          .describe(
+            "Date to query, ISO 8601 date-time (defaults to today UTC)",
+          ),
       },
       annotations: {
         readOnlyHint: true,
@@ -353,7 +366,8 @@ export const registerAuditLogsTools = (
     "lyzr_get_mau",
     {
       title: "Get Monthly Active Users",
-      description: "Get the monthly active user count for the month containing a given date (defaults to current month UTC).",
+      description:
+        "Get the monthly active user count for the month containing a given date (defaults to current month UTC).",
       inputSchema: {
         date: z
           .string()
@@ -391,7 +405,8 @@ export const registerAuditLogsTools = (
         openWorldHint: true,
       },
     },
-    async ({ days }, extra) => txt(await client.getDauTrend(days, extra.signal)),
+    async ({ days }, extra) =>
+      txt(await client.getDauTrend(days, extra.signal)),
   );
 
   server.registerTool(
@@ -422,7 +437,8 @@ export const registerAuditLogsTools = (
     "lyzr_log_auth_event",
     {
       title: "Log Auth Event",
-      description: "Log a login or logout event from the frontend into the audit log.",
+      description:
+        "Log a login or logout event from the frontend into the audit log.",
       inputSchema: {
         event_type: z
           .enum(["login", "logout"])
@@ -445,7 +461,9 @@ export const registerAuditLogsTools = (
     },
     async (args, extra) => {
       const result = await client.logAuthEvent(args, extra.signal);
-      return txt(`Logged ${args.event_type} event.\n\n${JSON.stringify(result, null, 2)}`);
+      return txt(
+        `Logged ${args.event_type} event.\n\n${JSON.stringify(result, null, 2)}`,
+      );
     },
   );
 
@@ -463,6 +481,7 @@ export const registerAuditLogsTools = (
         openWorldHint: true,
       },
     },
-    async ({ log_id }, extra) => txt(await client.getAuditLog(log_id, extra.signal)),
+    async ({ log_id }, extra) =>
+      txt(await client.getAuditLog(log_id, extra.signal)),
   );
 };

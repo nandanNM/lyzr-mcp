@@ -9,7 +9,11 @@ const okJson = (data: unknown, status = 200) =>
   });
 
 const mk = (fetchImpl: typeof fetch, baseUrl = "https://mem-agent.test") =>
-  new AgentMemoryProvidersClient({ apiKey: "test-key-123", baseUrl, fetchImpl });
+  new AgentMemoryProvidersClient({
+    apiKey: "test-key-123",
+    baseUrl,
+    fetchImpl,
+  });
 
 describe("AgentMemoryProvidersClient", () => {
   it("listProviders GETs /v3/memory/providers", async () => {
@@ -144,9 +148,7 @@ describe("AgentMemoryProvidersClient", () => {
   });
 
   it("throws LyzrApiError on non-2xx and never leaks the api key", async () => {
-    const f = vi.fn(
-      async () => new Response("forbidden", { status: 403 }),
-    );
+    const f = vi.fn(async () => new Response("forbidden", { status: 403 }));
     const client = mk(f as unknown as typeof fetch);
     await expect(client.getProvider("mem0")).rejects.toBeInstanceOf(
       LyzrApiError,

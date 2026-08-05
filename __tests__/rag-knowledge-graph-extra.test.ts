@@ -142,9 +142,7 @@ describe("KnowledgeGraphExtraClient", () => {
   });
 
   it("throws LyzrApiError on non-2xx and never leaks the api key", async () => {
-    const f = vi.fn(
-      async () => new Response("forbidden", { status: 403 }),
-    );
+    const f = vi.fn(async () => new Response("forbidden", { status: 403 }));
     const client = mk(f as unknown as typeof fetch);
     await expect(client.getNeo4jGraph("rag1")).rejects.toBeInstanceOf(
       LyzrApiError,
@@ -157,9 +155,7 @@ describe("KnowledgeGraphExtraClient", () => {
   });
 
   it("throws LyzrApiError on non-2xx multipart response", async () => {
-    const f = vi.fn(
-      async () => new Response("bad request", { status: 400 }),
-    );
+    const f = vi.fn(async () => new Response("bad request", { status: 400 }));
     const client = mk(f as unknown as typeof fetch);
     await expect(
       client.trainNeo4jFile("rag1", {

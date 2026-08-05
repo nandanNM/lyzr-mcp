@@ -6,7 +6,11 @@ import { LyzrHttp, LyzrApiError, normalizeList } from "./http.js";
 
 export { LyzrApiError };
 
-export type RequestType = "tool" | "mcp_server" | "skill" | "custom_integration";
+export type RequestType =
+  | "tool"
+  | "mcp_server"
+  | "skill"
+  | "custom_integration";
 export type Priority = "low" | "medium" | "high" | "blocker";
 
 export interface CreateFeedbackInput {

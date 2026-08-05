@@ -169,9 +169,7 @@ describe("ReportsClient", () => {
   });
 
   it("throws LyzrApiError on a non-2xx response", async () => {
-    const f = vi.fn(async () =>
-      new Response("job not found", { status: 404 }),
-    );
+    const f = vi.fn(async () => new Response("job not found", { status: 404 }));
     const reports = mk(
       ReportsClient,
       f as unknown as typeof fetch,

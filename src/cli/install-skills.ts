@@ -8,10 +8,10 @@
  * `.claude/skills/` directory — same shape `npx supabase init` uses for picking
  * what to scaffold. Non-interactive: pass skill names (or `all`) as argv.
  */
-import { readdirSync, readFileSync, mkdirSync, copyFileSync } from "fs";
-import { createInterface } from "readline";
-import { join, dirname } from "path";
-import { fileURLToPath } from "url";
+import { readdirSync, readFileSync, mkdirSync, copyFileSync } from "node:fs";
+import { createInterface } from "node:readline";
+import { join, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 
 interface SkillInfo {
   id: string;
@@ -54,7 +54,10 @@ const install = (skill: SkillInfo, targetRoot: string): void => {
 
 const promptSelection = (skills: SkillInfo[]): Promise<number[]> =>
   new Promise((resolve) => {
-    const rl = createInterface({ input: process.stdin, output: process.stdout });
+    const rl = createInterface({
+      input: process.stdin,
+      output: process.stdout,
+    });
     rl.question(
       "\nEnter numbers to install (comma-separated), or 'all', or blank to cancel: ",
       (answer) => {
@@ -65,7 +68,7 @@ const promptSelection = (skills: SkillInfo[]): Promise<number[]> =>
         resolve(
           trimmed
             .split(",")
-            .map((s) => parseInt(s.trim(), 10) - 1)
+            .map((s) => Number.parseInt(s.trim(), 10) - 1)
             .filter((i) => i >= 0 && i < skills.length),
         );
       },
@@ -79,15 +82,16 @@ const main = async () => {
 
   console.log("Lyzr MCP — Claude skill installer\n");
   skills.forEach((s, i) => {
-    console.log(`  ${i + 1}. ${s.id}${s.description ? ` — ${s.description}` : ""}`);
+    console.log(
+      `  ${i + 1}. ${s.id}${s.description ? ` — ${s.description}` : ""}`,
+    );
   });
 
   let chosen: SkillInfo[];
   if (args.length > 0) {
-    chosen =
-      args.includes("all")
-        ? skills
-        : skills.filter((s) => args.includes(s.id.toLowerCase()));
+    chosen = args.includes("all")
+      ? skills
+      : skills.filter((s) => args.includes(s.id.toLowerCase()));
     if (chosen.length === 0) {
       console.error(
         `\nNo matching skill for: ${args.join(", ")}. Available: ${skills.map((s) => s.id).join(", ")}`,
@@ -96,7 +100,9 @@ const main = async () => {
       return;
     }
   } else if (!process.stdin.isTTY) {
-    console.error("\nNon-interactive shell with no skill names given — pass names or 'all', e.g.:");
+    console.error(
+      "\nNon-interactive shell with no skill names given — pass names or 'all', e.g.:",
+    );
     console.error("  npx lyzr-mcp-skills all");
     console.error(`  npx lyzr-mcp-skills ${skills[0]?.id ?? "lyzr-agents"}`);
     process.exitCode = 1;
@@ -112,9 +118,13 @@ const main = async () => {
 
   for (const skill of chosen) {
     install(skill, targetRoot);
-    console.log(`  ✔ installed ${skill.id} → .claude/skills/${skill.id}/SKILL.md`);
+    console.log(
+      `  ✔ installed ${skill.id} → .claude/skills/${skill.id}/SKILL.md`,
+    );
   }
-  console.log(`\nDone. ${chosen.length} skill(s) installed into ${join(targetRoot, ".claude", "skills")}`);
+  console.log(
+    `\nDone. ${chosen.length} skill(s) installed into ${join(targetRoot, ".claude", "skills")}`,
+  );
 };
 
 main();

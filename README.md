@@ -93,6 +93,8 @@ The server only *reads* the key — it never writes it to disk. The client (or t
 npm install
 npm run build      # tsc -> build/index.js
 npm test           # vitest
+npm run lint       # biome lint .
+npm run format     # biome format --write .
 ```
 
 Requires Node ≥ 18 (uses the global `fetch`). Get your key from **Agent Studio → Account → API Keys**.
@@ -206,12 +208,38 @@ See [docs/README.md](./docs/README.md#hosting-a-public-endpoint) for Docker + HT
 
 ## Skills
 
-Like `npx supabase init` scaffolds what you pick, `npx lyzr-mcp-skills` lets you pick which **Claude
-skills** to drop into your project's `.claude/skills/` — short guides that teach Claude the right way to use
-this server's tools (when to use `lyzr_chat` vs `lyzr_stream_chat`, how KB training works, when a destructive
-op needs confirmation, etc). One skill per capability: `lyzr-agents`, `lyzr-knowledge-base`,
+This repo ships nine **Claude skills** — short guides that teach Claude the right way to use this
+server's tools (when to use `lyzr_chat` vs `lyzr_stream_chat`, how KB training works, when a destructive op
+needs confirmation, etc). One skill per capability: `lyzr-agents`, `lyzr-knowledge-base`,
 `lyzr-knowledge-graph`, `lyzr-memory`, `lyzr-scheduler`, `lyzr-guardrails`, `lyzr-credentials`,
 `lyzr-file-processing`, `lyzr-kb-sync`.
+
+There are two ways to install them, same as Supabase documents for its own `agent-skills` repo.
+
+### Option A: the community `skills` CLI (repo-agnostic)
+
+Install all skills using the [`skills`](https://www.npmjs.com/package/skills) CLI, pointed at this
+GitHub repo — no dependency on this package being published to npm, just a `git` checkout of
+`NeuralgoLyzr/lyzr-mcp`:
+
+```bash
+npx skills add NeuralgoLyzr/lyzr-mcp
+```
+
+Install a specific skill:
+
+```bash
+npx skills add NeuralgoLyzr/lyzr-mcp --skill lyzr-agents
+```
+
+This works because `skills` discovers any `skills/<name>/SKILL.md` folder with `name`/`description`
+frontmatter in a repo — the exact layout under [`skills/`](skills/) here — and copies the selected
+skill(s) into `.claude/skills/` (or the equivalent path for whichever coding agent you use).
+
+### Option B: the bundled `lyzr-mcp-skills` installer (zero GitHub dependency)
+
+If you'd rather not depend on cloning this repo — e.g. air-gapped environments, or you just want the
+skills bundled with the npm package — use the installer shipped alongside this server:
 
 ```bash
 npx lyzr-mcp-skills          # interactive checklist
@@ -219,7 +247,7 @@ npx lyzr-mcp-skills all      # install everything
 npx lyzr-mcp-skills lyzr-agents lyzr-knowledge-base   # install specific ones
 ```
 
-Each installs to `.claude/skills/<name>/SKILL.md` in your current directory.
+Both install to `.claude/skills/<name>/SKILL.md` in your current directory.
 
 ## Layout
 

@@ -159,9 +159,7 @@ export class ToolIntegrationsClient extends LyzrHttp {
   }
 
   /** List MCP servers. GET /v3/tools/mcp/servers */
-  async listMcpServers(
-    signal?: AbortSignal,
-  ): Promise<MCPServerResponse[]> {
+  async listMcpServers(signal?: AbortSignal): Promise<MCPServerResponse[]> {
     const raw = await this.request<unknown>("GET", "/v3/tools/mcp/servers", {
       signal,
     });
@@ -205,10 +203,7 @@ export class ToolIntegrationsClient extends LyzrHttp {
   }
 
   /** List tools exposed by an MCP server. GET /v3/tools/mcp/servers/{server_id}/tools */
-  listMcpServerTools(
-    serverId: string,
-    signal?: AbortSignal,
-  ): Promise<unknown> {
+  listMcpServerTools(serverId: string, signal?: AbortSignal): Promise<unknown> {
     return this.request<unknown>(
       "GET",
       `/v3/tools/mcp/servers/${encodeURIComponent(serverId)}/tools`,
@@ -253,10 +248,7 @@ export class ToolIntegrationsClient extends LyzrHttp {
   }
 
   /** List agents using an MCP server. GET /v3/tools/mcp/servers/{server_id}/agents */
-  getMcpServerAgents(
-    serverId: string,
-    signal?: AbortSignal,
-  ): Promise<unknown> {
+  getMcpServerAgents(serverId: string, signal?: AbortSignal): Promise<unknown> {
     return this.request<unknown>(
       "GET",
       `/v3/tools/mcp/servers/${encodeURIComponent(serverId)}/agents`,
@@ -357,10 +349,7 @@ export class ToolIntegrationsClient extends LyzrHttp {
   }
 
   /** Get connected accounts (tool credentials) for a user. GET /v3/tools/credentials/connected_accounts */
-  getConnectedAccounts(
-    userId: string,
-    signal?: AbortSignal,
-  ): Promise<unknown> {
+  getConnectedAccounts(userId: string, signal?: AbortSignal): Promise<unknown> {
     return this.request<unknown>(
       "GET",
       "/v3/tools/credentials/connected_accounts",
@@ -373,10 +362,9 @@ export class ToolIntegrationsClient extends LyzrHttp {
     credentialIds: string[],
     signal?: AbortSignal,
   ): Promise<unknown> {
-    return this.request<unknown>(
-      "POST",
-      "/v3/tools/credentials/bulk-delete",
-      { body: { credential_ids: credentialIds }, signal },
-    );
+    return this.request<unknown>("POST", "/v3/tools/credentials/bulk-delete", {
+      body: { credential_ids: credentialIds },
+      signal,
+    });
   }
 }

@@ -1,6 +1,6 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { SessionsV3Client } from "../lyzr/sessions-v3.js";
+import type { SessionsV3Client } from "../lyzr/sessions-v3.js";
 
 const txt = (data: unknown) => ({
   content: [

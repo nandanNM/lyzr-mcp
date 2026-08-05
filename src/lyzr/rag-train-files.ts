@@ -53,15 +53,12 @@ export class RagTrainFilesClient extends LyzrHttp {
       form.append("extra_info", input.extra_info);
     }
 
-    const res = await this.fetchImpl(
-      this.buildUrl(path, { rag_id: ragId }),
-      {
-        method: "POST",
-        headers: { "x-api-key": this.apiKey, Accept: "application/json" },
-        body: form,
-        signal,
-      },
-    );
+    const res = await this.fetchImpl(this.buildUrl(path, { rag_id: ragId }), {
+      method: "POST",
+      headers: { "x-api-key": this.apiKey, Accept: "application/json" },
+      body: form,
+      signal,
+    });
     if (!res.ok) {
       const text = await res.text().catch(() => "");
       throw new LyzrApiError(res.status, text);

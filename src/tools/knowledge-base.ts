@@ -1,6 +1,6 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { RagClient, KNOWN_VECTOR_STORES } from "../lyzr/rag.js";
+import { type RagClient, KNOWN_VECTOR_STORES } from "../lyzr/rag.js";
 
 const txt = (data: unknown) => ({
   content: [

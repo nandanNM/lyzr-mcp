@@ -1,6 +1,6 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { ChannelsClient } from "../lyzr/channels.js";
+import type { ChannelsClient } from "../lyzr/channels.js";
 
 const txt = (data: unknown) => ({
   content: [
@@ -133,7 +133,9 @@ export const registerChannelsTools = (
     },
     async ({ channel_id }, extra) => {
       const result = await client.deleteChannel(channel_id, extra.signal);
-      return txt(`Deleted channel \`${channel_id}\`.\n\n${JSON.stringify(result, null, 2)}`);
+      return txt(
+        `Deleted channel \`${channel_id}\`.\n\n${JSON.stringify(result, null, 2)}`,
+      );
     },
   );
 

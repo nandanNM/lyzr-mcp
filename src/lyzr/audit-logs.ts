@@ -317,10 +317,7 @@ export class AuditLogsClient extends LyzrHttp {
   }
 
   /** Get MAU trend over a period. GET /v3/audit-logs/activity/mau/trend */
-  getMauTrend(
-    months?: number,
-    signal?: AbortSignal,
-  ): Promise<MAUTrendResult> {
+  getMauTrend(months?: number, signal?: AbortSignal): Promise<MAUTrendResult> {
     return this.request<MAUTrendResult>(
       "GET",
       "/v3/audit-logs/activity/mau/trend",

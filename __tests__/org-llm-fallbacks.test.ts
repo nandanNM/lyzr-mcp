@@ -61,8 +61,6 @@ describe("OrgLlmFallbacksClient", () => {
       f as unknown as typeof fetch,
       "https://agent.test",
     );
-    await expect(client.getLlmFallbacks()).rejects.toBeInstanceOf(
-      LyzrApiError,
-    );
+    await expect(client.getLlmFallbacks()).rejects.toBeInstanceOf(LyzrApiError);
   });
 });

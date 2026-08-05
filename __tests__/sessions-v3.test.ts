@@ -39,7 +39,12 @@ describe("SessionsV3Client", () => {
       f as unknown as typeof fetch,
       "https://agent.test",
     );
-    await c.listSessions({ agent_id: "a1", source: "playground", limit: 10, offset: 5 });
+    await c.listSessions({
+      agent_id: "a1",
+      source: "playground",
+      limit: 10,
+      offset: 5,
+    });
     const [url, init] = f.mock.calls[0] as [string, RequestInit];
     expect(url).toBe(
       "https://agent.test/v3/sessions?agent_id=a1&source=playground&limit=10&offset=5",
@@ -108,7 +113,12 @@ describe("SessionsV3Client", () => {
       f as unknown as typeof fetch,
       "https://agent.test",
     );
-    await c.listMessages("s1", { limit: 5, offset: 0, role: "user", after: "2024-01-01T00:00:00Z" });
+    await c.listMessages("s1", {
+      limit: 5,
+      offset: 0,
+      role: "user",
+      after: "2024-01-01T00:00:00Z",
+    });
     const [url, init] = f.mock.calls[0] as [string, RequestInit];
     expect(url).toBe(
       "https://agent.test/v3/sessions/s1/messages?limit=5&offset=0&role=user&after=2024-01-01T00%3A00%3A00Z",

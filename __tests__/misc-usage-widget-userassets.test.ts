@@ -138,9 +138,7 @@ describe("MiscUsageWidgetUserAssetsClient", () => {
   });
 
   it("throws LyzrApiError on a non-2xx response", async () => {
-    const f = vi.fn(
-      async () => new Response("nope", { status: 500 }),
-    );
+    const f = vi.fn(async () => new Response("nope", { status: 500 }));
     const client = mk(
       MiscUsageWidgetUserAssetsClient,
       f as unknown as typeof fetch,

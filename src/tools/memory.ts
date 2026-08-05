@@ -1,6 +1,6 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { MemoryClient } from "../lyzr/memory.js";
+import type { MemoryClient } from "../lyzr/memory.js";
 
 const txt = (data: unknown) => ({
   content: [{ type: "text" as const, text: JSON.stringify(data, null, 2) }],

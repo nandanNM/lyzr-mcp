@@ -27,11 +27,10 @@ export class LiveSourcesExtraClient extends LyzrHttp {
 
   /** Browse SharePoint sites accessible via a credential. GET /v3/rag/live-sources/browse/sites */
   browseSites(credentialId: string, signal?: AbortSignal): Promise<unknown> {
-    return this.request<unknown>(
-      "GET",
-      "/v3/rag/live-sources/browse/sites",
-      { params: { credential_id: credentialId }, signal },
-    );
+    return this.request<unknown>("GET", "/v3/rag/live-sources/browse/sites", {
+      params: { credential_id: credentialId },
+      signal,
+    });
   }
 
   /** Browse drives within a SharePoint site. GET /v3/rag/live-sources/browse/drives */
@@ -40,11 +39,10 @@ export class LiveSourcesExtraClient extends LyzrHttp {
     siteUrl: string,
     signal?: AbortSignal,
   ): Promise<unknown> {
-    return this.request<unknown>(
-      "GET",
-      "/v3/rag/live-sources/browse/drives",
-      { params: { credential_id: credentialId, site_url: siteUrl }, signal },
-    );
+    return this.request<unknown>("GET", "/v3/rag/live-sources/browse/drives", {
+      params: { credential_id: credentialId, site_url: siteUrl },
+      signal,
+    });
   }
 
   /** Browse children (files/folders) within a drive. GET /v3/rag/live-sources/browse/children */

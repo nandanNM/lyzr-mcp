@@ -1,5 +1,0 @@
-node_modules/
-build/
-package-lock.json
-# Docs are hand-formatted — don't let Prettier reflow them.
-*.md

@@ -1,6 +1,6 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { TracesClient } from "../lyzr/traces.js";
+import type { TracesClient } from "../lyzr/traces.js";
 
 const txt = (data: unknown) => ({
   content: [
@@ -20,7 +20,8 @@ export const registerTracesTools = (
     "lyzr_list_traces",
     {
       title: "List Traces",
-      description: "List agent execution traces, optionally filtered by time range, agent, session, user, or customer.",
+      description:
+        "List agent execution traces, optionally filtered by time range, agent, session, user, or customer.",
       inputSchema: {
         start_time: z
           .string()
@@ -63,7 +64,8 @@ export const registerTracesTools = (
     "lyzr_get_trace_gantt",
     {
       title: "Get Trace Gantt Chart",
-      description: "Fetch the Gantt chart (span tree with timings) for a trace.",
+      description:
+        "Fetch the Gantt chart (span tree with timings) for a trace.",
       inputSchema: {
         trace_id: z.string().describe("Trace id"),
       },
@@ -82,7 +84,8 @@ export const registerTracesTools = (
     "lyzr_get_trace_summary",
     {
       title: "Get Trace Summary",
-      description: "Fetch the detailed summary (agent, LLM, tool call, token, and cost info) for a trace.",
+      description:
+        "Fetch the detailed summary (agent, LLM, tool call, token, and cost info) for a trace.",
       inputSchema: {
         trace_id: z.string().describe("Trace id"),
       },
@@ -101,7 +104,8 @@ export const registerTracesTools = (
     "lyzr_kill_switch_trace",
     {
       title: "Kill Switch Trace Agents",
-      description: "Trigger the kill switch to stop agents running under a trace.",
+      description:
+        "Trigger the kill switch to stop agents running under a trace.",
       inputSchema: {
         trace_id: z.string().describe("Trace id"),
       },
@@ -114,7 +118,9 @@ export const registerTracesTools = (
     },
     async ({ trace_id }, extra) => {
       const result = await traces.killSwitchTrace(trace_id, extra.signal);
-      return txt(`Kill switch triggered for trace ${trace_id}.\n${JSON.stringify(result, null, 2)}`);
+      return txt(
+        `Kill switch triggered for trace ${trace_id}.\n${JSON.stringify(result, null, 2)}`,
+      );
     },
   );
 
@@ -122,7 +128,8 @@ export const registerTracesTools = (
     "lyzr_get_traces_dashboard",
     {
       title: "Get Traces Dashboard Metrics",
-      description: "Fetch aggregate dashboard metrics (credits, traces, spans, tokens, latency, error rate) across traces, optionally filtered.",
+      description:
+        "Fetch aggregate dashboard metrics (credits, traces, spans, tokens, latency, error rate) across traces, optionally filtered.",
       inputSchema: {
         start_time: z
           .string()

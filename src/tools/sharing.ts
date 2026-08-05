@@ -1,6 +1,6 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { SharingClient, ACCESS_LEVELS } from "../lyzr/sharing.js";
+import { type SharingClient, ACCESS_LEVELS } from "../lyzr/sharing.js";
 
 const txt = (data: unknown) => ({
   content: [
@@ -18,7 +18,9 @@ const sharedUserSchema = z.object({
   email: z.string().optional().describe("User's email"),
   access_level: accessLevel
     .optional()
-    .describe(`Access level granted to this user. One of: ${ACCESS_LEVELS.join(", ")}`),
+    .describe(
+      `Access level granted to this user. One of: ${ACCESS_LEVELS.join(", ")}`,
+    ),
 });
 
 /** Register the Sharing (access-control groups) tools. */
@@ -39,7 +41,9 @@ export const registerSharingTools = (
           .describe("Type of the root resource, e.g. agent, superflow"),
         access_level: accessLevel
           .optional()
-          .describe(`Default access level (default private). One of: ${ACCESS_LEVELS.join(", ")}`),
+          .describe(
+            `Default access level (default private). One of: ${ACCESS_LEVELS.join(", ")}`,
+          ),
         org_access_level: accessLevel
           .optional()
           .describe("Access level granted to the whole organisation"),
@@ -72,8 +76,18 @@ export const registerSharingTools = (
       title: "List Sharing Groups",
       description: "List sharing groups, paginated.",
       inputSchema: {
-        page: z.number().int().min(1).optional().describe("Page number (default 1)"),
-        limit: z.number().int().min(1).optional().describe("Page size (default 10)"),
+        page: z
+          .number()
+          .int()
+          .min(1)
+          .optional()
+          .describe("Page number (default 1)"),
+        limit: z
+          .number()
+          .int()
+          .min(1)
+          .optional()
+          .describe("Page size (default 10)"),
       },
       annotations: {
         readOnlyHint: true,
@@ -109,7 +123,9 @@ export const registerSharingTools = (
         group_id: z.string().describe("Sharing group id"),
         access_level: accessLevel
           .optional()
-          .describe(`New default access level. One of: ${ACCESS_LEVELS.join(", ")}`),
+          .describe(
+            `New default access level. One of: ${ACCESS_LEVELS.join(", ")}`,
+          ),
         org_access_level: accessLevel
           .optional()
           .describe("New organisation-wide access level"),
@@ -192,7 +208,9 @@ export const registerSharingTools = (
       title: "Get Resource's Sharing Groups",
       description: "List the sharing groups a given resource belongs to.",
       inputSchema: {
-        resource_type: z.string().describe("Resource type, e.g. agent, superflow"),
+        resource_type: z
+          .string()
+          .describe("Resource type, e.g. agent, superflow"),
         resource_id: z.string().describe("Resource id"),
         root_tree: z
           .boolean()
@@ -239,13 +257,17 @@ export const registerSharingTools = (
       description:
         "Check whether a user (via their org) has the required access level to a resource.",
       inputSchema: {
-        resource_type: z.string().describe("Resource type, e.g. agent, superflow"),
+        resource_type: z
+          .string()
+          .describe("Resource type, e.g. agent, superflow"),
         resource_id: z.string().describe("Resource id"),
         user_id: z.string().describe("User id to check access for"),
         org_id: z.string().describe("Organisation id"),
         required_access: accessLevel
           .optional()
-          .describe(`Minimum access level required (default read). One of: ${ACCESS_LEVELS.join(", ")}`),
+          .describe(
+            `Minimum access level required (default read). One of: ${ACCESS_LEVELS.join(", ")}`,
+          ),
       },
       annotations: {
         readOnlyHint: true,
@@ -263,8 +285,12 @@ export const registerSharingTools = (
       description:
         "List resources of a given type that a user (via their org) has shared access to.",
       inputSchema: {
-        resource_type: z.string().describe("Resource type, e.g. agent, superflow"),
-        user_id: z.string().describe("User id to list accessible resources for"),
+        resource_type: z
+          .string()
+          .describe("Resource type, e.g. agent, superflow"),
+        user_id: z
+          .string()
+          .describe("User id to list accessible resources for"),
         org_id: z.string().describe("Organisation id"),
       },
       annotations: {
@@ -273,6 +299,7 @@ export const registerSharingTools = (
         openWorldHint: true,
       },
     },
-    async (args, extra) => txt(await sharing.listAccessible(args, extra.signal)),
+    async (args, extra) =>
+      txt(await sharing.listAccessible(args, extra.signal)),
   );
 };

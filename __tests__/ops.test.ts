@@ -15,7 +15,10 @@ describe("OpsClient", () => {
   it("generateReport POSTs /v3/ops/report with the date range", async () => {
     const f = vi.fn(async () => okJson({ report: [] }));
     const ops = mk(f as unknown as typeof fetch);
-    await ops.generateReport({ start_date: "2024-01-01", end_date: "2024-01-31" });
+    await ops.generateReport({
+      start_date: "2024-01-01",
+      end_date: "2024-01-31",
+    });
     const [url, init] = f.mock.calls[0] as [string, RequestInit];
     expect(url).toBe("https://ops.test/v3/ops/report");
     expect(init.method).toBe("POST");
@@ -28,7 +31,10 @@ describe("OpsClient", () => {
   it("exportReportCsv POSTs /v3/ops/report_csv with the date range", async () => {
     const f = vi.fn(async () => okJson({}));
     const ops = mk(f as unknown as typeof fetch);
-    await ops.exportReportCsv({ start_date: "2024-01-01", end_date: "2024-01-31" });
+    await ops.exportReportCsv({
+      start_date: "2024-01-01",
+      end_date: "2024-01-31",
+    });
     const [url, init] = f.mock.calls[0] as [string, RequestInit];
     expect(url).toBe("https://ops.test/v3/ops/report_csv");
     expect(init.method).toBe("POST");
@@ -58,7 +64,9 @@ describe("OpsClient", () => {
     const ops = mk(f as unknown as typeof fetch);
     await ops.getDashboard({ start_date: "a", end_date: "b" });
     const [url] = f.mock.calls[0] as [string];
-    expect(url).toBe("https://ops.test/v3/ops/dashboard?start_date=a&end_date=b");
+    expect(url).toBe(
+      "https://ops.test/v3/ops/dashboard?start_date=a&end_date=b",
+    );
   });
 
   it("getTraces GETs /v3/ops/traces with all filters + pagination", async () => {

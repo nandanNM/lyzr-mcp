@@ -1,12 +1,18 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { OrgLlmFallbacksClient } from "../lyzr/org-llm-fallbacks.js";
+import type { OrgLlmFallbacksClient } from "../lyzr/org-llm-fallbacks.js";
 
 const fallbackEntrySchema = z.object({
-  priority: z.number().describe("Priority order for this fallback entry (lower runs first)"),
-  provider_id: z.string().describe("LLM provider id, e.g. OpenAI, Anthropic, Google"),
+  priority: z
+    .number()
+    .describe("Priority order for this fallback entry (lower runs first)"),
+  provider_id: z
+    .string()
+    .describe("LLM provider id, e.g. OpenAI, Anthropic, Google"),
   model: z.string().describe("Model name, e.g. gpt-4o-mini"),
-  credential_id: z.string().describe("Credential id to use for this fallback entry"),
+  credential_id: z
+    .string()
+    .describe("Credential id to use for this fallback entry"),
 });
 
 /**

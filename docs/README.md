@@ -36,7 +36,9 @@ The server wraps the Lyzr Enterprise API across **five service hosts** and surfa
 
 Endpoints and payload shapes were confirmed against the official `lyzr-adk` Python SDK and the Lyzr
 `agent-dev`/`rag-dev` OpenAPI specs. See [.claude/skills/lyzr-api-endpoint/SKILL.md](../.claude/skills/lyzr-api-endpoint/SKILL.md)
-for the conventions used to add new endpoints, and `npx lyzr-mcp-skills` for end-user-facing skills.
+for the conventions used to add new endpoints. For end-user-facing skills, see the [Skills](../README.md#skills)
+section of the top-level README — installable either via `npx skills add NeuralgoLyzr/lyzr-mcp` (the
+community `skills` CLI) or via the bundled `npx lyzr-mcp-skills` installer.
 
 ## Architecture
 
@@ -111,8 +113,13 @@ See [`.env.example`](../.env.example).
 | `npm start` | `node build/index.js` | Run (defaults to stdio) |
 | `npm test` | `vitest run` | Unit tests |
 | `npm run test:watch` | `vitest` | Watch-mode tests |
-| `npm run format` | `prettier --write .` | Auto-format |
-| `npm run format:check` | `prettier --check .` | CI format gate |
+| `npm run format` | `biome format --write .` | Auto-format |
+| `npm run format:check` | `biome format .` | CI format gate |
+| `npm run lint` | `biome lint .` | Lint check |
+| `npm run lint:fix` | `biome lint --write .` | Lint + autofix |
+| `npm run generate:openapi-types` | fetch `agent-dev`/`rag-dev` OpenAPI specs → `src/lyzr/generated/*.ts` | Drift-detection aid — diff against hand-written clients, don't hand-edit the output |
+| `npm run registry:update` | sync `server.json` version from `package.json` | Before a registry submission |
+| `npm run registry:publish` | `mcp-publisher publish` | Submit/update this server's [MCP Registry](https://registry.modelcontextprotocol.io) listing (`server.json`) — a maintainer action, not run automatically |
 
 ## Transports
 

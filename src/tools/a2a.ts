@@ -1,6 +1,6 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { A2AClient } from "../lyzr/a2a.js";
+import type { A2AClient } from "../lyzr/a2a.js";
 
 const txt = (data: unknown) => ({
   content: [
@@ -12,10 +12,7 @@ const txt = (data: unknown) => ({
 });
 
 const a2aAgentConfigSchema = {
-  base_url: z
-    .string()
-    .url()
-    .describe("Base URL of the remote A2A agent"),
+  base_url: z.string().url().describe("Base URL of the remote A2A agent"),
   agent_provider: z
     .string()
     .optional()
@@ -37,10 +34,7 @@ const a2aAgentConfigSchema = {
     .array(z.record(z.unknown()))
     .optional()
     .describe("Skill definitions advertised by the agent"),
-  agent_type: z
-    .string()
-    .optional()
-    .describe("Agent type, defaults to 'a2a'"),
+  agent_type: z.string().optional().describe("Agent type, defaults to 'a2a'"),
   auth_type: z.string().optional().describe("Authentication type"),
   credential_id: z
     .string()
@@ -153,7 +147,8 @@ export const registerA2ATools = (server: McpServer, client: A2AClient) => {
     "lyzr_infer_a2a_agent",
     {
       title: "Infer A2A Agent",
-      description: "Send a message to a registered A2A agent and get its response.",
+      description:
+        "Send a message to a registered A2A agent and get its response.",
       inputSchema: {
         agent_id: z.string().describe("The A2A agent id to infer against"),
         message: z.string().describe("The message to send to the agent"),
@@ -220,10 +215,14 @@ export const registerA2ATools = (server: McpServer, client: A2AClient) => {
       description:
         "Send a raw JSON-RPC 2.0 request to a served A2A agent's endpoint.",
       inputSchema: {
-        agent_id: z.string().describe("The A2A agent id to send the request to"),
+        agent_id: z
+          .string()
+          .describe("The A2A agent id to send the request to"),
         request: z
           .record(z.unknown())
-          .describe("The JSON-RPC 2.0 request payload (method, params, id, etc.)"),
+          .describe(
+            "The JSON-RPC 2.0 request payload (method, params, id, etc.)",
+          ),
       },
       annotations: {
         readOnlyHint: false,

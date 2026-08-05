@@ -15,7 +15,11 @@ describe("RagParseFilesClient", () => {
     const f = vi.fn(async () => okJson({ text: "parsed pdf" }));
     const client = mk(f as unknown as typeof fetch);
     const result = await client.parsePdf(
-      { data: Buffer.from("pdfbytes"), filename: "a.pdf", mimeType: "application/pdf" },
+      {
+        data: Buffer.from("pdfbytes"),
+        filename: "a.pdf",
+        mimeType: "application/pdf",
+      },
       { chunk_size: 500, chunk_overlap: 50 },
     );
     const [url, init] = f.mock.calls[0] as [string, RequestInit];
@@ -70,7 +74,10 @@ describe("RagParseFilesClient", () => {
   it("parseXlsx POSTs multipart form to /v3/parse/xlsx/", async () => {
     const f = vi.fn(async () => okJson({ text: "parsed xlsx" }));
     const client = mk(f as unknown as typeof fetch);
-    await client.parseXlsx({ data: Buffer.from("xlsxbytes"), filename: "a.xlsx" });
+    await client.parseXlsx({
+      data: Buffer.from("xlsxbytes"),
+      filename: "a.xlsx",
+    });
     const [url] = f.mock.calls[0] as [string];
     expect(url).toBe("https://rag.test/v3/parse/xlsx/");
   });
@@ -78,7 +85,10 @@ describe("RagParseFilesClient", () => {
   it("parsePptx POSTs multipart form to /v3/parse/pptx/", async () => {
     const f = vi.fn(async () => okJson({ text: "parsed pptx" }));
     const client = mk(f as unknown as typeof fetch);
-    await client.parsePptx({ data: Buffer.from("pptxbytes"), filename: "a.pptx" });
+    await client.parsePptx({
+      data: Buffer.from("pptxbytes"),
+      filename: "a.pptx",
+    });
     const [url] = f.mock.calls[0] as [string];
     expect(url).toBe("https://rag.test/v3/parse/pptx/");
   });
@@ -86,7 +96,10 @@ describe("RagParseFilesClient", () => {
   it("parseImage POSTs multipart form to /v3/parse/image/", async () => {
     const f = vi.fn(async () => okJson({ text: "parsed image" }));
     const client = mk(f as unknown as typeof fetch);
-    await client.parseImage({ data: Buffer.from("imgbytes"), filename: "a.png" });
+    await client.parseImage({
+      data: Buffer.from("imgbytes"),
+      filename: "a.png",
+    });
     const [url] = f.mock.calls[0] as [string];
     expect(url).toBe("https://rag.test/v3/parse/image/");
   });

@@ -48,8 +48,9 @@ import { KbSyncLegacyClient } from "../lyzr/kb-sync-oauth-legacy.js";
 import {
   registerTools,
   registerConditionalTools,
-  LyzrClients,
+  type LyzrClients,
 } from "../tools/index.js";
+import type { FeatureGroup } from "../tools/feature-groups.js";
 import { registerResources } from "../resources/index.js";
 import { registerPrompts } from "../prompts/index.js";
 import {
@@ -79,9 +80,17 @@ Agents are also exposed as resources (lyzr://agents, lyzr://agent/{id}).`;
  * only in HOW it obtains the per-user API key. The key is passed in and fanned
  * out to one client per Lyzr service host (agent/rag/memory/scheduler/rai).
  */
+export interface CreateServerOptions {
+  /** Feature groups to enable (see tools/feature-groups.ts). Undefined = all. */
+  features?: FeatureGroup[];
+  /** If true, tools without readOnlyHint:true are registered then disabled. */
+  readOnly?: boolean;
+}
+
 export const createServer = (
   apiKey: string,
   baseUrl: string = DEFAULT_BASE_URL,
+  options: CreateServerOptions = {},
 ): ServerFactoryResponse => {
   const urls = getServiceUrls();
   const clients: LyzrClients = {
@@ -97,7 +106,7 @@ export const createServer = (
     knowledgeGraph: new KnowledgeGraphClient({ apiKey, baseUrl: urls.rag }),
 
     // Extended agent-dev OpenAPI surface (host: agent)
-agentLifecycleExtra: new AgentLifecycleExtraClient({ apiKey, baseUrl }),
+    agentLifecycleExtra: new AgentLifecycleExtraClient({ apiKey, baseUrl }),
     inferenceExtra: new InferenceExtraClient({ apiKey, baseUrl }),
     a2a: new A2AClient({ apiKey, baseUrl }),
     agentEval: new AgentEvalClient({ apiKey, baseUrl }),
@@ -117,7 +126,10 @@ agentLifecycleExtra: new AgentLifecycleExtraClient({ apiKey, baseUrl }),
     toolsV3Core: new ToolsV3CoreClient({ apiKey, baseUrl }),
     toolIntegrations: new ToolIntegrationsClient({ apiKey, baseUrl }),
     traces: new TracesClient({ apiKey, baseUrl }),
-    miscUsageWidgetUserAssets: new MiscUsageWidgetUserAssetsClient({ apiKey, baseUrl }),
+    miscUsageWidgetUserAssets: new MiscUsageWidgetUserAssetsClient({
+      apiKey,
+      baseUrl,
+    }),
     worldModelCore: new WorldModelCoreClient({ apiKey, baseUrl }),
     worldModelEval: new WorldModelEvalClient({ apiKey, baseUrl }),
     agentMemoryProviders: new AgentMemoryProvidersClient({ apiKey, baseUrl }),
@@ -127,7 +139,7 @@ agentLifecycleExtra: new AgentLifecycleExtraClient({ apiKey, baseUrl }),
     workflows: new WorkflowsClient({ apiKey, baseUrl }),
 
     // Extended rag-dev OpenAPI surface (host: rag)
-liveSourcesExtra: new LiveSourcesExtraClient({ apiKey, baseUrl: urls.rag }),
+    liveSourcesExtra: new LiveSourcesExtraClient({ apiKey, baseUrl: urls.rag }),
     kgExtra: new KnowledgeGraphExtraClient({ apiKey, baseUrl: urls.rag }),
     ragMiscExtra: new RagMiscExtraClient({ apiKey, baseUrl: urls.rag }),
     ragParseFiles: new RagParseFilesClient({ apiKey, baseUrl: urls.rag }),
@@ -156,7 +168,7 @@ liveSourcesExtra: new LiveSourcesExtraClient({ apiKey, baseUrl: urls.rag }),
     },
   );
 
-  registerTools(server, clients);
+  registerTools(server, clients, options);
   registerResources(server, {
     agents: clients.client,
     rag: clients.rag,

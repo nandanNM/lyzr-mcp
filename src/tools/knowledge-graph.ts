@@ -1,6 +1,6 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { KnowledgeGraphClient } from "../lyzr/knowledge-graph.js";
+import type { KnowledgeGraphClient } from "../lyzr/knowledge-graph.js";
 
 const txt = (d: unknown) => ({
   content: [

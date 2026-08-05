@@ -1,6 +1,6 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { AssetsClient } from "../lyzr/assets.js";
+import type { AssetsClient } from "../lyzr/assets.js";
 
 const txt = (data: unknown) => ({
   content: [
@@ -148,7 +148,8 @@ export const registerAssetsTools = (
         openWorldHint: true,
       },
     },
-    async ({ asset_id }, extra) => txt(await client.getAssetRaw(asset_id, extra.signal)),
+    async ({ asset_id }, extra) =>
+      txt(await client.getAssetRaw(asset_id, extra.signal)),
   );
 
   server.registerTool(
@@ -163,7 +164,8 @@ export const registerAssetsTools = (
         openWorldHint: true,
       },
     },
-    async ({ asset_id }, extra) => txt(await client.getAsset(asset_id, extra.signal)),
+    async ({ asset_id }, extra) =>
+      txt(await client.getAsset(asset_id, extra.signal)),
   );
 
   server.registerTool(
@@ -179,7 +181,8 @@ export const registerAssetsTools = (
         openWorldHint: true,
       },
     },
-    async ({ asset_id }, extra) => txt(await client.deleteAsset(asset_id, extra.signal)),
+    async ({ asset_id }, extra) =>
+      txt(await client.deleteAsset(asset_id, extra.signal)),
   );
 
   server.registerTool(
@@ -188,7 +191,12 @@ export const registerAssetsTools = (
       title: "List Assets",
       description: "List assets, paginated.",
       inputSchema: {
-        page: z.number().int().min(1).optional().describe("Page number (default 1)"),
+        page: z
+          .number()
+          .int()
+          .min(1)
+          .optional()
+          .describe("Page number (default 1)"),
         limit: z
           .number()
           .int()

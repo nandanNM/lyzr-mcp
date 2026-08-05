@@ -1,5 +1,8 @@
 import { describe, it, expect, vi } from "vitest";
-import { InferenceExtraClient, LyzrApiError } from "../src/lyzr/inference-extra";
+import {
+  InferenceExtraClient,
+  LyzrApiError,
+} from "../src/lyzr/inference-extra";
 
 const okJson = (data: unknown, status = 200) =>
   new Response(JSON.stringify(data), {
@@ -12,7 +15,9 @@ const mk = (fetchImpl: typeof fetch, baseUrl: string) =>
 
 describe("InferenceExtraClient", () => {
   it("executeTool POSTs /v3/inference/tools/execute with defaults filled in", async () => {
-    const f = vi.fn(async () => okJson({ tool_name: "t", trace_id: "tr1", result: {} }));
+    const f = vi.fn(async () =>
+      okJson({ tool_name: "t", trace_id: "tr1", result: {} }),
+    );
     const c = mk(f as unknown as typeof fetch, "https://inf.test");
     await c.executeTool({ tool_name: "t", arguments: { a: 1 } });
     const [url, init] = f.mock.calls[0] as [string, RequestInit];

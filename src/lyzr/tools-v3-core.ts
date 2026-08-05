@@ -105,10 +105,7 @@ export class ToolsV3CoreClient extends LyzrHttp {
   }
 
   /** Bulk delete tools. POST /v3/tools/bulk-delete */
-  bulkDeleteTools(
-    toolIds: string[],
-    signal?: AbortSignal,
-  ): Promise<unknown> {
+  bulkDeleteTools(toolIds: string[], signal?: AbortSignal): Promise<unknown> {
     return this.request<unknown>("POST", "/v3/tools/bulk-delete", {
       body: { tool_ids: toolIds },
       signal,

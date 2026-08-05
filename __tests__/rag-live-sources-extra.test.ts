@@ -68,9 +68,7 @@ describe("LiveSourcesExtraClient", () => {
   });
 
   it("validateAccess POSTs credential_id + site_urls", async () => {
-    const f = vi.fn(async () =>
-      okJson({ results: [], all_accessible: true }),
-    );
+    const f = vi.fn(async () => okJson({ results: [], all_accessible: true }));
     const client = mk(f as unknown as typeof fetch);
     await client.validateAccess({
       credential_id: "cred1",

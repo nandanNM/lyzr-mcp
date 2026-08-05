@@ -1,6 +1,6 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { ToolsV3CoreClient } from "../lyzr/tools-v3-core.js";
+import type { ToolsV3CoreClient } from "../lyzr/tools-v3-core.js";
 
 const txt = (data: unknown) => ({
   content: [
@@ -42,7 +42,9 @@ export const registerToolsV3CoreTools = (
         tool_set_name: z.string().describe("Name for the tool set"),
         openapi_schema: z
           .record(z.unknown())
-          .describe("The OpenAPI schema (as a JSON object) describing the tool's endpoints"),
+          .describe(
+            "The OpenAPI schema (as a JSON object) describing the tool's endpoints",
+          ),
         default_headers: z
           .record(z.unknown())
           .nullable()
@@ -67,7 +69,9 @@ export const registerToolsV3CoreTools = (
           .boolean()
           .nullable()
           .optional()
-          .describe("Whether to use an LLM to enhance endpoint descriptions (default false)"),
+          .describe(
+            "Whether to use an LLM to enhance endpoint descriptions (default false)",
+          ),
         openai_api_key: z
           .string()
           .nullable()
@@ -111,9 +115,7 @@ export const registerToolsV3CoreTools = (
       description: "Update fields on an existing tool by id.",
       inputSchema: {
         tool_id: z.string().describe("The tool id to update"),
-        update: z
-          .record(z.unknown())
-          .describe("Fields to update on the tool"),
+        update: z.record(z.unknown()).describe("Fields to update on the tool"),
       },
       annotations: {
         readOnlyHint: false,
@@ -169,9 +171,7 @@ export const registerToolsV3CoreTools = (
       title: "Bulk Delete Tools",
       description: "Delete multiple tools by id in one call.",
       inputSchema: {
-        tool_ids: z
-          .array(z.string())
-          .describe("List of tool ids to delete"),
+        tool_ids: z.array(z.string()).describe("List of tool ids to delete"),
       },
       annotations: {
         readOnlyHint: false,
@@ -236,7 +236,8 @@ export const registerToolsV3CoreTools = (
     "lyzr_list_aci_configurations",
     {
       title: "List ACI Configurations",
-      description: "List ACI (Aipolabs Composio-alternative) app configurations.",
+      description:
+        "List ACI (Aipolabs Composio-alternative) app configurations.",
       inputSchema: {},
       annotations: {
         readOnlyHint: true,
@@ -283,7 +284,9 @@ export const registerToolsV3CoreTools = (
       title: "Delete ACI Configuration",
       description: "Delete an ACI app configuration by app id.",
       inputSchema: {
-        app_id: z.string().describe("The ACI app id whose configuration to delete"),
+        app_id: z
+          .string()
+          .describe("The ACI app id whose configuration to delete"),
       },
       annotations: {
         readOnlyHint: false,

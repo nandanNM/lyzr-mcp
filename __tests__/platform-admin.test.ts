@@ -13,7 +13,9 @@ const mk = (fetchImpl: typeof fetch, baseUrl = "https://platform.test") =>
 
 describe("PlatformAdminClient", () => {
   it("getCachedCredits GETs /v3/credits/cache without token", async () => {
-    const f = vi.fn(async () => okJson({ c1: { resource: "r", action: "a", is_active: true } }));
+    const f = vi.fn(async () =>
+      okJson({ c1: { resource: "r", action: "a", is_active: true } }),
+    );
     const client = mk(f as unknown as typeof fetch);
     await client.getCachedCredits();
     const [url, init] = f.mock.calls[0] as [string, RequestInit];
@@ -79,7 +81,9 @@ describe("PlatformAdminClient", () => {
   });
 
   it("getFeatureFlagAdmin GETs /v3/admin/feature-flags/{key}", async () => {
-    const f = vi.fn(async () => okJson({ key: "flag1", description: "d", url: "/u" }));
+    const f = vi.fn(async () =>
+      okJson({ key: "flag1", description: "d", url: "/u" }),
+    );
     const client = mk(f as unknown as typeof fetch);
     await client.getFeatureFlagAdmin("flag1");
     const [url] = f.mock.calls[0] as [string];
@@ -87,7 +91,9 @@ describe("PlatformAdminClient", () => {
   });
 
   it("updateFeatureFlag PATCHes /v3/admin/feature-flags/{key} with body", async () => {
-    const f = vi.fn(async () => okJson({ key: "flag1", description: "new", url: "/u" }));
+    const f = vi.fn(async () =>
+      okJson({ key: "flag1", description: "new", url: "/u" }),
+    );
     const client = mk(f as unknown as typeof fetch);
     await client.updateFeatureFlag("flag1", { description: "new" });
     const [url, init] = f.mock.calls[0] as [string, RequestInit];
@@ -145,7 +151,9 @@ describe("PlatformAdminClient", () => {
   });
 
   it("getModuleAdmin GETs /v3/admin/modules/{key}", async () => {
-    const f = vi.fn(async () => okJson({ key: "mod1", description: "d", url: "/u" }));
+    const f = vi.fn(async () =>
+      okJson({ key: "mod1", description: "d", url: "/u" }),
+    );
     const client = mk(f as unknown as typeof fetch);
     await client.getModuleAdmin("mod1");
     const [url] = f.mock.calls[0] as [string];
@@ -153,7 +161,9 @@ describe("PlatformAdminClient", () => {
   });
 
   it("updateModule PATCHes /v3/admin/modules/{key} with body", async () => {
-    const f = vi.fn(async () => okJson({ key: "mod1", description: "new", url: "/u" }));
+    const f = vi.fn(async () =>
+      okJson({ key: "mod1", description: "new", url: "/u" }),
+    );
     const client = mk(f as unknown as typeof fetch);
     await client.updateModule("mod1", { description: "new", order: 2 });
     const [url, init] = f.mock.calls[0] as [string, RequestInit];

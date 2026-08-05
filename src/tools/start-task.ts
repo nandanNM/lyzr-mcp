@@ -1,6 +1,6 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { LyzrClient } from "../lyzr/client.js";
+import type { LyzrClient } from "../lyzr/client.js";
 
 /**
  * Registers `lyzr_start_task` — submits a long-running task and returns a

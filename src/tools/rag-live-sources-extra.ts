@@ -1,6 +1,6 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { LiveSourcesExtraClient } from "../lyzr/rag-live-sources-extra.js";
+import type { LiveSourcesExtraClient } from "../lyzr/rag-live-sources-extra.js";
 
 const txt = (data: unknown) => ({
   content: [
@@ -41,8 +41,7 @@ export const registerLiveSourcesExtraTools = (
     "lyzr_livesource_ext_browse_sites",
     {
       title: "Browse SharePoint Sites",
-      description:
-        "List SharePoint sites accessible via a stored credential.",
+      description: "List SharePoint sites accessible via a stored credential.",
       inputSchema: {
         credential_id: z
           .string()
@@ -89,9 +88,7 @@ export const registerLiveSourcesExtraTools = (
           .string()
           .describe("ACI credential_id for SharePoint auth"),
         site_url: z.string().describe("SharePoint site URL"),
-        drive_name: z
-          .string()
-          .describe("Drive name (e.g. 'Shared Documents')"),
+        drive_name: z.string().describe("Drive name (e.g. 'Shared Documents')"),
         folder_path: z
           .string()
           .optional()
@@ -138,10 +135,7 @@ export const registerLiveSourcesExtraTools = (
     },
     async ({ credential_id, site_urls }, extra) =>
       txt(
-        await client.validateAccess(
-          { credential_id, site_urls },
-          extra.signal,
-        ),
+        await client.validateAccess({ credential_id, site_urls }, extra.signal),
       ),
   );
 
@@ -169,9 +163,7 @@ export const registerLiveSourcesExtraTools = (
       description:
         "Send a live source webhook notification payload (e.g. from a SharePoint change feed).",
       inputSchema: {
-        payload: z
-          .record(z.unknown())
-          .describe("Webhook notification payload"),
+        payload: z.record(z.unknown()).describe("Webhook notification payload"),
       },
       annotations: {
         readOnlyHint: false,

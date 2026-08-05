@@ -1,7 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import {
-  ToolIntegrationsClient,
-} from "../src/lyzr/tools-v3-integrations";
+import { ToolIntegrationsClient } from "../src/lyzr/tools-v3-integrations";
 import { LyzrApiError } from "../src/lyzr/http";
 
 const okJson = (data: unknown, status = 200) =>

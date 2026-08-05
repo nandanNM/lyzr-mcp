@@ -13,7 +13,9 @@ const mk = (fetchImpl: typeof fetch, baseUrl: string) =>
 
 describe("SemanticModelClient", () => {
   it("listDocumentationAgents GETs /v3/semantic_model/documentation_agents", async () => {
-    const f = vi.fn(async () => okJson({ documentation_agents: [{ id: "a1" }] }));
+    const f = vi.fn(async () =>
+      okJson({ documentation_agents: [{ id: "a1" }] }),
+    );
     const c = mk(f as unknown as typeof fetch, "https://sm.test");
     const result = await c.listDocumentationAgents();
     const [url, init] = f.mock.calls[0] as [string, RequestInit];
@@ -62,9 +64,7 @@ describe("SemanticModelClient", () => {
     const c = mk(f as unknown as typeof fetch, "https://sm.test");
     const result = await c.listTables("rc1", "db1");
     const [url, init] = f.mock.calls[0] as [string, RequestInit];
-    expect(url).toBe(
-      "https://sm.test/v3/semantic_model/list_tables/rc1/db1",
-    );
+    expect(url).toBe("https://sm.test/v3/semantic_model/list_tables/rc1/db1");
     expect(init.method).toBe("GET");
     expect(result).toEqual(["table1", "table2"]);
   });

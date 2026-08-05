@@ -24,11 +24,9 @@ export interface KbSyncCredentialCreateInput {
 export class KbSyncConnectorsClient extends LyzrHttp {
   /** List connectors. GET /v3/kb-sync/connectors/ */
   async listConnectors(signal?: AbortSignal): Promise<unknown[]> {
-    const raw = await this.request<unknown>(
-      "GET",
-      "/v3/kb-sync/connectors/",
-      { signal },
-    );
+    const raw = await this.request<unknown>("GET", "/v3/kb-sync/connectors/", {
+      signal,
+    });
     return normalizeList(raw, "connectors");
   }
 
@@ -76,11 +74,9 @@ export class KbSyncConnectorsClient extends LyzrHttp {
 
   /** List KB Sync credentials. GET /v3/kb-sync/credentials/ */
   async listKbSyncCredentials(signal?: AbortSignal): Promise<unknown[]> {
-    const raw = await this.request<unknown>(
-      "GET",
-      "/v3/kb-sync/credentials/",
-      { signal },
-    );
+    const raw = await this.request<unknown>("GET", "/v3/kb-sync/credentials/", {
+      signal,
+    });
     return normalizeList(raw, "credentials");
   }
 

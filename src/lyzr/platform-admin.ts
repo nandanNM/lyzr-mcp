@@ -147,9 +147,7 @@ export class PlatformAdminClient extends LyzrHttp {
   // ---- Feature Flags Admin ----
 
   /** List feature flags. GET /v3/admin/feature-flags */
-  listFeatureFlagsAdmin(
-    signal?: AbortSignal,
-  ): Promise<FeatureFlagListResult> {
+  listFeatureFlagsAdmin(signal?: AbortSignal): Promise<FeatureFlagListResult> {
     return this.request<FeatureFlagListResult>(
       "GET",
       "/v3/admin/feature-flags",
@@ -169,10 +167,7 @@ export class PlatformAdminClient extends LyzrHttp {
   }
 
   /** Get a feature flag. GET /v3/admin/feature-flags/{key} */
-  getFeatureFlagAdmin(
-    key: string,
-    signal?: AbortSignal,
-  ): Promise<FeatureFlag> {
+  getFeatureFlagAdmin(key: string, signal?: AbortSignal): Promise<FeatureFlag> {
     return this.request<FeatureFlag>(
       "GET",
       `/v3/admin/feature-flags/${encodeURIComponent(key)}`,

@@ -1,6 +1,6 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { ContextsClient } from "../lyzr/contexts.js";
+import type { ContextsClient } from "../lyzr/contexts.js";
 
 const txt = (data: unknown) => ({
   content: [
@@ -139,7 +139,9 @@ export const registerContextsTools = (
       },
     },
     async ({ context_id, name, value }, extra) =>
-      txt(await contexts.updateContext(context_id, { name, value }, extra.signal)),
+      txt(
+        await contexts.updateContext(context_id, { name, value }, extra.signal),
+      ),
   );
 
   server.registerTool(

@@ -1,6 +1,6 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { AgentMemoryProvidersClient } from "../lyzr/agent-memory-providers.js";
+import type { AgentMemoryProvidersClient } from "../lyzr/agent-memory-providers.js";
 
 const txt = (data: unknown) => ({
   content: [
@@ -77,9 +77,7 @@ export const registerAgentMemoryProvidersTools = (
       description:
         "Get the provisioning status of an AWS AgentCore memory resource.",
       inputSchema: {
-        credential_id: z
-          .string()
-          .describe("The AWS AgentCore credential id"),
+        credential_id: z.string().describe("The AWS AgentCore credential id"),
       },
       annotations: {
         readOnlyHint: true,
@@ -95,12 +93,9 @@ export const registerAgentMemoryProvidersTools = (
     "lyzr_memprovider_list_aws_agentcore_resources",
     {
       title: "List AWS AgentCore Memory Resources",
-      description:
-        "List the AWS AgentCore memory resources for a credential.",
+      description: "List the AWS AgentCore memory resources for a credential.",
       inputSchema: {
-        credential_id: z
-          .string()
-          .describe("The AWS AgentCore credential id"),
+        credential_id: z.string().describe("The AWS AgentCore credential id"),
       },
       annotations: {
         readOnlyHint: true,
@@ -109,9 +104,7 @@ export const registerAgentMemoryProvidersTools = (
       },
     },
     async ({ credential_id }, extra) =>
-      txt(
-        await client.listAwsAgentcoreResources(credential_id, extra.signal),
-      ),
+      txt(await client.listAwsAgentcoreResources(credential_id, extra.signal)),
   );
 
   server.registerTool(
@@ -121,9 +114,7 @@ export const registerAgentMemoryProvidersTools = (
       description:
         "Attach an existing AWS AgentCore memory resource to a credential.",
       inputSchema: {
-        credential_id: z
-          .string()
-          .describe("The AWS AgentCore credential id"),
+        credential_id: z.string().describe("The AWS AgentCore credential id"),
         memory_id: z
           .string()
           .describe("The id of the existing AWS AgentCore memory resource"),
@@ -151,9 +142,7 @@ export const registerAgentMemoryProvidersTools = (
       title: "Provision AWS AgentCore Memory",
       description: "Provision a new AWS AgentCore memory resource.",
       inputSchema: {
-        credential_id: z
-          .string()
-          .describe("The AWS AgentCore credential id"),
+        credential_id: z.string().describe("The AWS AgentCore credential id"),
         memory_name: z.string().describe("Name for the new memory resource"),
         event_expiry_days: z
           .number()
@@ -193,9 +182,7 @@ export const registerAgentMemoryProvidersTools = (
       description:
         "Permanently delete the AWS AgentCore memory resource for a credential.",
       inputSchema: {
-        credential_id: z
-          .string()
-          .describe("The AWS AgentCore credential id"),
+        credential_id: z.string().describe("The AWS AgentCore credential id"),
       },
       annotations: {
         readOnlyHint: false,
@@ -205,9 +192,7 @@ export const registerAgentMemoryProvidersTools = (
       },
     },
     async ({ credential_id }, extra) =>
-      txt(
-        await client.deleteAwsAgentcoreResource(credential_id, extra.signal),
-      ),
+      txt(await client.deleteAwsAgentcoreResource(credential_id, extra.signal)),
   );
 
   server.registerTool(

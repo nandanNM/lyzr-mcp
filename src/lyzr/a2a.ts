@@ -56,10 +56,7 @@ export class A2AClient extends LyzrHttp {
   }
 
   /** Create an A2A agent. POST /v3/a2a/agents/ */
-  createAgent(
-    input: A2AAgentConfig,
-    signal?: AbortSignal,
-  ): Promise<A2AAgent> {
+  createAgent(input: A2AAgentConfig, signal?: AbortSignal): Promise<A2AAgent> {
     return this.request<A2AAgent>("POST", "/v3/a2a/agents/", {
       body: input,
       signal,

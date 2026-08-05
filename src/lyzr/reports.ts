@@ -173,6 +173,11 @@ export class ReportsClient extends LyzrHttp {
       return raw as ReportJobListResponse;
     }
     const jobs = normalizeList<ReportJobStatusResponse>(raw, "jobs");
-    return { jobs, total: jobs.length, skip: params.skip ?? 0, limit: params.limit ?? 20 };
+    return {
+      jobs,
+      total: jobs.length,
+      skip: params.skip ?? 0,
+      limit: params.limit ?? 20,
+    };
   }
 }

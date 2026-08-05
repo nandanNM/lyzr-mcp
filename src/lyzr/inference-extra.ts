@@ -151,8 +151,7 @@ export class InferenceExtraClient extends LyzrHttp {
     input: ChatTaskInput,
     signal?: AbortSignal,
   ): Promise<TaskResponseResult> {
-    const { agent_id, session_id, message, user_id, messages, ...rest } =
-      input;
+    const { agent_id, session_id, message, user_id, messages, ...rest } = input;
     return this.request<TaskResponseResult>("POST", "/v3/inference/chat/task", {
       body: {
         agent_id,
@@ -216,15 +215,12 @@ export class InferenceExtraClient extends LyzrHttp {
       });
       form.append("file", blob, input.file_name ?? "file");
     }
-    const res = await this.fetchImpl(
-      this.buildUrl("/v3/inference/chat/file"),
-      {
-        method: "POST",
-        headers: { "x-api-key": this.apiKey, Accept: "application/json" },
-        body: form,
-        signal,
-      },
-    );
+    const res = await this.fetchImpl(this.buildUrl("/v3/inference/chat/file"), {
+      method: "POST",
+      headers: { "x-api-key": this.apiKey, Accept: "application/json" },
+      body: form,
+      signal,
+    });
     if (!res.ok) {
       const text = await res.text().catch(() => "");
       throw new LyzrApiError(res.status, text);
@@ -277,8 +273,15 @@ export class InferenceExtraClient extends LyzrHttp {
     input: SimpleChatCompletionsInput,
     signal?: AbortSignal,
   ): Promise<unknown> {
-    const { model, messages, temperature, top_p, credential_id, session_id, provider_id } =
-      input;
+    const {
+      model,
+      messages,
+      temperature,
+      top_p,
+      credential_id,
+      session_id,
+      provider_id,
+    } = input;
     return this.request<unknown>("POST", "/v3/inference/chat/completions", {
       params: {
         model,

@@ -148,9 +148,7 @@ export class WorkflowsClient extends LyzrHttp {
     form.append("additional_fields", input.additional_fields ?? "{}");
 
     const res = await this.fetchImpl(
-      this.buildUrl(
-        `/v3/workflows/${encodeURIComponent(flowId)}/trigger/file`,
-      ),
+      this.buildUrl(`/v3/workflows/${encodeURIComponent(flowId)}/trigger/file`),
       {
         method: "POST",
         headers: {

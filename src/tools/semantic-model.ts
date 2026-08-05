@@ -1,6 +1,6 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { SemanticModelClient } from "../lyzr/semantic-model.js";
+import type { SemanticModelClient } from "../lyzr/semantic-model.js";
 
 const txt = (data: unknown) => ({
   content: [
@@ -20,9 +20,7 @@ const columnDescriptionSchema = z.object({
 const tableColumnDescriptionsSchema = z.object({
   table_name: z.string().describe("Table name"),
   table_description: z.string().describe("Table description"),
-  columns: z
-    .array(columnDescriptionSchema)
-    .describe("Per-column descriptions"),
+  columns: z.array(columnDescriptionSchema).describe("Per-column descriptions"),
 });
 
 /** Registers all Semantic Model v3 tools. */
@@ -217,7 +215,9 @@ export const registerSemanticModelTools = (
         { descriptions: args.descriptions, table_preview: args.table_preview },
         extra.signal,
       );
-      return txt(`Saved documentation for table \`${args.table_name}\`.\n\n${JSON.stringify(result, null, 2)}`);
+      return txt(
+        `Saved documentation for table \`${args.table_name}\`.\n\n${JSON.stringify(result, null, 2)}`,
+      );
     },
   );
 
@@ -249,7 +249,10 @@ export const registerSemanticModelTools = (
         await client.saveDocumentationTask(
           args.rag_config_id,
           args.table_name,
-          { descriptions: args.descriptions, table_preview: args.table_preview },
+          {
+            descriptions: args.descriptions,
+            table_preview: args.table_preview,
+          },
           extra.signal,
         ),
       ),
@@ -323,6 +326,7 @@ export const registerSemanticModelTools = (
         openWorldHint: true,
       },
     },
-    async (args, extra) => txt(await client.getTaskStatus(args.task_id, extra.signal)),
+    async (args, extra) =>
+      txt(await client.getTaskStatus(args.task_id, extra.signal)),
   );
 };

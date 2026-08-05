@@ -1,6 +1,6 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import {
+import type {
   KnowledgeGraphExtraClient,
   Neo4jTrainFileInput,
 } from "../lyzr/rag-knowledge-graph-extra.js";
@@ -20,10 +20,7 @@ const fileInputSchema = {
     .string()
     .describe("Base64-encoded content of the file to train on"),
   filename: z.string().describe("Filename to associate with the upload"),
-  mime_type: z
-    .string()
-    .optional()
-    .describe("MIME type of the file (optional)"),
+  mime_type: z.string().optional().describe("MIME type of the file (optional)"),
   schema_prompt: z
     .string()
     .optional()
@@ -68,9 +65,7 @@ export const registerKnowledgeGraphExtraTools = (
       },
     },
     async ({ rag_id, ...rest }, extra) =>
-      txt(
-        await client.trainNeo4jFile(rag_id, toFileInput(rest), extra.signal),
-      ),
+      txt(await client.trainNeo4jFile(rag_id, toFileInput(rest), extra.signal)),
   );
 
   server.registerTool(
@@ -89,11 +84,7 @@ export const registerKnowledgeGraphExtraTools = (
     },
     async ({ rag_id, ...rest }, extra) =>
       txt(
-        await client.trainNeo4jFileNs(
-          rag_id,
-          toFileInput(rest),
-          extra.signal,
-        ),
+        await client.trainNeo4jFileNs(rag_id, toFileInput(rest), extra.signal),
       ),
   );
 
@@ -157,7 +148,9 @@ export const registerKnowledgeGraphExtraTools = (
         source: z
           .string()
           .optional()
-          .describe('Source label for the ingested content (default "website")'),
+          .describe(
+            'Source label for the ingested content (default "website")',
+          ),
         max_crawl_pages: z
           .number()
           .optional()
@@ -173,7 +166,9 @@ export const registerKnowledgeGraphExtraTools = (
         actor: z
           .string()
           .optional()
-          .describe('Apify actor to use (default "apify/website-content-crawler")'),
+          .describe(
+            'Apify actor to use (default "apify/website-content-crawler")',
+          ),
         crawler_type: z
           .string()
           .optional()

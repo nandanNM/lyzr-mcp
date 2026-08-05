@@ -1,6 +1,6 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { InferenceExtraClient } from "../lyzr/inference-extra.js";
+import type { InferenceExtraClient } from "../lyzr/inference-extra.js";
 
 const txt = (data: unknown) => ({
   content: [
@@ -24,7 +24,8 @@ export const registerInferenceExtraTools = (
     "lyzr_execute_tool",
     {
       title: "Execute Tool",
-      description: "Execute a named tool (with optional tool configs) directly, without a full chat turn.",
+      description:
+        "Execute a named tool (with optional tool configs) directly, without a full chat turn.",
       inputSchema: {
         tool_name: z.string().describe("The tool's name to execute"),
         agent_id: z
@@ -54,12 +55,16 @@ export const registerInferenceExtraTools = (
     "lyzr_submit_chat_task",
     {
       title: "Submit Chat Task",
-      description: "Submit a chat message to an agent as an async task; returns a task_id to poll.",
+      description:
+        "Submit a chat message to an agent as an async task; returns a task_id to poll.",
       inputSchema: {
         agent_id: z.string().describe("The agent id"),
         session_id: z.string().describe("The session id"),
         message: z.string().optional().describe("The chat message"),
-        user_id: z.string().optional().describe("User id (default default_user)"),
+        user_id: z
+          .string()
+          .optional()
+          .describe("User id (default default_user)"),
         messages: z
           .array(passthroughObj)
           .optional()
@@ -72,15 +77,15 @@ export const registerInferenceExtraTools = (
         openWorldHint: true,
       },
     },
-    async (args, extra) =>
-      txt(await client.submitChatTask(args, extra.signal)),
+    async (args, extra) => txt(await client.submitChatTask(args, extra.signal)),
   );
 
   server.registerTool(
     "lyzr_get_chat_task_status",
     {
       title: "Get Chat Task Status",
-      description: "Poll the status/result of a chat task submitted via lyzr_submit_chat_task.",
+      description:
+        "Poll the status/result of a chat task submitted via lyzr_submit_chat_task.",
       inputSchema: {
         task_id: z.string().describe("The chat task id"),
       },
@@ -102,7 +107,9 @@ export const registerInferenceExtraTools = (
       description: "Create a WebRTC voice session for an agent + voice id.",
       inputSchema: {
         agent_id: z.string().describe("The agent id"),
-        voice_id: z.string().describe("The voice id (e.g. an ElevenLabs voice)"),
+        voice_id: z
+          .string()
+          .describe("The voice id (e.g. an ElevenLabs voice)"),
       },
       annotations: {
         readOnlyHint: false,
@@ -119,12 +126,16 @@ export const registerInferenceExtraTools = (
     "lyzr_chat_with_file",
     {
       title: "Chat With File",
-      description: "Send a chat message to an agent with an attached file (base64-encoded content).",
+      description:
+        "Send a chat message to an agent with an attached file (base64-encoded content).",
       inputSchema: {
         agent_id: z.string().describe("The agent id"),
         session_id: z.string().describe("The session id"),
         message: z.string().describe("The chat message"),
-        user_id: z.string().optional().describe("User id (default default_user)"),
+        user_id: z
+          .string()
+          .optional()
+          .describe("User id (default default_user)"),
         system_prompt_variables: z
           .string()
           .optional()
@@ -141,7 +152,10 @@ export const registerInferenceExtraTools = (
           .string()
           .optional()
           .describe("Base64-encoded file content to attach"),
-        file_name: z.string().optional().describe("Filename for the attached file"),
+        file_name: z
+          .string()
+          .optional()
+          .describe("Filename for the attached file"),
         file_content_type: z
           .string()
           .optional()
@@ -215,7 +229,8 @@ export const registerInferenceExtraTools = (
     "lyzr_agent_chat_completions",
     {
       title: "Agent Chat Completions",
-      description: "OpenAI-compatible chat/completions endpoint scoped to a specific agent.",
+      description:
+        "OpenAI-compatible chat/completions endpoint scoped to a specific agent.",
       inputSchema: {
         agent_id: z.string().describe("The agent id"),
         messages: z
@@ -242,7 +257,8 @@ export const registerInferenceExtraTools = (
     "lyzr_simple_chat_completions",
     {
       title: "Simple Chat Completions",
-      description: "OpenAI-compatible chat/completions endpoint that selects the model/provider directly, without a pre-created agent.",
+      description:
+        "OpenAI-compatible chat/completions endpoint that selects the model/provider directly, without a pre-created agent.",
       inputSchema: {
         model: z.string().describe("The model name"),
         messages: z
@@ -276,14 +292,18 @@ export const registerInferenceExtraTools = (
     "lyzr_create_inference_v4",
     {
       title: "Create Inference (v4)",
-      description: "Create a v4 inference response (OpenAI Responses-API style: model + input + tools).",
+      description:
+        "Create a v4 inference response (OpenAI Responses-API style: model + input + tools).",
       inputSchema: {
         model: z.string().describe("The model name"),
         input: z
           .union([z.string(), z.array(passthroughObj)])
           .describe("A plain text prompt, or a list of structured input items"),
         instructions: z.string().optional().describe("System instructions"),
-        stream: z.boolean().optional().describe("Whether to stream (default false)"),
+        stream: z
+          .boolean()
+          .optional()
+          .describe("Whether to stream (default false)"),
         temperature: z.number().optional().describe("Sampling temperature"),
         top_p: z.number().optional().describe("Top-p"),
         max_output_tokens: z
@@ -301,7 +321,10 @@ export const registerInferenceExtraTools = (
           .string()
           .optional()
           .describe("Previous response id to continue from"),
-        store: z.boolean().optional().describe("Whether to store the response (default true)"),
+        store: z
+          .boolean()
+          .optional()
+          .describe("Whether to store the response (default true)"),
         user: z.string().optional().describe("End-user identifier"),
         reasoning: passthroughObj.optional().describe("Reasoning options"),
         truncation: z.string().optional().describe("Truncation strategy"),
@@ -317,14 +340,16 @@ export const registerInferenceExtraTools = (
         openWorldHint: true,
       },
     },
-    async (args, extra) => txt(await client.createInference(args, extra.signal)),
+    async (args, extra) =>
+      txt(await client.createInference(args, extra.signal)),
   );
 
   server.registerTool(
     "lyzr_chat_completions_v4",
     {
       title: "Chat Completions (v4)",
-      description: "OpenAI-compatible v4 chat/completions endpoint (model + messages).",
+      description:
+        "OpenAI-compatible v4 chat/completions endpoint (model + messages).",
       inputSchema: {
         model: z.string().describe("The model name"),
         messages: z
@@ -333,8 +358,15 @@ export const registerInferenceExtraTools = (
           .describe("OpenAI-style chat messages"),
         temperature: z.number().optional().describe("Sampling temperature"),
         top_p: z.number().optional().describe("Top-p"),
-        n: z.number().int().optional().describe("Number of completions (default 1)"),
-        stream: z.boolean().optional().describe("Whether to stream (default false)"),
+        n: z
+          .number()
+          .int()
+          .optional()
+          .describe("Number of completions (default 1)"),
+        stream: z
+          .boolean()
+          .optional()
+          .describe("Whether to stream (default false)"),
         stream_options: passthroughObj.optional().describe("Streaming options"),
         stop: z
           .union([z.string(), z.array(z.string())])
@@ -353,7 +385,9 @@ export const registerInferenceExtraTools = (
           .union([z.string(), passthroughObj])
           .optional()
           .describe("Tool choice strategy"),
-        response_format: passthroughObj.optional().describe("Response format spec"),
+        response_format: passthroughObj
+          .optional()
+          .describe("Response format spec"),
         seed: z.number().int().optional().describe("Sampling seed"),
         user: z.string().optional().describe("End-user identifier"),
       },
@@ -372,14 +406,18 @@ export const registerInferenceExtraTools = (
     "lyzr_create_response_v4",
     {
       title: "Create Response (v4)",
-      description: "OpenAI-compatible v4 responses endpoint (model + input + tools).",
+      description:
+        "OpenAI-compatible v4 responses endpoint (model + input + tools).",
       inputSchema: {
         model: z.string().describe("The model name"),
         input: z
           .union([z.string(), z.array(passthroughObj)])
           .describe("A plain text prompt, or a list of structured input items"),
         instructions: z.string().optional().describe("System instructions"),
-        stream: z.boolean().optional().describe("Whether to stream (default false)"),
+        stream: z
+          .boolean()
+          .optional()
+          .describe("Whether to stream (default false)"),
         temperature: z.number().optional().describe("Sampling temperature"),
         top_p: z.number().optional().describe("Top-p"),
         max_output_tokens: z
@@ -397,7 +435,10 @@ export const registerInferenceExtraTools = (
           .string()
           .optional()
           .describe("Previous response id to continue from"),
-        store: z.boolean().optional().describe("Whether to store the response (default true)"),
+        store: z
+          .boolean()
+          .optional()
+          .describe("Whether to store the response (default true)"),
         user: z.string().optional().describe("End-user identifier"),
         reasoning: passthroughObj.optional().describe("Reasoning options"),
         truncation: z.string().optional().describe("Truncation strategy"),

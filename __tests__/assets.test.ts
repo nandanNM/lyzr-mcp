@@ -22,7 +22,13 @@ describe("AssetsClient", () => {
     );
     const client = mk(f as unknown as typeof fetch);
     const result = await client.uploadAssets(
-      [{ data: Buffer.from("hello"), filename: "hello.txt", mimeType: "text/plain" }],
+      [
+        {
+          data: Buffer.from("hello"),
+          filename: "hello.txt",
+          mimeType: "text/plain",
+        },
+      ],
       { parser_provider: "advanced", enable_vlm: true },
     );
     const [url, init] = f.mock.calls[0] as [string, RequestInit];
@@ -81,7 +87,9 @@ describe("AssetsClient", () => {
   });
 
   it("listAssets GETs /v3/assets/ with page + limit query params", async () => {
-    const f = vi.fn(async () => okJson({ assets: [], total: 0, page: 2, limit: 5 }));
+    const f = vi.fn(async () =>
+      okJson({ assets: [], total: 0, page: 2, limit: 5 }),
+    );
     const client = mk(f as unknown as typeof fetch);
     await client.listAssets({ page: 2, limit: 5 });
     const [url] = f.mock.calls[0] as [string];
@@ -109,6 +117,8 @@ describe("AssetsClient", () => {
   it("throws LyzrApiError on non-2xx response", async () => {
     const f = vi.fn(async () => okJson({ detail: "not found" }, 404));
     const client = mk(f as unknown as typeof fetch);
-    await expect(client.getAsset("missing")).rejects.toBeInstanceOf(LyzrApiError);
+    await expect(client.getAsset("missing")).rejects.toBeInstanceOf(
+      LyzrApiError,
+    );
   });
 });

@@ -79,7 +79,13 @@ describe("RagMiscExtraClient", () => {
 
   it("getDocContent omits limit when not given", async () => {
     const f = vi.fn(async () =>
-      okJson({ rag_id: "r", source: "s", doc_type: "t", chunk_count: 0, chunks: [] }),
+      okJson({
+        rag_id: "r",
+        source: "s",
+        doc_type: "t",
+        chunk_count: 0,
+        chunks: [],
+      }),
     );
     const client = mk(f as unknown as typeof fetch);
     await client.getDocContent("r", "s");

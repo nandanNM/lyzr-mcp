@@ -1,6 +1,6 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { WorldModelEvalClient } from "../lyzr/world-model-eval.js";
+import type { WorldModelEvalClient } from "../lyzr/world-model-eval.js";
 
 const txt = (data: unknown) => ({
   content: [
@@ -23,23 +23,61 @@ export const registerWorldModelEvalTools = (
       description:
         "Create a new evaluation run for an agent against a World Model's test cases.",
       inputSchema: {
-        world_model_id: z.string().describe("The World Model id being evaluated against"),
-        run_name: z.string().describe("A human-readable name for this evaluation run"),
+        world_model_id: z
+          .string()
+          .describe("The World Model id being evaluated against"),
+        run_name: z
+          .string()
+          .describe("A human-readable name for this evaluation run"),
         agent_id: z.string().describe("The agent id being evaluated"),
         agent_name: z.string().describe("The agent's display name"),
-        status: z.string().optional().describe("Initial run status (default handled server-side)"),
+        status: z
+          .string()
+          .optional()
+          .describe("Initial run status (default handled server-side)"),
         selected_metrics: z
           .array(z.string())
           .optional()
           .describe("Metric names to evaluate for this run"),
-        overall_progress: z.number().int().optional().describe("Overall progress percentage"),
-        is_running: z.boolean().optional().describe("Whether the run is currently in progress"),
-        total_test_cases: z.number().int().optional().describe("Total number of test cases in the run"),
-        completed_test_cases: z.number().int().optional().describe("Number of completed test cases"),
-        failed_test_cases: z.number().int().optional().describe("Number of failed test cases"),
-        running_test_cases: z.number().int().optional().describe("Number of currently running test cases"),
-        pending_test_cases: z.number().int().optional().describe("Number of pending test cases"),
-        duration_ms: z.number().int().optional().describe("Run duration in milliseconds"),
+        overall_progress: z
+          .number()
+          .int()
+          .optional()
+          .describe("Overall progress percentage"),
+        is_running: z
+          .boolean()
+          .optional()
+          .describe("Whether the run is currently in progress"),
+        total_test_cases: z
+          .number()
+          .int()
+          .optional()
+          .describe("Total number of test cases in the run"),
+        completed_test_cases: z
+          .number()
+          .int()
+          .optional()
+          .describe("Number of completed test cases"),
+        failed_test_cases: z
+          .number()
+          .int()
+          .optional()
+          .describe("Number of failed test cases"),
+        running_test_cases: z
+          .number()
+          .int()
+          .optional()
+          .describe("Number of currently running test cases"),
+        pending_test_cases: z
+          .number()
+          .int()
+          .optional()
+          .describe("Number of pending test cases"),
+        duration_ms: z
+          .number()
+          .int()
+          .optional()
+          .describe("Run duration in milliseconds"),
       },
       annotations: {
         readOnlyHint: false,
@@ -58,7 +96,9 @@ export const registerWorldModelEvalTools = (
       title: "List World Model Evaluation Runs",
       description: "List all evaluation runs created for a given World Model.",
       inputSchema: {
-        world_model_id: z.string().describe("The World Model id whose evaluation runs to list"),
+        world_model_id: z
+          .string()
+          .describe("The World Model id whose evaluation runs to list"),
       },
       annotations: {
         readOnlyHint: true,
@@ -84,14 +124,16 @@ export const registerWorldModelEvalTools = (
         openWorldHint: true,
       },
     },
-    async ({ run_id }, extra) => txt(await client.getEvaluationRun(run_id, extra.signal)),
+    async ({ run_id }, extra) =>
+      txt(await client.getEvaluationRun(run_id, extra.signal)),
   );
 
   server.registerTool(
     "lyzr_world_model_dashboard_overview",
     {
       title: "Get World Model Dashboard Overview",
-      description: "Fetch the overall World Model dashboard summary across all world models.",
+      description:
+        "Fetch the overall World Model dashboard summary across all world models.",
       inputSchema: {},
       annotations: {
         readOnlyHint: true,
@@ -99,7 +141,8 @@ export const registerWorldModelEvalTools = (
         openWorldHint: true,
       },
     },
-    async (_args, extra) => txt(await client.getDashboardOverview(extra.signal)),
+    async (_args, extra) =>
+      txt(await client.getDashboardOverview(extra.signal)),
   );
 
   server.registerTool(
@@ -108,7 +151,9 @@ export const registerWorldModelEvalTools = (
       title: "Get World Model Dashboard",
       description: "Fetch the dashboard summary for a single World Model.",
       inputSchema: {
-        world_model_id: z.string().describe("The World Model id whose dashboard to fetch"),
+        world_model_id: z
+          .string()
+          .describe("The World Model id whose dashboard to fetch"),
       },
       annotations: {
         readOnlyHint: true,

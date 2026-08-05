@@ -37,9 +37,7 @@ describe("SharingClient", () => {
     const client = mk(f as unknown as typeof fetch);
     await client.listGroups({ page: 2, limit: 20 });
     const [url, init] = f.mock.calls[0] as [string, RequestInit];
-    expect(url).toBe(
-      "https://sharing.test/v3/sharing/groups?page=2&limit=20",
-    );
+    expect(url).toBe("https://sharing.test/v3/sharing/groups?page=2&limit=20");
     expect(init.method).toBe("GET");
   });
 

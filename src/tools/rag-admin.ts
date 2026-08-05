@@ -1,6 +1,6 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { RagAdminClient } from "../lyzr/rag-admin.js";
+import type { RagAdminClient } from "../lyzr/rag-admin.js";
 
 const txt = (d: unknown) => ({
   content: [

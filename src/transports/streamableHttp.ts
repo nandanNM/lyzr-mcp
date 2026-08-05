@@ -1,12 +1,18 @@
 import {
   StreamableHTTPServerTransport,
-  EventStore,
+  type EventStore,
 } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
-import express, { Request, Response } from "express";
+import express, { type Request, type Response } from "express";
 import cors from "cors";
 import { randomUUID } from "node:crypto";
 import { createServer } from "../server/index.js";
-import { extractHttpKey, getBaseUrl, MissingApiKeyError } from "../config.js";
+import {
+  extractHttpKey,
+  getBaseUrl,
+  getFeatures,
+  getReadOnly,
+  MissingApiKeyError,
+} from "../config.js";
 
 /**
  * Streamable HTTP transport — mirrors the reference server, plus per-user auth.
@@ -92,7 +98,10 @@ app.post("/mcp", async (req: Request, res: Response) => {
         throw error;
       }
 
-      const { server, cleanup } = createServer(apiKey, getBaseUrl());
+      const { server, cleanup } = createServer(apiKey, getBaseUrl(), {
+        features: getFeatures(),
+        readOnly: getReadOnly(),
+      });
       const eventStore = new InMemoryEventStore();
       transport = new StreamableHTTPServerTransport({
         sessionIdGenerator: () => randomUUID(),

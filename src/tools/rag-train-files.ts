@@ -1,6 +1,6 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { RagTrainFilesClient } from "../lyzr/rag-train-files.js";
+import type { RagTrainFilesClient } from "../lyzr/rag-train-files.js";
 
 const txt = (data: unknown) => ({
   content: [
@@ -17,10 +17,7 @@ const commonFileFields = {
     .string()
     .describe("Base64-encoded contents of the file to train"),
   filename: z.string().describe("Name of the file being uploaded"),
-  mime_type: z
-    .string()
-    .optional()
-    .describe("MIME type of the file (optional)"),
+  mime_type: z.string().optional().describe("MIME type of the file (optional)"),
   chunk_size: z
     .number()
     .int()
@@ -154,11 +151,13 @@ export const registerRagTrainFilesTools = (
     "lyzr_kb_train_txt_file",
     {
       title: "Train KB from Text File",
-      description: "Upload and train a plain-text (.txt) file into a knowledge base.",
+      description:
+        "Upload and train a plain-text (.txt) file into a knowledge base.",
       inputSchema: {
         ...commonFileFields,
-        data_parser: dataParserField
-          .describe("Parser strategy name (default 'simple')"),
+        data_parser: dataParserField.describe(
+          "Parser strategy name (default 'simple')",
+        ),
       },
       annotations: {
         readOnlyHint: false,
@@ -201,7 +200,8 @@ export const registerRagTrainFilesTools = (
     "lyzr_kb_train_xlsx",
     {
       title: "Train KB from XLSX",
-      description: "Upload and train an XLSX spreadsheet into a knowledge base.",
+      description:
+        "Upload and train an XLSX spreadsheet into a knowledge base.",
       inputSchema: {
         ...commonFileFields,
         parser_config: parserConfigField,
@@ -247,7 +247,8 @@ export const registerRagTrainFilesTools = (
     "lyzr_kb_train_pptx",
     {
       title: "Train KB from PPTX",
-      description: "Upload and train a PPTX presentation into a knowledge base.",
+      description:
+        "Upload and train a PPTX presentation into a knowledge base.",
       inputSchema: {
         ...commonFileFields,
         parser_config: parserConfigField,

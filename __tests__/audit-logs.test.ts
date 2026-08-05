@@ -49,9 +49,7 @@ describe("AuditLogsClient", () => {
     const client = mk(f as unknown as typeof fetch, "https://agent.test");
     await client.listUserAuditLogs("u42", { action: "login" });
     const [url] = f.mock.calls[0] as [string];
-    expect(url).toBe(
-      "https://agent.test/v3/audit-logs/user/u42?action=login",
-    );
+    expect(url).toBe("https://agent.test/v3/audit-logs/user/u42?action=login");
   });
 
   it("listResourceAuditLogs GETs /v3/audit-logs/resource/{type}/{id}", async () => {
@@ -73,9 +71,7 @@ describe("AuditLogsClient", () => {
     const client = mk(f as unknown as typeof fetch, "https://agent.test");
     await client.listSessionAuditLogs("s1", { offset: 10 });
     const [url] = f.mock.calls[0] as [string];
-    expect(url).toBe(
-      "https://agent.test/v3/audit-logs/session/s1?offset=10",
-    );
+    expect(url).toBe("https://agent.test/v3/audit-logs/session/s1?offset=10");
   });
 
   it("getStats GETs /v3/audit-logs/stats with time range", async () => {
@@ -98,7 +94,13 @@ describe("AuditLogsClient", () => {
 
   it("getActivityMetrics GETs /v3/audit-logs/activity/metrics", async () => {
     const f = vi.fn(async () =>
-      okJson({ org_id: "o1", date: "2024-01-01", dau: 5, mau: 20, daily_active_rate: 0.25 }),
+      okJson({
+        org_id: "o1",
+        date: "2024-01-01",
+        dau: 5,
+        mau: 20,
+        daily_active_rate: 0.25,
+      }),
     );
     const client = mk(f as unknown as typeof fetch, "https://agent.test");
     await client.getActivityMetrics("2024-01-01");
@@ -109,7 +111,9 @@ describe("AuditLogsClient", () => {
   });
 
   it("getDau GETs /v3/audit-logs/activity/dau", async () => {
-    const f = vi.fn(async () => okJson({ org_id: "o1", date: "2024-01-01", dau: 5 }));
+    const f = vi.fn(async () =>
+      okJson({ org_id: "o1", date: "2024-01-01", dau: 5 }),
+    );
     const client = mk(f as unknown as typeof fetch, "https://agent.test");
     await client.getDau();
     const [url] = f.mock.calls[0] as [string];
@@ -117,7 +121,9 @@ describe("AuditLogsClient", () => {
   });
 
   it("getMau GETs /v3/audit-logs/activity/mau", async () => {
-    const f = vi.fn(async () => okJson({ org_id: "o1", month: "2024-01", mau: 20 }));
+    const f = vi.fn(async () =>
+      okJson({ org_id: "o1", month: "2024-01", mau: 20 }),
+    );
     const client = mk(f as unknown as typeof fetch, "https://agent.test");
     await client.getMau("2024-01-15");
     const [url] = f.mock.calls[0] as [string];

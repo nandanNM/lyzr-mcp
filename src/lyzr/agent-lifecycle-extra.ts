@@ -136,10 +136,7 @@ export class AgentLifecycleExtraClient extends LyzrHttp {
   }
 
   /** Clone an agent. POST /v3/agents/clone */
-  cloneAgent(
-    input: CloneAgentInput,
-    signal?: AbortSignal,
-  ): Promise<unknown> {
+  cloneAgent(input: CloneAgentInput, signal?: AbortSignal): Promise<unknown> {
     return this.request<unknown>("POST", "/v3/agents/clone", {
       body: input,
       signal,

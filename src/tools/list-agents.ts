@@ -1,5 +1,5 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { LyzrClient } from "../lyzr/client.js";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { LyzrClient } from "../lyzr/client.js";
 
 /**
  * Registers `lyzr_list_agents` — lists the caller's Lyzr agents.

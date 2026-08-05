@@ -1,6 +1,6 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { KbSyncLegacyClient } from "../lyzr/kb-sync-oauth-legacy.js";
+import type { KbSyncLegacyClient } from "../lyzr/kb-sync-oauth-legacy.js";
 
 const txt = (data: unknown) => ({
   content: [
@@ -32,7 +32,8 @@ export const registerKbSyncOauthLegacyTools = (
         openWorldHint: true,
       },
     },
-    async (_args, extra) => txt(await client.sharepointOauthExchange(extra.signal)),
+    async (_args, extra) =>
+      txt(await client.sharepointOauthExchange(extra.signal)),
   );
 
   server.registerTool(
@@ -47,7 +48,8 @@ export const registerKbSyncOauthLegacyTools = (
         openWorldHint: true,
       },
     },
-    async (_args, extra) => txt(await client.sharepointOauthCallback(extra.signal)),
+    async (_args, extra) =>
+      txt(await client.sharepointOauthCallback(extra.signal)),
   );
 
   server.registerTool(
@@ -62,7 +64,8 @@ export const registerKbSyncOauthLegacyTools = (
         openWorldHint: true,
       },
     },
-    async (_args, extra) => txt(await client.sharepointOauthAuthorize(extra.signal)),
+    async (_args, extra) =>
+      txt(await client.sharepointOauthAuthorize(extra.signal)),
   );
 
   // --- Browse ---
@@ -119,9 +122,7 @@ export const registerKbSyncOauthLegacyTools = (
           .string()
           .describe("ACI credential_id for SharePoint auth"),
         site_url: z.string().describe("SharePoint site URL"),
-        drive_name: z
-          .string()
-          .describe("Drive name (e.g. 'Shared Documents')"),
+        drive_name: z.string().describe("Drive name (e.g. 'Shared Documents')"),
         folder_path: z
           .string()
           .optional()

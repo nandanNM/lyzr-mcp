@@ -1,6 +1,6 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { ProvidersCoreClient } from "../lyzr/providers-core.js";
+import type { ProvidersCoreClient } from "../lyzr/providers-core.js";
 
 const txt = (data: unknown) => ({
   content: [
@@ -197,7 +197,8 @@ export const registerProvidersCoreTools = (
         openWorldHint: true,
       },
     },
-    async (args, extra) => txt(await client.getToolsActions(args, extra.signal)),
+    async (args, extra) =>
+      txt(await client.getToolsActions(args, extra.signal)),
   );
 
   server.registerTool(

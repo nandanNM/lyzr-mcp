@@ -16,23 +16,51 @@ const mk = <T>(
 describe("TracesClient", () => {
   it("listTraces GETs /v3/traces with query params", async () => {
     const f = vi.fn(async () =>
-      okJson([{ trace_id: "t1", name: "n", trace_start_time: "a", trace_end_time: "b", trace_duration: 1, total_spans: 2 }]),
+      okJson([
+        {
+          trace_id: "t1",
+          name: "n",
+          trace_start_time: "a",
+          trace_end_time: "b",
+          trace_duration: 1,
+          total_spans: 2,
+        },
+      ]),
     );
-    const traces = mk(TracesClient, f as unknown as typeof fetch, "https://traces.test");
-    const result = await traces.listTraces({ agent_id: "a1", limit: 50, offset: 10 });
+    const traces = mk(
+      TracesClient,
+      f as unknown as typeof fetch,
+      "https://traces.test",
+    );
+    const result = await traces.listTraces({
+      agent_id: "a1",
+      limit: 50,
+      offset: 10,
+    });
     const [url, init] = f.mock.calls[0] as [string, RequestInit];
     expect(url).toBe(
       "https://traces.test/v3/traces?agent_id=a1&limit=50&offset=10",
     );
     expect(init.method).toBe("GET");
     expect(result).toEqual([
-      { trace_id: "t1", name: "n", trace_start_time: "a", trace_end_time: "b", trace_duration: 1, total_spans: 2 },
+      {
+        trace_id: "t1",
+        name: "n",
+        trace_start_time: "a",
+        trace_end_time: "b",
+        trace_duration: 1,
+        total_spans: 2,
+      },
     ]);
   });
 
   it("listTraces normalizes a wrapped response", async () => {
     const f = vi.fn(async () => okJson({ traces: [{ trace_id: "t2" }] }));
-    const traces = mk(TracesClient, f as unknown as typeof fetch, "https://traces.test");
+    const traces = mk(
+      TracesClient,
+      f as unknown as typeof fetch,
+      "https://traces.test",
+    );
     const result = await traces.listTraces();
     expect(result).toEqual([{ trace_id: "t2" }]);
   });
@@ -47,7 +75,11 @@ describe("TracesClient", () => {
         span_tree: {},
       }),
     );
-    const traces = mk(TracesClient, f as unknown as typeof fetch, "https://traces.test");
+    const traces = mk(
+      TracesClient,
+      f as unknown as typeof fetch,
+      "https://traces.test",
+    );
     const result = await traces.getTraceGantt("t1");
     const [url, init] = f.mock.calls[0] as [string, RequestInit];
     expect(url).toBe("https://traces.test/v3/traces/t1/gantt");
@@ -57,7 +89,11 @@ describe("TracesClient", () => {
 
   it("getTraceSummary GETs /v3/traces/{trace_id}/summary", async () => {
     const f = vi.fn(async () => okJson({ trace_id: "t1" }));
-    const traces = mk(TracesClient, f as unknown as typeof fetch, "https://traces.test");
+    const traces = mk(
+      TracesClient,
+      f as unknown as typeof fetch,
+      "https://traces.test",
+    );
     await traces.getTraceSummary("t1");
     const [url, init] = f.mock.calls[0] as [string, RequestInit];
     expect(url).toBe("https://traces.test/v3/traces/t1/summary");
@@ -66,7 +102,11 @@ describe("TracesClient", () => {
 
   it("killSwitchTrace POSTs /v3/traces/{trace_id}/kill-switch", async () => {
     const f = vi.fn(async () => okJson({ ok: true }));
-    const traces = mk(TracesClient, f as unknown as typeof fetch, "https://traces.test");
+    const traces = mk(
+      TracesClient,
+      f as unknown as typeof fetch,
+      "https://traces.test",
+    );
     const result = await traces.killSwitchTrace("t1");
     const [url, init] = f.mock.calls[0] as [string, RequestInit];
     expect(url).toBe("https://traces.test/v3/traces/t1/kill-switch");
@@ -88,7 +128,11 @@ describe("TracesClient", () => {
         avg_error_rate: 0.1,
       }),
     );
-    const traces = mk(TracesClient, f as unknown as typeof fetch, "https://traces.test");
+    const traces = mk(
+      TracesClient,
+      f as unknown as typeof fetch,
+      "https://traces.test",
+    );
     await traces.getDashboardMetrics({ agent_id: "a1", customer_id: "c1" });
     const [url, init] = f.mock.calls[0] as [string, RequestInit];
     expect(url).toBe(
@@ -99,7 +143,11 @@ describe("TracesClient", () => {
 
   it("getTraceDetails GETs /v3/traces/{trace_id}", async () => {
     const f = vi.fn(async () => okJson({ trace_id: "t1", foo: "bar" }));
-    const traces = mk(TracesClient, f as unknown as typeof fetch, "https://traces.test");
+    const traces = mk(
+      TracesClient,
+      f as unknown as typeof fetch,
+      "https://traces.test",
+    );
     const result = await traces.getTraceDetails("t1");
     const [url, init] = f.mock.calls[0] as [string, RequestInit];
     expect(url).toBe("https://traces.test/v3/traces/t1");
@@ -109,7 +157,11 @@ describe("TracesClient", () => {
 
   it("throws LyzrApiError on non-2xx response", async () => {
     const f = vi.fn(async () => okJson({ detail: "not found" }, 404));
-    const traces = mk(TracesClient, f as unknown as typeof fetch, "https://traces.test");
+    const traces = mk(
+      TracesClient,
+      f as unknown as typeof fetch,
+      "https://traces.test",
+    );
     await expect(traces.getTraceDetails("nope")).rejects.toThrow(LyzrApiError);
   });
 });

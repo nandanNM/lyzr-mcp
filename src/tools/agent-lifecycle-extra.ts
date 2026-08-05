@@ -1,6 +1,6 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { AgentLifecycleExtraClient } from "../lyzr/agent-lifecycle-extra.js";
+import type { AgentLifecycleExtraClient } from "../lyzr/agent-lifecycle-extra.js";
 
 const txt = (data: unknown) => ({
   content: [
@@ -33,16 +33,15 @@ export const registerAgentLifecycleExtraTools = (
       },
     },
     async ({ agent_id, is_active }, extra) =>
-      txt(
-        await client.setAgentStatus(agent_id, { is_active }, extra.signal),
-      ),
+      txt(await client.setAgentStatus(agent_id, { is_active }, extra.signal)),
   );
 
   server.registerTool(
     "lyzr_set_agent_lock",
     {
       title: "Set Agent Lock",
-      description: "Lock or unlock an agent, optionally scoped to an environment.",
+      description:
+        "Lock or unlock an agent, optionally scoped to an environment.",
       inputSchema: {
         agent_id: z.string().describe("The agent_id to update"),
         is_locked: z.boolean().describe("Whether the agent should be locked"),
@@ -94,10 +93,16 @@ export const registerAgentLifecycleExtraTools = (
     "lyzr_list_org_agents",
     {
       title: "List Org Agents",
-      description: "List agents across the organization, with optional search and pagination.",
+      description:
+        "List agents across the organization, with optional search and pagination.",
       inputSchema: {
         search: z.string().optional().describe("Optional search term"),
-        page: z.number().int().min(1).optional().describe("Page number (default 1)"),
+        page: z
+          .number()
+          .int()
+          .min(1)
+          .optional()
+          .describe("Page number (default 1)"),
         limit: z
           .number()
           .int()
@@ -159,7 +164,8 @@ export const registerAgentLifecycleExtraTools = (
     "lyzr_activate_agent_version",
     {
       title: "Activate Agent Version",
-      description: "Activate a specific version of an agent, making it the live version.",
+      description:
+        "Activate a specific version of an agent, making it the live version.",
       inputSchema: {
         agent_id: z.string().describe("The agent_id"),
         version_id: z.string().describe("The version_id to activate"),
@@ -203,9 +209,7 @@ export const registerAgentLifecycleExtraTools = (
       description: "Reassign ownership of an agent to another user by email.",
       inputSchema: {
         agent_id: z.string().describe("The agent_id to reassign"),
-        target_email: z
-          .string()
-          .describe("Email address of the new owner"),
+        target_email: z.string().describe("Email address of the new owner"),
       },
       annotations: {
         readOnlyHint: false,
@@ -215,9 +219,7 @@ export const registerAgentLifecycleExtraTools = (
       },
     },
     async ({ agent_id, target_email }, extra) =>
-      txt(
-        await client.reassignAgent({ agent_id, target_email }, extra.signal),
-      ),
+      txt(await client.reassignAgent({ agent_id, target_email }, extra.signal)),
   );
 
   server.registerTool(

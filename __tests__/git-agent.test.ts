@@ -110,7 +110,10 @@ describe("GitAgentClient", () => {
   it("mergeBranches POSTs /v3/git-agent/{agent_id}/merge with body", async () => {
     const f = vi.fn(async () => okJson({ ok: true }));
     const c = mk(f as unknown as typeof fetch);
-    await c.mergeBranches("a1", { source_branch: "feat", target_branch: "main" });
+    await c.mergeBranches("a1", {
+      source_branch: "feat",
+      target_branch: "main",
+    });
     const [url, init] = f.mock.calls[0] as [string, RequestInit];
     expect(url).toBe("https://agent.test/v3/git-agent/a1/merge");
     expect(init.method).toBe("POST");
@@ -155,7 +158,10 @@ describe("GitAgentClient", () => {
   it("createBranch POSTs /v3/git-agent/{agent_id}/branches with body", async () => {
     const f = vi.fn(async () => okJson({ ok: true }));
     const c = mk(f as unknown as typeof fetch);
-    await c.createBranch("a1", { branch_name: "feature-x", from_branch: "main" });
+    await c.createBranch("a1", {
+      branch_name: "feature-x",
+      from_branch: "main",
+    });
     const [url, init] = f.mock.calls[0] as [string, RequestInit];
     expect(url).toBe("https://agent.test/v3/git-agent/a1/branches");
     expect(init.method).toBe("POST");
